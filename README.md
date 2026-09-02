@@ -19,10 +19,18 @@ state is scored against them. See `DESIGN_REVIEW.md` section 10.6.
 
 The 54 km centerline, rising 31 km. Blue is the evacuated section, the green-to-orange
 grade near the top is where the interior meets ambient air density, and the red marker is
-the release point. **Only the camera is moving** — the scene is static at t=0, and the
-banding is drawn at an exaggerated width because the real tube is under a pixel across from
-this distance. This is the authored geometry, not a mission playback; see
-[Rendering](#rendering).
+the release point. The banding is drawn at an exaggerated width because the real tube is
+under a pixel across from this distance.
+
+![The cart and rocket at the tube entrance](docs/media/vehicle_orbit.gif)
+
+The same scene at vehicle scale: the open-front U cradle holding the rocket cylinder, at
+its t=0 seating with the rocket's centre of mass at the tube entrance. **The tube is hidden
+in this view** — it is authored as an opaque solid with no cutaway, so leaving it in shows
+the outside of a pipe and nothing else.
+
+**In both, only the camera is moving.** The scene is static at t=0; neither is a mission
+playback, and nothing here is animated yet. See [Rendering](#rendering) for why.
 
 ## Current result
 
@@ -96,13 +104,18 @@ Drop `--headless` from `run_launcher.py` to explore the scene interactively.
 .\python.bat <repo>\standalone\run_launcher.py --headless `
     --capture-dir <repo>\artifacts\production\renders
 
-# The animated centerline above
+# The two animations above
 .\python.bat <repo>\standalone\run_launcher.py --headless `
     --capture-orbit <repo>\docs\media\full_system_orbit.gif `
     --orbit-view full_system --orbit-frames 36 --orbit-width 720 --orbit-height 540
+
+.\python.bat <repo>\standalone\run_launcher.py --headless `
+    --capture-orbit <repo>\docs\media\vehicle_orbit.gif `
+    --orbit-view vehicle --orbit-mode revolve --orbit-frames 48 `
+    --orbit-tube-opacity 0 --key-intensity 3000 --dome-intensity 250
 ```
 
-Two limits are worth knowing before you read any image here.
+Three limits are worth knowing before you read any image here.
 
 **Nothing is animated yet.** Rigid bodies are simulated in the translated frame described
 in `DESIGN_REVIEW.md` section 7, while the visuals are authored in global coordinates. The
@@ -115,6 +128,14 @@ moves the camera rather than the subject.
 is roughly a fourteenth of a pixel wide from system-scale distance, so that view swaps in
 an exaggerated schematic band. Each render records `schematic_tube` so no reader mistakes
 the band for the real bore. Section 13.4 covers this.
+
+**The renderer's step advances physics, not just the frame.** `rep.orchestrator.step()`
+drives the timeline, so an unrestrained assembly accelerates backward down the tube at
+`-g sin(theta)` while frames settle — far enough, in a four-frame test, to leave the view
+entirely. `--capture-orbit` therefore makes both bodies kinematic and re-seats them each
+frame, so every frame shows the same t=0 configuration from a different angle. The older
+still in `artifacts/production/renders/` predates that fix and shows a cart that has
+already slid off its seat.
 
 ## Evidence is bound to source
 

@@ -88,6 +88,27 @@ def _arguments() -> argparse.Namespace:
             "exactly contains the centerline. Ignored for the vehicle view."
         ),
     )
+    parser.add_argument(
+        "--orbit-tube-opacity",
+        type=float,
+        help=(
+            "Override the tube bands' display opacity for this render only. The tube is "
+            "authored as an opaque solid with no cutaway, so at vehicle scale it hides the "
+            "very thing the view exists to show. Ghosting it is a presentation choice made "
+            "here, at the render, and never changes the authored scene."
+        ),
+    )
+    parser.add_argument(
+        "--orbit-distance",
+        type=float,
+        help="Camera distance from the subject, in metres. Vehicle view only.",
+    )
+    parser.add_argument(
+        "--orbit-elevation-deg",
+        type=float,
+        default=8.0,
+        help="Camera elevation above the subject. Vehicle view only.",
+    )
     parser.add_argument("--orbit-width", type=int, default=800)
     parser.add_argument("--orbit-height", type=int, default=450)
     parser.add_argument("--orbit-frame-ms", type=int, default=70)
@@ -219,6 +240,44 @@ def _orbit_pose(camera_position, look_at, azimuth_deg: float):
     # never goes parallel to the view direction.
     view = Gf.Matrix4d().SetLookAt(eye, Gf.Vec3d(*look_at), Gf.Vec3d(0.0, 0.0, 1.0))
     return eye, view.GetInverse()
+
+
+def _bbox_framing(stage, paths, width: int, height: int, margin: float, elevation_deg: float):
+    """Frame on the true world bounds of a set of prims.
+
+    ``_camera_views`` aims the vehicle view at a point 0.8 m along the tangent, which is
+    *inside* the tube: at t=0 the cart straddles the entrance with the rocket already in the
+    bore. That is fine for a fixed still but leaves the subject off-centre once the camera
+    starts moving, so the orbit measures the geometry instead of assuming where it is.
+    """
+    import math
+
+    from pxr import Gf, Usd, UsdGeom
+
+    cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
+    box = None
+    for path in paths:
+        current = cache.ComputeWorldBound(stage.GetPrimAtPath(path))
+        box = current if box is None else Gf.BBox3d.Combine(box, current)
+    span = box.ComputeAlignedRange()
+    centre = span.GetMidpoint()
+    size = span.GetSize()
+    radius = 0.5 * math.sqrt(size[0] ** 2 + size[1] ** 2 + size[2] ** 2)
+    half_h_fov = math.radians(47.0) / 2.0
+    half_v_fov = math.atan(math.tan(half_h_fov) * height / width)
+    # Bound by the tighter of the two axes, and use the enclosing sphere so the subject
+    # stays framed through a full revolution rather than only at the starting azimuth.
+    distance = margin * radius / math.tan(min(half_h_fov, half_v_fov))
+    elevation = math.radians(elevation_deg)
+    return {
+        "position": (
+            centre[0],
+            centre[1] - distance * math.cos(elevation),
+            centre[2] + distance * math.sin(elevation),
+        ),
+        "look_at": (centre[0], centre[1], centre[2]),
+        "schematic": False,
+    }
 
 
 def _as_image(frame, width: int, height: int):
@@ -467,6 +526,25 @@ def main() -> int:
                 view = _path_framing(
                     layout, path_pose, args.orbit_width, args.orbit_height, args.orbit_margin
                 )
+            else:
+                view = _bbox_framing(
+                    stage,
+                    (built.cart_path, built.rocket_path),
+                    args.orbit_width,
+                    args.orbit_height,
+                    args.orbit_margin,
+                    args.orbit_elevation_deg,
+                )
+                if args.orbit_distance is not None:
+                    import math as _math
+
+                    elevation = _math.radians(args.orbit_elevation_deg)
+                    target = view["look_at"]
+                    view["position"] = (
+                        target[0],
+                        target[1] - args.orbit_distance * _math.cos(elevation),
+                        target[2] + args.orbit_distance * _math.sin(elevation),
+                    )
             true_scale = UsdGeom.Imageable(stage.GetPrimAtPath(TRUE_SCALE_PATH))
             schematic = UsdGeom.Imageable(stage.GetPrimAtPath(SCHEMATIC_PATH))
             if view["schematic"]:
@@ -475,6 +553,29 @@ def main() -> int:
             else:
                 schematic.MakeInvisible()
                 true_scale.MakeVisible()
+
+            if args.orbit_tube_opacity is not None:
+                # RTX ignores displayOpacity on BasisCurves -- setting it to 0.15 renders a
+                # fully opaque tube, verified against a probe frame -- so partial values are
+                # refused rather than silently producing a solid tube that the artifact then
+                # claims is ghosted. Zero is honoured, because that is plain visibility.
+                if args.orbit_tube_opacity > 0.0:
+                    raise RuntimeError(
+                        "RTX does not honour displayOpacity on the tube's BasisCurves, so "
+                        "only --orbit-tube-opacity 0 (hide the bands entirely) is "
+                        "supported. A translucent tube needs a bound UsdPreviewSurface, "
+                        "which is an authoring change inside the package closure."
+                    )
+                visible_set = SCHEMATIC_PATH if view["schematic"] else TRUE_SCALE_PATH
+                hidden = 0
+                for prim in stage.Traverse():
+                    if prim.GetPath().pathString.startswith(f"{visible_set}/Tube_"):
+                        UsdGeom.Imageable(prim).MakeInvisible()
+                        hidden += 1
+                if hidden == 0:
+                    raise RuntimeError(
+                        f"--orbit-tube-opacity matched no tube bands under {visible_set}"
+                    )
 
             # An authored camera rather than one replicator camera per frame: the pose is
             # then ours to set directly, one render product serves the whole sweep, and the
@@ -498,6 +599,31 @@ def main() -> int:
             annotator = rep.AnnotatorRegistry.get_annotator("rgb")
             annotator.attach([product])
 
+            # rep.orchestrator.step() advances the timeline, not just the renderer, so the
+            # assembly accelerates backward down the tube at -g*sin(theta) while the frames
+            # settle. Over a 4-frame probe it left the view entirely. Making the bodies
+            # kinematic pins them at the authored t=0 pose for the whole sweep, so every
+            # frame shows the same configuration from a different angle -- which is the only
+            # thing this GIF claims to be.
+            from pxr import UsdPhysics as _UsdPhysics
+
+            for body_path in (built.cart_path, built.rocket_path):
+                _UsdPhysics.RigidBodyAPI(
+                    stage.GetPrimAtPath(body_path)
+                ).CreateKinematicEnabledAttr(True)
+
+            def _reseat():
+                built.cart.set_world_poses(
+                    positions=[cart_position], orientations=[orientation]
+                )
+                built.rocket.set_world_poses(
+                    positions=[rocket_position], orientations=[orientation]
+                )
+                built.cart.set_velocities((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
+                built.rocket.set_velocities((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
+
+            _reseat()
+
             frames = []
             azimuths = _orbit_azimuths(
                 args.orbit_degrees, max(2, args.orbit_frames), args.orbit_mode
@@ -505,6 +631,7 @@ def main() -> int:
             for index, azimuth in enumerate(azimuths):
                 eye, matrix = _orbit_pose(view["position"], view["look_at"], azimuth)
                 transform.Set(matrix)
+                _reseat()
                 # Moving the camera resets path-traced accumulation, so every frame needs
                 # the settle interval, not just the first. The first frame additionally
                 # waits for the scene itself to converge.
@@ -545,6 +672,7 @@ def main() -> int:
                 "resolution": [args.orbit_width, args.orbit_height],
                 "renderer": str(settings.get("/renderer/active")),
                 "schematic_tube": bool(view["schematic"]),
+                "tube_opacity_override": args.orbit_tube_opacity,
                 # The scene is static at t=0. Saying so in the artifact keeps the GIF from
                 # being read as a mission playback, which it is not and cannot yet be.
                 "motion": "camera_only_scene_static_at_t0",
