@@ -1,0 +1,206 @@
+{
+  "finished_utc": "2026-09-01T13:43:28.327863+00:00",
+  "host": {
+    "isaac_sim_version": "6.0.1-rc.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.13"
+  },
+  "passed": false,
+  "probes": {
+    "candidate_capability_audit": {
+      "curvature_resolved_joint_chain": {
+        "disposition": "defer: fixed-axis joints require live topology switching through clothoids",
+        "supported": true
+      },
+      "force_resolved_path_controller": {
+        "disposition": "measure: no transform writes; reaction is commanded and acceleration-verified; the default translated frame reconstructs global SI state and adds the exact uniform fictitious body force",
+        "supported": true
+      },
+      "measured_kinematic": {
+        "disposition": "fallback only: transform prescription cannot validate physical reaction",
+        "supported": true
+      },
+      "native_path_constraint": {
+        "disposition": "reject: target USD/PhysX schema exposes no path or spline joint",
+        "supported": false
+      },
+      "passed": true,
+      "usd_physics_types": {
+        "D6Joint": false,
+        "PathJoint": false,
+        "PrismaticJoint": true,
+        "SplineJoint": false
+      }
+    },
+    "curved_force_guide": {
+      "acceptance": {
+        "maximum_attached_pair_force_n": 1e-06,
+        "maximum_attachment_geometry_error_m": 0.001,
+        "maximum_attachment_load_g": 10.0,
+        "maximum_attitude_error_deg": 1.0,
+        "maximum_backend_force_relative_error": 0.05,
+        "maximum_reaction_correction_relative_error": 0.05,
+        "maximum_resultant_load_g": 10.0,
+        "maximum_tracking_error_m": 0.05
+      },
+      "candidate": "force_resolved_path_controller_v1",
+      "controller_gains": {
+        "attitude_kd_per_s": 100.0,
+        "attitude_kp_per_s2": 2500.0,
+        "normal_kd_per_s": 40.0,
+        "normal_kp_per_s2": 400.0
+      },
+      "coordinate_frame": "co_moving",
+      "coordinate_mapping": "x_global=x_solver+x_reference(t); v_global=v_solver+v_reference(t); uniform fictitious force=-mass*a_reference(t)",
+      "end_s_m": 54115.92661767223,
+      "expected_profile_speed_mps": 1999.9999999999998,
+      "final_s_m": 54115.998395441544,
+      "final_speed_mps": 2000.0013343643257,
+      "guide_reference_point": "attached assembly center of mass",
+      "maximum_attached_pair_force_n": 0.0,
+      "measurement_start_step": 100,
+      "passed": true,
+      "peak_attachment_geometry_error_m": 1.7342373448414605e-06,
+      "peak_attitude_error_deg": 8.576232573269625e-06,
+      "peak_backend_applied_force_relative_error": 0.0,
+      "peak_binormal_tracking_error_m": 0.0,
+      "peak_centerline_tracking_error_m": 0.0016203423756050025,
+      "peak_guide_reaction_command_relative_error": 0.0,
+      "peak_inferred_attachment_proper_load_g": 0.0,
+      "peak_normal_tracking_error_m": 0.0016203423756050025,
+      "peak_resultant_proper_load_g": 4.150947554852549,
+      "physics_steps": 8,
+      "physics_steps_per_wall_second": 128.43400414234216,
+      "profile_tangential_acceleration_mps2": 36.95769665240981,
+      "reached_end": true,
+      "start_s_m": 54100.0,
+      "telemetry": [
+        {
+          "assembly_com_position_m": [
+            43284.84126120051,
+            0.0,
+            30972.442662998503
+          ],
+          "assembly_com_velocity_mps": [
+            1931.5669498812279,
+            0.0,
+            517.5634221206876
+          ],
+          "attached_pair_contact_count": 4,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_geometry_error_m": 7.095096998810391e-08,
+          "attachment_inferred_proper_load_g": 4.148373212813025,
+          "attitude_error_deg": -4.639203876147597e-06,
+          "backend_force_relative_error": 0.000606451185654234,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 3892.290374507506,
+          "ideal_normal_force_n": 3633.0342289863097,
+          "normal_speed_mps": -8.533902473573107e-08,
+          "normal_tracking_error_m": -0.0016203423756050025,
+          "path_normal": [
+            -0.25881979995629384,
+            0.0,
+            0.9659256240262932
+          ],
+          "path_position_m": [
+            43284.84084189218,
+            0.0,
+            30972.44422814704
+          ],
+          "path_tangent": [
+            0.9659256240262932,
+            0.0,
+            0.25881979995629384
+          ],
+          "resultant_proper_load_g": 4.146557735086517,
+          "s_m": 54099.99956591541,
+          "signed_curvature_per_m": -9.831513449799992e-08,
+          "speed_mps": 1999.7056727905601,
+          "step": 0,
+          "tangential_projection_residual_m": -7.077142374803218e-08,
+          "tracking_error_m": 0.0016203423756050025
+        }
+      ],
+      "transform_writes_during_run": 0,
+      "wall_time_s": 0.062288800021633506
+    },
+    "full_speed_release": {
+      "applicable": true,
+      "collision_enabled_after_resync": true,
+      "joint_enabled_after_resync": false,
+      "maximum_mutation_discontinuity": 0.0,
+      "passed": true,
+      "post_step_separating_speed_increase_mps": 0.004000000413924597,
+      "separating_effort_n": -1000.0
+    },
+    "runtime_selection": {
+      "active_engine": "physx",
+      "device": "cpu",
+      "passed": true,
+      "physics_dt_s": 0.001,
+      "scene_ccd_enabled": false,
+      "settings": {
+        "/app/player/useFixedTimeStepping": true,
+        "/app/runLoops/main/rateLimitEnabled": false,
+        "/exts/isaacsim.core.simulation_manager/default_engine": "physx"
+      },
+      "solver_type": "TGS",
+      "switch_returned": true
+    },
+    "stop_rebuild_reset": {
+      "cart_angular_velocity_error_rad_s": 0.0,
+      "cart_orientation_error": 1.6689300537109375e-06,
+      "cart_position_error_m": 3.814697265625e-06,
+      "cart_velocity_error_mps": 0.0,
+      "cart_xform_attribute_types": {
+        "orient_type": "quatd",
+        "translate_type": "double3"
+      },
+      "collision_enabled": true,
+      "joint_enabled": true,
+      "maximum_angular_velocity_error_rad_s": 1e-05,
+      "maximum_orientation_error": 1e-06,
+      "maximum_position_error_m": 0.01,
+      "maximum_velocity_error_mps": 1e-05,
+      "pair_contact_count": 4,
+      "pair_maximum_force_n": 0.0,
+      "passed": false,
+      "rocket_angular_velocity_error_rad_s": 0.0,
+      "rocket_orientation_error": 1.6689300537109375e-06,
+      "rocket_position_error_m": 6.854534149169922e-06,
+      "rocket_velocity_error_mps": 0.0,
+      "rocket_xform_attribute_types": {
+        "orient_type": "quatd",
+        "translate_type": "double3"
+      },
+      "stopped_usd_state_authored": true,
+      "views_recreated_and_read": true
+    }
+  },
+  "provenance": {
+    "configuration_sha256": "c17eb8fcda2214385310a66e1bdff6dd1268f95aca65418a774ba4f28f14a4c4",
+    "experience_sha256": "66c1614eb05fb4aa50f4a2b11619e584667bf27d2442e7a5aec40b99176c3063",
+    "helper_path": "C:\\Dev\\Isaacsim\\vacuum-tube-launcher\\standalone\\qualify_anti_tunneling.py",
+    "helper_sha256": "479c0f5efb7b67ceaf0ed07aee45e2c6e792f2d567771247b8a3250d1213f6df",
+    "isaac_sim_source_git_revision": "987015050efebfd0cd5d3736ae47fffe5adee308",
+    "python_executable_sha256": "97f5b57ad5a91f8ddfc359500dcf3d29d3fa4ffe77035593a7ec7fbc47d76e12",
+    "runner_path": "C:\\Dev\\Isaacsim\\vacuum-tube-launcher\\standalone\\qualify_curved_guide.py",
+    "runner_sha256": "0be296d5e0f883791f1c338c980a4481f414de2b8809d9f02938793e53ea4035",
+    "version_file_sha256": "228339a70b47b4217a9eb5c7453c417f14233420b06bd3cccc7fbdc9322c9e37"
+  },
+  "requested": {
+    "backend": "physx",
+    "candidate": "force_resolved_path_controller_v1",
+    "ccd_enabled": false,
+    "configuration": "C:\\Dev\\Isaacsim\\vacuum-tube-launcher\\configs\\curved_2kms.yaml",
+    "coordinate_frame": "co_moving",
+    "device": "cpu",
+    "end_s_m": 54115.92661767223,
+    "physics_dt_s": 0.001,
+    "start_s_m": 54100.0,
+    "target_exit_speed_mps": 2000.0
+  },
+  "run_id": "0ec1c0a202834202a8d8a5a51523cc4f",
+  "schema": "vacuum_tube_curved_guide_qualification_v1",
+  "started_utc": "2026-09-01T13:42:48.050062+00:00"
+}

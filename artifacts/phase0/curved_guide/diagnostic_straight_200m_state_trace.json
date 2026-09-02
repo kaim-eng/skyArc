@@ -1,0 +1,3743 @@
+{
+  "finished_utc": "2026-09-01T13:13:37.630462+00:00",
+  "host": {
+    "isaac_sim_version": "6.0.1-rc.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.13"
+  },
+  "passed": false,
+  "probes": {
+    "candidate_capability_audit": {
+      "curvature_resolved_joint_chain": {
+        "disposition": "defer: fixed-axis joints require live topology switching through clothoids",
+        "supported": true
+      },
+      "force_resolved_path_controller": {
+        "disposition": "measure: no transform writes; reaction is commanded and acceleration-verified",
+        "supported": true
+      },
+      "measured_kinematic": {
+        "disposition": "fallback only: transform prescription cannot validate physical reaction",
+        "supported": true
+      },
+      "native_path_constraint": {
+        "disposition": "reject: target USD/PhysX schema exposes no path or spline joint",
+        "supported": false
+      },
+      "passed": true,
+      "usd_physics_types": {
+        "D6Joint": false,
+        "PathJoint": false,
+        "PrismaticJoint": true,
+        "SplineJoint": false
+      }
+    },
+    "curved_force_guide": {
+      "acceptance": {
+        "maximum_attached_pair_force_n": 1e-06,
+        "maximum_attachment_load_g": 10.0,
+        "maximum_attitude_error_deg": 1.0,
+        "maximum_backend_force_relative_error": 0.05,
+        "maximum_reaction_correction_relative_error": 0.05,
+        "maximum_resultant_load_g": 10.0,
+        "maximum_tracking_error_m": 0.05
+      },
+      "candidate": "force_resolved_path_controller_v1",
+      "controller_gains": {
+        "attitude_kd_per_s": 100.0,
+        "attitude_kp_per_s2": 2500.0,
+        "normal_kd_per_s": 40.0,
+        "normal_kp_per_s2": 400.0
+      },
+      "end_s_m": 210.0,
+      "expected_profile_speed_mps": 124.58825223114786,
+      "final_s_m": 210.0946152483312,
+      "final_speed_mps": 124.61607926735101,
+      "guide_reference_point": "attached assembly center of mass",
+      "maximum_attached_pair_force_n": 0.0,
+      "passed": false,
+      "peak_attitude_error_deg": 0.0005751086984422352,
+      "peak_backend_applied_force_relative_error": 0.0010983875918472675,
+      "peak_binormal_tracking_error_m": 0.0,
+      "peak_centerline_tracking_error_m": 0.0011045846057735108,
+      "peak_guide_reaction_command_relative_error": 0.051966987011011344,
+      "peak_inferred_attachment_proper_load_g": 4.537265688109864,
+      "peak_normal_tracking_error_m": 0.0011045846057735108,
+      "peak_resultant_proper_load_g": 4.5372327148122515,
+      "physics_steps": 82,
+      "physics_steps_per_wall_second": 263.97659489191096,
+      "profile_tangential_acceleration_mps2": 36.95769665240981,
+      "reached_end": true,
+      "start_s_m": 200.0,
+      "telemetry": [
+        {
+          "assembly_com_position_m": [
+            141.42137336730957,
+            0.0,
+            141.4198112487793
+          ],
+          "assembly_com_velocity_mps": [
+            85.97406005859375,
+            0.0,
+            85.97406005859375
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.537905039948972,
+          "attitude_error_deg": -0.0005424745591706503,
+          "backend_force_relative_error": 0.00040945382430612157,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2951.4205462997747,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            141.42059230129044,
+            0.0,
+            141.42059230129044
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5372327148122515,
+          "s_m": 199.99891963132103,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.5856817471423,
+          "step": 0,
+          "tangential_projection_residual_m": 9.551588388279075e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            141.50731086730957,
+            0.0,
+            141.5057487487793
+          ],
+          "assembly_com_velocity_mps": [
+            85.9998722076416,
+            0.0,
+            86.00052165985107
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.536180609749565,
+          "attitude_error_deg": -0.0005424745591706503,
+          "backend_force_relative_error": 0.0010432702742163757,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2944.0728333177926,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.00045923206137388206,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            141.50652980540252,
+            0.0,
+            141.50652980540252
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.536922681664504,
+          "s_m": 200.12045361515285,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.62264487046114,
+          "step": 1,
+          "tangential_projection_residual_m": 3.736227184732675e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            141.59324836730957,
+            0.0,
+            141.5916862487793
+          ],
+          "assembly_com_velocity_mps": [
+            86.0257453918457,
+            0.0,
+            86.02692985534668
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.537625549596662,
+          "attitude_error_deg": -0.0005424745591706503,
+          "backend_force_relative_error": 0.0003201263906690056,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2938.0198715220754,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0008375421736062094,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            141.5924673095146,
+            0.0,
+            141.5924673095146
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.536667844582357,
+          "s_m": 200.24198759898465,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.65961338857659,
+          "step": 2,
+          "tangential_projection_residual_m": -2.0791340188137247e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            141.67918586730957,
+            0.0,
+            141.6776237487793
+          ],
+          "assembly_com_velocity_mps": [
+            86.05159187316895,
+            0.0,
+            86.05336570739746
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.537082424771375,
+          "attitude_error_deg": -0.0005502503050344682,
+          "backend_force_relative_error": 0.000182520906529826,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2931.3519029128397,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0012542902116834398,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            141.6784048030044,
+            0.0,
+            141.6784048030044
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.536387705566532,
+          "s_m": 200.3635215677943,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.69658258104161,
+          "step": 3,
+          "tangential_projection_residual_m": 7.127667089900681e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            141.76536750793457,
+            0.0,
+            141.7638053894043
+          ],
+          "assembly_com_velocity_mps": [
+            86.07745552062988,
+            0.0,
+            86.07977867126465
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.536811837867178,
+          "attitude_error_deg": -0.0005343160252305871,
+          "backend_force_relative_error": 0.000340176652000778,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2925.1370972187683,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0016427155675629024,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            141.76458644081686,
+            0.0,
+            141.76458644081686
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.536127162691687,
+          "s_m": 200.48540080881617,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.73354772740919,
+          "step": 4,
+          "tangential_projection_residual_m": 1.110522125375834e-08,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            141.85154914855957,
+            0.0,
+            141.8499870300293
+          ],
+          "assembly_com_velocity_mps": [
+            86.10331344604492,
+            0.0,
+            86.1061897277832
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.534199998095723,
+          "attitude_error_deg": -0.000542091770916294,
+          "backend_force_relative_error": 7.816694398906152e-05,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2918.8791331518782,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0020338383217435307,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            141.8507680851942,
+            0.0,
+            141.8507680851942
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.53586535415833,
+          "s_m": 200.60728005912222,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.77050747898016,
+          "step": 5,
+          "tangential_projection_residual_m": 5.798600152557426e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            141.93773078918457,
+            0.0,
+            141.9361686706543
+          ],
+          "assembly_com_velocity_mps": [
+            86.12918853759766,
+            0.0,
+            86.13257598876953
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.535642635146199,
+          "attitude_error_deg": -0.0005380125039971513,
+          "backend_force_relative_error": 0.00018453795653511145,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2913.0959111866755,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.002395289694568703,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            141.93694972957155,
+            0.0,
+            141.93694972957155
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.53562389208208,
+          "s_m": 200.72915930942827,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.80746183575451,
+          "step": 6,
+          "tangential_projection_residual_m": 4.919790513565128e-10,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.02391242980957,
+            0.0,
+            142.0223503112793
+          ],
+          "assembly_com_velocity_mps": [
+            86.15508460998535,
+            0.0,
+            86.15895652770996
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.537265688109864,
+          "attitude_error_deg": -0.0005339332371797864,
+          "backend_force_relative_error": 0.0004227010155638833,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2907.6147978315444,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0027378592792643985,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.02313136738397,
+            0.0,
+            142.02313136738397
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.535395473880663,
+          "s_m": 200.8510385504501,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.84442698212207,
+          "step": 7,
+          "tangential_projection_residual_m": 4.469573409624471e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.11009407043457,
+            0.0,
+            142.1085319519043
+          ],
+          "assembly_com_velocity_mps": [
+            86.18099880218506,
+            0.0,
+            86.18533420562744
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.535635978365051,
+          "attitude_error_deg": -0.0005298539704387548,
+          "backend_force_relative_error": 0.0005167714271398262,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2902.371055527143,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0030655931732894715,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.10931301176132,
+            0.0,
+            142.10931301176132
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.535177339709323,
+          "s_m": 200.9729178007562,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.88140291808287,
+          "step": 8,
+          "tangential_projection_residual_m": -8.370476915764424e-10,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.19627571105957,
+            0.0,
+            142.1947135925293
+          ],
+          "assembly_com_velocity_mps": [
+            86.20688438415527,
+            0.0,
+            86.21170043945312
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.531317350530402,
+          "attitude_error_deg": -0.0005298539704387548,
+          "backend_force_relative_error": 0.000519788677513839,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2896.9331005449444,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.003405465359676896,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.1954946561387,
+            0.0,
+            142.1954946561387
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.534951531337316,
+          "s_m": 201.09479705106227,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.91835053136145,
+          "step": 9,
+          "tangential_projection_residual_m": -6.1437089870792355e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.28245735168457,
+            0.0,
+            142.2808952331543
+          ],
+          "assembly_com_velocity_mps": [
+            86.23279857635498,
+            0.0,
+            86.23802661895752
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.533310951863255,
+          "attitude_error_deg": -0.0005257747037995009,
+          "backend_force_relative_error": 0.0009114067581823248,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2892.271996274391,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0036967843765864927,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.2816762939511,
+            0.0,
+            142.2816762939511
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.534758309430584,
+          "s_m": 201.21667629208412,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.95529005244514,
+          "step": 10,
+          "tangential_projection_residual_m": -2.166114628919698e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.36863899230957,
+            0.0,
+            142.3670768737793
+          ],
+          "assembly_com_velocity_mps": [
+            86.25874996185303,
+            0.0,
+            86.26433658599854
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.532580384423679,
+          "attitude_error_deg": -0.0005216954372365804,
+          "backend_force_relative_error": 0.00033546580925770985,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2888.2151092240942,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.003950339817230031,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.36785793832843,
+            0.0,
+            142.36785793832843
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.53459038137623,
+          "s_m": 201.33855554239017,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 121.9922444092195,
+          "step": 11,
+          "tangential_projection_residual_m": -7.472695535710311e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.45482063293457,
+            0.0,
+            142.4532585144043
+          ],
+          "assembly_com_velocity_mps": [
+            86.28466892242432,
+            0.0,
+            86.29066371917725
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.532936348021063,
+          "attitude_error_deg": -0.0005176161707499931,
+          "backend_force_relative_error": 0.0003314284330719513,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2883.597163326473,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0042389614358313565,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.45403956551854,
+            0.0,
+            142.45403956551854
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.534399508541837,
+          "s_m": 201.4604347683898,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.02918797640062,
+          "step": 12,
+          "tangential_projection_residual_m": 1.1527101329228753e-08,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.54124641418457,
+            0.0,
+            142.5396842956543
+          ],
+          "assembly_com_velocity_mps": [
+            86.31059646606445,
+            0.0,
+            86.31698226928711
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.533925370462355,
+          "attitude_error_deg": -0.0005135369043651835,
+          "backend_force_relative_error": 0.000647992202922421,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2879.173430106763,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.004515444762063225,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.54046536078343,
+            0.0,
+            142.54046536078343
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.534216941983695,
+          "s_m": 201.5826593001923,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.06613154358175,
+          "step": 13,
+          "tangential_projection_residual_m": -8.292941981887479e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.62767219543457,
+            0.0,
+            142.6261100769043
+          ],
+          "assembly_com_velocity_mps": [
+            86.33652305603027,
+            0.0,
+            86.34331893920898
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.535305010492034,
+          "attitude_error_deg": -0.0005094576380821517,
+          "backend_force_relative_error": 0.00039658349710597725,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2874.533905022619,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0048054150798222395,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.6268911388611,
+            0.0,
+            142.6268911388611
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.534025762994062,
+          "s_m": 201.7048838076884,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.10308724905525,
+          "step": 14,
+          "tangential_projection_residual_m": -3.806607521274034e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.71409797668457,
+            0.0,
+            142.7125358581543
+          ],
+          "assembly_com_velocity_mps": [
+            86.36247825622559,
+            0.0,
+            86.3696460723877
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.531342700852491,
+          "attitude_error_deg": -0.0005053783718754533,
+          "backend_force_relative_error": 0.0003619466379949458,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2870.3259636673433,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.005068411414526963,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.71331691693882,
+            0.0,
+            142.71331691693882
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.533852627769886,
+          "s_m": 201.82710831518455,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.14005644152029,
+          "step": 15,
+          "tangential_projection_residual_m": 6.796867450375305e-10,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.80052375793457,
+            0.0,
+            142.7989616394043
+          ],
+          "assembly_com_velocity_mps": [
+            86.38842678070068,
+            0.0,
+            86.3959436416626
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.532326065772052,
+          "attitude_error_deg": -0.0005131541163652716,
+          "backend_force_relative_error": 0.0005162491466518285,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2866.3769725493207,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.005315223359403376,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.7997426950165,
+            0.0,
+            142.7997426950165
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.533690371720647,
+          "s_m": 201.94933282268062,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.17700000870141,
+          "step": 16,
+          "tangential_projection_residual_m": 5.166021205650975e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.88694953918457,
+            0.0,
+            142.8853874206543
+          ],
+          "assembly_com_velocity_mps": [
+            86.41441249847412,
+            0.0,
+            86.42222118377686
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.534951900289197,
+          "attitude_error_deg": -0.000567332951458862,
+          "backend_force_relative_error": 0.00029551321709269036,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2863.0753570243737,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.005521574329712564,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.8861684730942,
+            0.0,
+            142.8861684730942
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.533554882030954,
+          "s_m": 202.07155733017674,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.21395571417492,
+          "step": 17,
+          "tangential_projection_residual_m": 9.65235566626442e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            142.97337532043457,
+            0.0,
+            142.9718132019043
+          ],
+          "assembly_com_velocity_mps": [
+            86.44038772583008,
+            0.0,
+            86.44852352142334
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.5329571525978105,
+          "attitude_error_deg": -0.0005751086984422352,
+          "backend_force_relative_error": 0.00022805611196843225,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2859.374526550229,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0057528762343466155,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            142.97259426835907,
+            0.0,
+            142.97259426835907
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5334031904126455,
+          "s_m": 202.19378186197923,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.25092153489206,
+          "step": 18,
+          "tangential_projection_residual_m": -1.0167687644851812e-08,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            143.05980110168457,
+            0.0,
+            143.0582389831543
+          ],
+          "assembly_com_velocity_mps": [
+            86.46636390686035,
+            0.0,
+            86.47481346130371
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.532780642921452,
+          "attitude_error_deg": -0.0004968370520982555,
+          "backend_force_relative_error": 0.00013251529508128893,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2855.8247503812904,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0059747372449052705,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            143.05902004643676,
+            0.0,
+            143.05902004643676
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.533257869883944,
+          "s_m": 202.31600636947533,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.28787926341431,
+          "step": 19,
+          "tangential_projection_residual_m": -5.681353184238368e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            143.14622688293457,
+            0.0,
+            143.1446647644043
+          ],
+          "assembly_com_velocity_mps": [
+            86.49234771728516,
+            0.0,
+            86.50109100341797
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.534396450151376,
+          "attitude_error_deg": -0.0005587916280685541,
+          "backend_force_relative_error": 9.934529203944873e-05,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2852.501555669934,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0061824369143650415,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            143.14544582451444,
+            0.0,
+            143.14544582451444
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.53312198452351,
+          "s_m": 202.43823087697143,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.32483362018866,
+          "step": 20,
+          "tangential_projection_residual_m": -1.1950187235165027e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            143.23265266418457,
+            0.0,
+            143.2310905456543
+          ],
+          "assembly_com_velocity_mps": [
+            86.51834487915039,
+            0.0,
+            86.52736568450928
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530991417699238,
+          "attitude_error_deg": -0.000554712360716856,
+          "backend_force_relative_error": 0.0005249729858317852,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2849.3617840432275,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0063786726410342,
+          "normal_tracking_error_m": -0.0011045846057735108,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            143.23187160915705,
+            0.0,
+            143.23187160915705
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.53299374095068,
+          "s_m": 202.56045539375177,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.36179539480834,
+          "step": 21,
+          "tangential_projection_residual_m": -5.992899722371929e-09,
+          "tracking_error_m": 0.0011045846057735108
+        },
+        {
+          "assembly_com_position_m": [
+            143.31907844543457,
+            0.0,
+            143.3177604675293
+          ],
+          "assembly_com_velocity_mps": [
+            86.54435634613037,
+            0.0,
+            86.55360984802246
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530336822398123,
+          "attitude_error_deg": -0.0005506330934414911,
+          "backend_force_relative_error": 0.0009234982728751056,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2819.1077646577796,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.006543213937618475,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            143.31841945939607,
+            0.0,
+            143.31841945939607
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.53176507266607,
+          "s_m": 202.682852537354,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.39874570548524,
+          "step": 22,
+          "tangential_projection_residual_m": -4.1212088313377984e-09,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            143.40574836730957,
+            0.0,
+            143.4044303894043
+          ],
+          "assembly_com_velocity_mps": [
+            86.57043743133545,
+            0.0,
+            86.57979011535645
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.5309663174210115,
+          "attitude_error_deg": -0.0005465538262424596,
+          "backend_force_relative_error": 6.10602674691732e-05,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2817.9856469630167,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.006613346293541156,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            143.405089377739,
+            0.0,
+            143.405089377739
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531719747392583,
+          "s_m": 202.80542231132432,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.4357000622596,
+          "step": 23,
+          "tangential_projection_residual_m": 8.739059260314333e-10,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            143.49241828918457,
+            0.0,
+            143.4911003112793
+          ],
+          "assembly_com_velocity_mps": [
+            86.59649467468262,
+            0.0,
+            86.60599708557129
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529991870183542,
+          "attitude_error_deg": -0.0005424745591706503,
+          "backend_force_relative_error": 0.0010983875918472675,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2816.2916808276677,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.006719219177000468,
+          "normal_tracking_error_m": -0.000931951114272889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            143.4917592960819,
+            0.0,
+            143.4917592960819
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531651356986322,
+          "s_m": 202.92799208529465,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.47265644208267,
+          "step": 24,
+          "tangential_projection_residual_m": 5.869020683454875e-09,
+          "tracking_error_m": 0.000931951114272889
+        },
+        {
+          "assembly_com_position_m": [
+            143.57908821105957,
+            0.0,
+            143.5777702331543
+          ],
+          "assembly_com_velocity_mps": [
+            86.62258625030518,
+            0.0,
+            86.6321668624878
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529991870183542,
+          "attitude_error_deg": -0.0005461710379372145,
+          "backend_force_relative_error": 0.0008975266651124963,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2815.4069341837485,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.006774515842245421,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            143.57842922504716,
+            0.0,
+            143.57842922504716
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531615653094594,
+          "s_m": 203.0505618742872,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.50961079885701,
+          "step": 25,
+          "tangential_projection_residual_m": -4.158107260203089e-09,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            143.66575813293457,
+            0.0,
+            143.6644401550293
+          ],
+          "assembly_com_velocity_mps": [
+            86.64867305755615,
+            0.0,
+            86.65834140777588
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.53079360156816,
+          "attitude_error_deg": -0.0005380125039971513,
+          "backend_force_relative_error": 0.0010822585872870365,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2814.414291607669,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.006836556003250394,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            143.6650991433901,
+            0.0,
+            143.6650991433901
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.53157560808883,
+          "s_m": 203.1731316482576,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.54656515563137,
+          "step": 26,
+          "tangential_projection_residual_m": 8.369673028642624e-10,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            143.75242805480957,
+            0.0,
+            143.7511100769043
+          ],
+          "assembly_com_velocity_mps": [
+            86.67477130889893,
+            0.0,
+            86.6845121383667
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.53125046817434,
+          "attitude_error_deg": -0.0005298539704387548,
+          "backend_force_relative_error": 0.0010049503719730575,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2813.5942825229777,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.006887806571043598,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            143.7517690723553,
+            0.0,
+            143.7517690723553
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531542537816187,
+          "s_m": 203.2957014372501,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.58352490720233,
+          "step": 27,
+          "tangential_projection_residual_m": -9.190080252027312e-09,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            143.83909797668457,
+            0.0,
+            143.8377799987793
+          ],
+          "assembly_com_velocity_mps": [
+            86.70086765289307,
+            0.0,
+            86.71068286895752
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529250618246172,
+          "attitude_error_deg": -0.0005216954372365804,
+          "backend_force_relative_error": 0.0007338461845189628,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2812.752694251877,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0069404058379873845,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            143.83843899069825,
+            0.0,
+            143.83843899069825
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531508607042883,
+          "s_m": 203.41827121122046,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.62048331007415,
+          "step": 28,
+          "tangential_projection_residual_m": -4.19500568906838e-09,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            143.92576789855957,
+            0.0,
+            143.9244499206543
+          ],
+          "assembly_com_velocity_mps": [
+            86.72695064544678,
+            0.0,
+            86.73685550689697
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530336822398123,
+          "attitude_error_deg": -0.0005135369043651835,
+          "backend_force_relative_error": 0.000885304385567737,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2811.7384724892745,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007003794698150045,
+          "normal_tracking_error_m": -0.000931951114272889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            143.92510890247627,
+            0.0,
+            143.92510890247627
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531467729261117,
+          "s_m": 203.5408409759066,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.65743362075104,
+          "step": 29,
+          "tangential_projection_residual_m": 1.0084284333413632e-08,
+          "tracking_error_m": 0.000931951114272889
+        },
+        {
+          "assembly_com_position_m": [
+            144.01243782043457,
+            0.0,
+            144.0111198425293
+          ],
+          "assembly_com_velocity_mps": [
+            86.7530460357666,
+            0.0,
+            86.7630262374878
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.53125046817434,
+          "attitude_error_deg": -0.0005053783718754533,
+          "backend_force_relative_error": 0.0008688590080468765,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2810.886094625026,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007057068314665571,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.0117788314415,
+            0.0,
+            144.0117788314415
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531433385645893,
+          "s_m": 203.66341076489914,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.69439134927327,
+          "step": 30,
+          "tangential_projection_residual_m": 5.719658416596801e-11,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            144.09910774230957,
+            0.0,
+            144.0977897644043
+          ],
+          "assembly_com_velocity_mps": [
+            86.77914714813232,
+            0.0,
+            86.7892017364502
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530053148406539,
+          "attitude_error_deg": -0.0005090748501840177,
+          "backend_force_relative_error": 0.00044272631119408705,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2810.044506354039,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0071096675816022525,
+          "normal_tracking_error_m": -0.000931951114272889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.09844874978444,
+            0.0,
+            144.09844874978444
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.53139948672068,
+          "s_m": 203.7859805388695,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.73135649564084,
+          "step": 31,
+          "tangential_projection_residual_m": 5.05227114717911e-09,
+          "tracking_error_m": 0.000931951114272889
+        },
+        {
+          "assembly_com_position_m": [
+            144.18602180480957,
+            0.0,
+            144.1847038269043
+          ],
+          "assembly_com_velocity_mps": [
+            86.80522727966309,
+            0.0,
+            86.81538009643555
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.531423033136321,
+          "attitude_error_deg": -0.0005710294307088705,
+          "backend_force_relative_error": 0.0006519004737730697,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2808.933178252424,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0071791255879531946,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.18536281901493,
+            0.0,
+            144.18536281901493
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5313547379196315,
+          "s_m": 203.9088955943363,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.76830882936646,
+          "step": 32,
+          "tangential_projection_residual_m": -4.466076499723068e-09,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            144.27293586730957,
+            0.0,
+            144.2716178894043
+          ],
+          "assembly_com_velocity_mps": [
+            86.83132076263428,
+            0.0,
+            86.84155368804932
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529423526472282,
+          "attitude_error_deg": -0.0005628708955474743,
+          "backend_force_relative_error": 0.00019244202430317603,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2808.026852421982,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0072357709523558356,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.2722768710582,
+            0.0,
+            144.2722768710582
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.53131825652907,
+          "s_m": 204.0318106254967,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.80526723223826,
+          "step": 33,
+          "tangential_projection_residual_m": 1.0321953625158642e-08,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            144.35984992980957,
+            0.0,
+            144.3585319519043
+          ],
+          "assembly_com_velocity_mps": [
+            86.8573865890503,
+            0.0,
+            86.86774349212646
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.532682034375099,
+          "attitude_error_deg": -0.000554712360716856,
+          "backend_force_relative_error": 0.000259750267999084,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2806.6242053035567,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.00732343639725741,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.35919094028867,
+            0.0,
+            144.35919094028867
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531261819864337,
+          "s_m": 204.15472568096345,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.84221754291517,
+          "step": 34,
+          "tangential_projection_residual_m": 8.036461726125543e-10,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            144.44676399230957,
+            0.0,
+            144.4454460144043
+          ],
+          "assembly_com_velocity_mps": [
+            86.88347053527832,
+            0.0,
+            86.89394187927246
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530509689168934,
+          "attitude_error_deg": -0.0005465538262424596,
+          "backend_force_relative_error": 9.288754989370267e-05,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2805.329454117292,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007404358346398965,
+          "normal_tracking_error_m": -0.000931951114272889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.4461050095192,
+            0.0,
+            144.4461050095192
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531209748885787,
+          "s_m": 204.27764073643027,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.87918673538019,
+          "step": 35,
+          "tangential_projection_residual_m": -8.714741668591503e-09,
+          "tracking_error_m": 0.000931951114272889
+        },
+        {
+          "assembly_com_position_m": [
+            144.53367805480957,
+            0.0,
+            144.5323600769043
+          ],
+          "assembly_com_velocity_mps": [
+            86.90954875946045,
+            0.0,
+            86.9201250076294
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.532398640614371,
+          "attitude_error_deg": -0.0005502503050344682,
+          "backend_force_relative_error": 0.0002631555109314216,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2804.1425988634146,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007478536799766289,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.53301906156244,
+            0.0,
+            144.53301906156244
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5311620377371105,
+          "s_m": 204.40055576759067,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.91614109215455,
+          "step": 36,
+          "tangential_projection_residual_m": 6.073328650646297e-09,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            144.62059211730957,
+            0.0,
+            144.6192741394043
+          ],
+          "assembly_com_velocity_mps": [
+            86.93562698364258,
+            0.0,
+            86.94632148742676
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530856203888548,
+          "attitude_error_deg": -0.0005302367584132222,
+          "backend_force_relative_error": 8.377369869340202e-05,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2802.8046893042174,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007562156147216115,
+          "normal_tracking_error_m": -0.000931951114272889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.61993313079293,
+            0.0,
+            144.61993313079293
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531108277865845,
+          "s_m": 204.52347082305747,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.95310488982297,
+          "step": 37,
+          "tangential_projection_residual_m": -3.445018996255881e-09,
+          "tracking_error_m": 0.000931951114272889
+        },
+        {
+          "assembly_com_position_m": [
+            144.70750617980957,
+            0.0,
+            144.7061882019043
+          ],
+          "assembly_com_velocity_mps": [
+            86.96171379089355,
+            0.0,
+            86.97250556945801
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.53068281634236,
+          "attitude_error_deg": -0.0005339332371797864,
+          "backend_force_relative_error": 0.00011617032489777496,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2801.704150795864,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007630939803988213,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.70684718283619,
+            0.0,
+            144.70684718283619
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531064074790389,
+          "s_m": 204.64638585421784,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 122.99006599009307,
+          "step": 38,
+          "tangential_projection_residual_m": 1.1343051322981919e-08,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            144.79442024230957,
+            0.0,
+            144.7931022644043
+          ],
+          "assembly_com_velocity_mps": [
+            86.98779392242432,
+            0.0,
+            86.99868679046631
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530856203888548,
+          "attitude_error_deg": -0.0005157679314175998,
+          "backend_force_relative_error": 9.582639143682794e-05,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2800.5604539146916,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007702420859061476,
+          "normal_tracking_error_m": -0.000931951114272889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.79376125206667,
+            0.0,
+            144.79376125206667
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.531018156198888,
+          "s_m": 204.7693009096846,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.02702034686743,
+          "step": 39,
+          "tangential_projection_residual_m": 1.8247036760797412e-09,
+          "tracking_error_m": 0.000931951114272889
+        },
+        {
+          "assembly_com_position_m": [
+            144.88133430480957,
+            0.0,
+            144.8800163269043
+          ],
+          "assembly_com_velocity_mps": [
+            87.0138807296753,
+            0.0,
+            87.0248613357544
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.5310298517776095,
+          "attitude_error_deg": -0.0005194644099551641,
+          "backend_force_relative_error": 0.0002506291725992035,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2799.567811338612,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007764461020066449,
+          "normal_tracking_error_m": -0.000931951114272889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.8806753212972,
+            0.0,
+            144.8806753212972
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.530978317147686,
+          "s_m": 204.89221596515145,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.06397470364178,
+          "step": 40,
+          "tangential_projection_residual_m": -7.693684165178526e-09,
+          "tracking_error_m": 0.000931951114272889
+        },
+        {
+          "assembly_com_position_m": [
+            144.96849250793457,
+            0.0,
+            144.9671745300293
+          ],
+          "assembly_com_velocity_mps": [
+            87.03995990753174,
+            0.0,
+            87.05104351043701
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.531203759979612,
+          "attitude_error_deg": -0.0005012991057705326,
+          "backend_force_relative_error": 0.00035366962259309126,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2798.402535270917,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.0078372907742974,
+          "normal_tracking_error_m": -0.000931951114272889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            144.967833524228,
+            0.0,
+            144.967833524228
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.53093156714026,
+          "s_m": 205.01547627780826,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.10092906041612,
+          "step": 41,
+          "tangential_projection_residual_m": -7.419076250212136e-09,
+          "tracking_error_m": 0.000931951114272889
+        },
+        {
+          "assembly_com_position_m": [
+            145.05565071105957,
+            0.0,
+            145.0543327331543
+          ],
+          "assembly_com_velocity_mps": [
+            87.06603622436523,
+            0.0,
+            87.077223777771
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529596695160281,
+          "attitude_error_deg": -0.0005049955840536525,
+          "backend_force_relative_error": 0.0002670572063919983,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2797.2264696100738,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007910794878100091,
+          "normal_tracking_error_m": -0.000931951114272889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            145.05499172715884,
+            0.0,
+            145.05499172715884
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.530884403507773,
+          "s_m": 205.1387365904651,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.1378800454426,
+          "step": 42,
+          "tangential_projection_residual_m": -7.144468335245745e-09,
+          "tracking_error_m": 0.000931951114272889
+        },
+        {
+          "assembly_com_position_m": [
+            145.14280891418457,
+            0.0,
+            145.1414909362793
+          ],
+          "assembly_com_velocity_mps": [
+            87.09211826324463,
+            0.0,
+            87.10339260101318
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.532463889700397,
+          "attitude_error_deg": -0.0005669501630772835,
+          "backend_force_relative_error": 0.0007259858425902416,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2796.244616627142,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007972160689533325,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            145.14214991946736,
+            0.0,
+            145.14214991946736
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.530845043174007,
+          "s_m": 205.26199688809973,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.17482698437162,
+          "step": 43,
+          "tangential_projection_residual_m": 8.152342086337541e-09,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            145.22996711730957,
+            0.0,
+            145.2286491394043
+          ],
+          "assembly_com_velocity_mps": [
+            87.1181993484497,
+            0.0,
+            87.12959289550781
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.532682034375099,
+          "attitude_error_deg": -0.0005587916280685541,
+          "backend_force_relative_error": 0.00034370980764734406,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2794.895917474797,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.00805645438655489,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            145.22930812239818,
+            0.0,
+            145.22930812239818
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5307909987514785,
+          "s_m": 205.38525720075657,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.21179550248706,
+          "step": 44,
+          "tangential_projection_residual_m": 8.426950001303932e-09,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            145.31712532043457,
+            0.0,
+            145.3158073425293
+          ],
+          "assembly_com_velocity_mps": [
+            87.14431190490723,
+            0.0,
+            87.15576267242432
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.527991731535207,
+          "attitude_error_deg": -0.0005506330934414911,
+          "backend_force_relative_error": 0.00046449318831953825,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2794.2485418817214,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008096915361122115,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            145.31646633189393,
+            0.0,
+            145.31646633189393
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5307650664610195,
+          "s_m": 205.50851752269762,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.2487646949521,
+          "step": 45,
+          "tangential_projection_residual_m": -5.82657543198549e-10,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            145.40428352355957,
+            0.0,
+            145.4029655456543
+          ],
+          "assembly_com_velocity_mps": [
+            87.1704044342041,
+            0.0,
+            87.18191051483154
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529534876630247,
+          "attitude_error_deg": -0.0005424745591706503,
+          "backend_force_relative_error": 0.0004694401603500731,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2793.6227454749414,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008136027636545862,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            145.40362453482476,
+            0.0,
+            145.40362453482476
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.530740004149502,
+          "s_m": 205.63177783535446,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.28570421603578,
+          "step": 46,
+          "tangential_projection_residual_m": -3.080496282321585e-10,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            145.49144172668457,
+            0.0,
+            145.4901237487793
+          ],
+          "assembly_com_velocity_mps": [
+            87.19650745391846,
+            0.0,
+            87.20805644989014
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.53125046817434,
+          "attitude_error_deg": -0.0005461710379372145,
+          "backend_force_relative_error": 0.0002532779972096476,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2793.13721378022,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008166373367465951,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            145.49078273775558,
+            0.0,
+            145.49078273775558
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.530720563024405,
+          "s_m": 205.7550381480113,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.32264980626564,
+          "step": 47,
+          "tangential_projection_residual_m": -3.3441713265768e-11,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            145.57859992980957,
+            0.0,
+            145.5772819519043
+          ],
+          "assembly_com_velocity_mps": [
+            87.22261333465576,
+            0.0,
+            87.23423194885254
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529819784799271,
+          "attitude_error_deg": -0.0005380125039971513,
+          "backend_force_relative_error": 0.00037258916972942967,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2792.3495734751996,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008215600886529728,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            145.57794094725134,
+            0.0,
+            145.57794094725134
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.530689032209059,
+          "s_m": 205.87829846995234,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.35961832438109,
+          "step": 48,
+          "tangential_projection_residual_m": -9.043049257768249e-09,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            145.66575813293457,
+            0.0,
+            145.6644401550293
+          ],
+          "assembly_com_velocity_mps": [
+            87.24871730804443,
+            0.0,
+            87.26037979125977
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.528733456637288,
+          "attitude_error_deg": -0.0005298539704387548,
+          "backend_force_relative_error": 0.00020261355959755838,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2791.853252187103,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008246620967035767,
+          "normal_tracking_error_m": -0.0009319511142728889,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            145.66509915018216,
+            0.0,
+            145.66509915018216
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.530669167930752,
+          "s_m": 206.0015587826092,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.39656593765969,
+          "step": 49,
+          "tangential_projection_residual_m": -8.768441342801858e-09,
+          "tracking_error_m": 0.0009319511142728889
+        },
+        {
+          "assembly_com_position_m": [
+            145.75291633605957,
+            0.0,
+            145.7518424987793
+          ],
+          "assembly_com_velocity_mps": [
+            87.27481842041016,
+            0.0,
+            87.2865343093872
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530049806382562,
+          "attitude_error_deg": -0.0005216954372365804,
+          "backend_force_relative_error": 9.66630594385595e-05,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2763.6276763267465,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008284384543301826,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            145.75237941465198,
+            0.0,
+            145.75237941465198
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529545163551745,
+          "s_m": 206.12499171634994,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.43351624833657,
+          "step": 50,
+          "tangential_projection_residual_m": 3.913765703558204e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            145.84031867980957,
+            0.0,
+            145.8392448425293
+          ],
+          "assembly_com_velocity_mps": [
+            87.3009729385376,
+            0.0,
+            87.31265163421631
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.527303581041266,
+          "attitude_error_deg": -0.0005135369043651835,
+          "backend_force_relative_error": 0.0005695662707708878,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2764.04847046224,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008258084909833485,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            145.83978175784804,
+            0.0,
+            145.83978175784804
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529561838668467,
+          "s_m": 206.248597295481,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.47047802295626,
+          "step": 51,
+          "tangential_projection_residual_m": 4.697153915280382e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            145.92772102355957,
+            0.0,
+            145.9266471862793
+          ],
+          "assembly_com_velocity_mps": [
+            87.32711029052734,
+            0.0,
+            87.3387451171875
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.52821864025691,
+          "attitude_error_deg": -0.0005031473449757037,
+          "backend_force_relative_error": 0.00032491484777688216,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2764.5447917503366,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008227064829327446,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            145.92718410104413,
+            0.0,
+            145.92718410104413
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529581509939136,
+          "s_m": 206.37220287461207,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.50741080054418,
+          "step": 52,
+          "tangential_projection_residual_m": 5.480501932592259e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.01512336730957,
+            0.0,
+            146.0140495300293
+          ],
+          "assembly_com_velocity_mps": [
+            87.35325336456299,
+            0.0,
+            87.36484813690186
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529476395625215,
+          "attitude_error_deg": -0.0004949888130203067,
+          "backend_force_relative_error": 0.00017044170241167154,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2764.9979546656145,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008198742147122573,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.01458644424022,
+            0.0,
+            146.01458644424022
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529599473674492,
+          "s_m": 206.49580845374317,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.5443543677253,
+          "step": 53,
+          "tangential_projection_residual_m": 6.263849949904136e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.10252571105957,
+            0.0,
+            146.1014518737793
+          ],
+          "assembly_com_velocity_mps": [
+            87.3794059753418,
+            0.0,
+            87.39095687866211
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530906119488791,
+          "attitude_error_deg": -0.0004886785204990806,
+          "backend_force_relative_error": 0.00022695368979316734,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2765.4942759535975,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.00816772206662364,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.10198878743628,
+            0.0,
+            146.10198878743628
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5296191515383555,
+          "s_m": 206.61941403287426,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.58130872449965,
+          "step": 54,
+          "tangential_projection_residual_m": 7.047238161626314e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.18992805480957,
+            0.0,
+            146.1888542175293
+          ],
+          "assembly_com_velocity_mps": [
+            87.40555572509766,
+            0.0,
+            87.41708374023438
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529647959936613,
+          "attitude_error_deg": -0.0005506330934414911,
+          "backend_force_relative_error": 0.00035882623243805814,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2765.7532261908505,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008151537676795328,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.1893911412547,
+            0.0,
+            146.1893911412547
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.52962941961807,
+          "s_m": 206.74301962702756,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.61827387086723,
+          "step": 55,
+          "tangential_projection_residual_m": -7.191656522034795e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.27733039855957,
+            0.0,
+            146.2762565612793
+          ],
+          "assembly_com_velocity_mps": [
+            87.43169116973877,
+            0.0,
+            87.44320964813232
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529647959936613,
+          "attitude_error_deg": -0.0005424745591706503,
+          "backend_force_relative_error": 0.0001171597500714592,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2765.861122123011,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008144794181035309,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.27679348445076,
+            0.0,
+            146.27679348445076
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5296336982615,
+          "s_m": 206.86662520615863,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.65522822764159,
+          "step": 56,
+          "tangential_projection_residual_m": -6.4082683103126176e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.36473274230957,
+            0.0,
+            146.3636589050293
+          ],
+          "assembly_com_velocity_mps": [
+            87.45783615112305,
+            0.0,
+            87.46933078765869
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529018949414231,
+          "attitude_error_deg": -0.0005461710379372145,
+          "backend_force_relative_error": 0.00041014354836166464,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2766.1308619535253,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008127935441628154,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.36419582764682,
+            0.0,
+            146.36419582764682
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5296443955826335,
+          "s_m": 206.9902307852897,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.69218595616383,
+          "step": 57,
+          "tangential_projection_residual_m": -5.62488009864465e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.45213508605957,
+            0.0,
+            146.4510612487793
+          ],
+          "assembly_com_velocity_mps": [
+            87.48396682739258,
+            0.0,
+            87.49545383453369
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530391550001522,
+          "attitude_error_deg": -0.0005380125039971513,
+          "backend_force_relative_error": 0.00025390769686019015,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2766.2171786992762,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008122540645018717,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.45159817084294,
+            0.0,
+            146.45159817084294
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529647818940385,
+          "s_m": 207.11383636442082,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.72913491814155,
+          "step": 58,
+          "tangential_projection_residual_m": -4.841572275688863e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.53953742980957,
+            0.0,
+            146.5384635925293
+          ],
+          "assembly_com_velocity_mps": [
+            87.51012516021729,
+            0.0,
+            87.52156734466553
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529476395625215,
+          "attitude_error_deg": -0.0005298539704387548,
+          "backend_force_relative_error": 0.0002185095136408793,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2766.7242895805207,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008090846214940939,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.539000514039,
+            0.0,
+            146.539000514039
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529667933272248,
+          "s_m": 207.2374419435519,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.76609669276125,
+          "step": 59,
+          "tangential_projection_residual_m": -4.0581840639666855e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.62718391418457,
+            0.0,
+            146.6261100769043
+          ],
+          "assembly_com_velocity_mps": [
+            87.53626346588135,
+            0.0,
+            87.54769039154053
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529819784799271,
+          "attitude_error_deg": -0.0005216954372365804,
+          "backend_force_relative_error": 0.00010551652901865775,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2766.8969230720227,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008080056621722065,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.6266469909354,
+            0.0,
+            146.6266469909354
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529674781525225,
+          "s_m": 207.361392779873,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.8030510495356,
+          "step": 60,
+          "tangential_projection_residual_m": 6.51815970956985e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.71483039855957,
+            0.0,
+            146.7137565612793
+          ],
+          "assembly_com_velocity_mps": [
+            87.56240558624268,
+            0.0,
+            87.57380962371826
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529476395625215,
+          "attitude_error_deg": -0.0005135369043651835,
+          "backend_force_relative_error": 0.0001438218954920479,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2767.1558733092756,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008063872231893754,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.71429348501903,
+            0.0,
+            146.71429348501903
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529685054686448,
+          "s_m": 207.48534364050053,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.84000540630996,
+          "step": 61,
+          "tangential_projection_residual_m": -7.211914483033592e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.80247688293457,
+            0.0,
+            146.8014030456543
+          ],
+          "assembly_com_velocity_mps": [
+            87.5885534286499,
+            0.0,
+            87.5999231338501
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.528561590556644,
+          "attitude_error_deg": -0.0005053783718754533,
+          "backend_force_relative_error": 0.0004045400785709095,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2767.544298665212,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008039595647147735,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.80193996848035,
+            0.0,
+            146.80193996848035
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529700466187231,
+          "s_m": 207.60929448610585,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.8769597630843,
+          "step": 62,
+          "tangential_projection_residual_m": -5.919786168857508e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.89012336730957,
+            0.0,
+            146.8890495300293
+          ],
+          "assembly_com_velocity_mps": [
+            87.61468124389648,
+            0.0,
+            87.62604141235352
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.5307343358246,
+          "attitude_error_deg": -0.0005090748501840177,
+          "backend_force_relative_error": 0.0005726271759913491,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2767.6521945973723,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008032852151387715,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.88958644537678,
+            0.0,
+            146.88958644537678
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529704747534256,
+          "s_m": 207.73324532242697,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.91390333026544,
+          "step": 63,
+          "tangential_projection_residual_m": 4.656517410268728e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            146.97776985168457,
+            0.0,
+            146.9766960144043
+          ],
+          "assembly_com_velocity_mps": [
+            87.64081478118896,
+            0.0,
+            87.65218448638916
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529991870183542,
+          "attitude_error_deg": -0.0005710294307088705,
+          "backend_force_relative_error": 0.0004881493739566676,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2767.544298665212,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008039595647147735,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            146.9772329394604,
+            0.0,
+            146.9772329394604
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529700466187231,
+          "s_m": 207.8571961830545,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.950868476633,
+          "step": 64,
+          "tangential_projection_residual_m": -9.073556782334714e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            147.06541633605957,
+            0.0,
+            147.0643424987793
+          ],
+          "assembly_com_velocity_mps": [
+            87.6669397354126,
+            0.0,
+            87.67831134796143
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530562812652314,
+          "attitude_error_deg": -0.0005628708955474743,
+          "backend_force_relative_error": 0.00043480247471921953,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2767.5227194788026,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008040944346298318,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            147.06487941635683,
+            0.0,
+            147.06487941635683
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529699609937369,
+          "s_m": 207.98114701937564,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 123.9878160899116,
+          "step": 65,
+          "tangential_projection_residual_m": 1.5027467968999411e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            147.15306282043457,
+            0.0,
+            147.1519889831543
+          ],
+          "assembly_com_velocity_mps": [
+            87.69310474395752,
+            0.0,
+            87.7044324874878
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529647959936613,
+          "attitude_error_deg": -0.000554712360716856,
+          "backend_force_relative_error": 0.0001038257278937968,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2768.0190407667856,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.008009924265799384,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            147.1525258998182,
+            0.0,
+            147.1525258998182
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529719305332356,
+          "s_m": 208.105097864981,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.02478797977494,
+          "step": 66,
+          "tangential_projection_residual_m": 2.7948349165573053e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            147.24070930480957,
+            0.0,
+            147.2396354675293
+          ],
+          "assembly_com_velocity_mps": [
+            87.71924495697021,
+            0.0,
+            87.73055362701416
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529647959936613,
+          "attitude_error_deg": -0.0005465538262424596,
+          "backend_force_relative_error": 0.00022421614996216338,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2768.23483263122,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007996437274272239,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            147.2401723939018,
+            0.0,
+            147.2401723939018
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5297278696224605,
+          "s_m": 208.2290487256085,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.06174233654929,
+          "step": 67,
+          "tangential_projection_residual_m": -1.0935199081581626e-08,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            147.32835578918457,
+            0.0,
+            147.3272819519043
+          ],
+          "assembly_com_velocity_mps": [
+            87.74538040161133,
+            0.0,
+            87.75667953491211
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530906119488791,
+          "attitude_error_deg": -0.0005502503050344682,
+          "backend_force_relative_error": 0.0001678060823927862,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2768.34272856338,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007989693778512219,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            147.3278188707982,
+            0.0,
+            147.3278188707982
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529732152011802,
+          "s_m": 208.3529995619296,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.09869669332363,
+          "step": 68,
+          "tangential_projection_residual_m": -3.588955024011811e-10,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            147.41624641418457,
+            0.0,
+            147.4151725769043
+          ],
+          "assembly_com_velocity_mps": [
+            87.77153015136719,
+            0.0,
+            87.78280639648438
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.5301053426306455,
+          "attitude_error_deg": -0.0005302367584132222,
+          "backend_force_relative_error": 8.322946735462684e-05,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2768.601678800633,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007973509388683908,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            147.41570948795987,
+            0.0,
+            147.41570948795987
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529742430410694,
+          "s_m": 208.47729566472498,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.13566183969121,
+          "step": 69,
+          "tangential_projection_residual_m": 1.0726188373480841e-08,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            147.50413703918457,
+            0.0,
+            147.5030632019043
+          ],
+          "assembly_com_velocity_mps": [
+            87.79767322540283,
+            0.0,
+            87.80893230438232
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530906119488791,
+          "attitude_error_deg": -0.0005339332371797864,
+          "backend_force_relative_error": 0.0001422248633149295,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2768.7958914785445,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007961371096314451,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            147.5036001223088,
+            0.0,
+            147.5036001223088
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5297501398254685,
+          "s_m": 208.6015917918268,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.17262159126217,
+          "step": 70,
+          "tangential_projection_residual_m": -2.495185911078994e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            147.59202766418457,
+            0.0,
+            147.5909538269043
+          ],
+          "assembly_com_velocity_mps": [
+            87.82382297515869,
+            0.0,
+            87.83505439758301
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.530906119488791,
+          "attitude_error_deg": -0.0005257747037995009,
+          "backend_force_relative_error": 9.5245245695764e-05,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2769.1087896818776,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.00794181495860613,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            147.59149075009276,
+            0.0,
+            147.59149075009276
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529762561659152,
+          "s_m": 208.72588790964437,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.20958336588185,
+          "step": 71,
+          "tangential_projection_residual_m": -6.432304541759658e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            147.67991828918457,
+            0.0,
+            147.6788444519043
+          ],
+          "assembly_com_velocity_mps": [
+            87.84996795654297,
+            0.0,
+            87.86118125915527
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.527303581041266,
+          "attitude_error_deg": -0.0005216954372365804,
+          "backend_force_relative_error": 0.0004133216301094083,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2769.3137919530504,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.00792900231665783,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            147.67938136725442,
+            0.0,
+            147.67938136725442
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.52977070084454,
+          "s_m": 208.85018401243974,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.24654514050155,
+          "step": 72,
+          "tangential_projection_residual_m": 4.6527793341223644e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            147.76780891418457,
+            0.0,
+            147.7667350769043
+          ],
+          "assembly_com_velocity_mps": [
+            87.87609577178955,
+            0.0,
+            87.8872938156128
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529819784799271,
+          "attitude_error_deg": -0.0005176161707499931,
+          "backend_force_relative_error": 0.0002406445918921191,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2769.4864254445524,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007918212723438955,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            147.76727199503839,
+            0.0,
+            147.76727199503839
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.52977755535139,
+          "s_m": 208.97448013025732,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.28348466158522,
+          "step": 73,
+          "tangential_projection_residual_m": 7.156607034417006e-10,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            147.85569953918457,
+            0.0,
+            147.8546257019043
+          ],
+          "assembly_com_velocity_mps": [
+            87.90222835540771,
+            0.0,
+            87.91341304779053
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.5307343358246,
+          "attitude_error_deg": -0.0005135369043651835,
+          "backend_force_relative_error": 0.00031998958429120956,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2769.637479749645,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007908771829370664,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            147.85516261220005,
+            0.0,
+            147.85516261220005
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.5297835533868795,
+          "s_m": 209.09877623305266,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.3204322748638,
+          "step": 74,
+          "tangential_projection_residual_m": 1.1800744579323723e-08,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            147.94359016418457,
+            0.0,
+            147.9425163269043
+          ],
+          "assembly_com_velocity_mps": [
+            87.92838096618652,
+            0.0,
+            87.93954658508301
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529647959936613,
+          "attitude_error_deg": -0.0005094576380821517,
+          "backend_force_relative_error": 8.151848865044362e-05,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2769.8532716139657,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007895284837850625,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            147.94305324654894,
+            0.0,
+            147.94305324654894
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529792122562712,
+          "s_m": 209.22307236015445,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.35740416472714,
+          "step": 75,
+          "tangential_projection_residual_m": -1.420589510825812e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            148.03148078918457,
+            0.0,
+            148.0304069519043
+          ],
+          "assembly_com_velocity_mps": [
+            87.95452117919922,
+            0.0,
+            87.96566772460938
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529476395625215,
+          "attitude_error_deg": -0.0005053783718754533,
+          "backend_force_relative_error": 0.000282781588831997,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2770.0690634784,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.00788179784632348,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            148.0309438743329,
+            0.0,
+            148.0309438743329
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529800692389962,
+          "s_m": 209.34736847797203,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.3943585215015,
+          "step": 76,
+          "tangential_projection_residual_m": -5.357708141614896e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            148.11937141418457,
+            0.0,
+            148.1182975769043
+          ],
+          "assembly_com_velocity_mps": [
+            87.98064994812012,
+            0.0,
+            87.99179077148438
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529647959936613,
+          "attitude_error_deg": -0.0005131541163652716,
+          "backend_force_relative_error": 0.000267364694125709,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2770.1338010377417,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007877751748864625,
+          "normal_tracking_error_m": -0.0007593176227722669,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            148.1188344914946,
+            0.0,
+            148.1188344914946
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529803263465164,
+          "s_m": 209.47166458076742,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.43130613478009,
+          "step": 77,
+          "tangential_projection_residual_m": 5.727335539965246e-09,
+          "tracking_error_m": 0.0007593176227722669
+        },
+        {
+          "assembly_com_position_m": [
+            148.20729064941406,
+            0.0,
+            148.2064037322998
+          ],
+          "assembly_com_velocity_mps": [
+            88.00678539276123,
+            0.0,
+            88.01792621612549
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.526737568035442,
+          "attitude_error_deg": -0.000567332951458862,
+          "backend_force_relative_error": 0.0003635815552063284,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2748.986198328802,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.00787775174887173,
+          "normal_tracking_error_m": -0.0006271451058421033,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            148.20684718738246,
+            0.0,
+            148.20684718738246
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.52896649797534,
+          "s_m": 209.59613332895307,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.4682672350502,
+          "step": 78,
+          "tangential_projection_residual_m": 4.913640775565473e-09,
+          "tracking_error_m": 0.0006271451058421033
+        },
+        {
+          "assembly_com_position_m": [
+            148.29537963867188,
+            0.0,
+            148.2945041656494
+          ],
+          "assembly_com_velocity_mps": [
+            88.03295230865479,
+            0.0,
+            88.04400253295898
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.528792744483784,
+          "attitude_error_deg": -0.00043080323574736255,
+          "backend_force_relative_error": 0.000258281500447473,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2748.716458498411,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007813688539130226,
+          "normal_tracking_error_m": -0.0006190529109280116,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            148.29494190934525,
+            0.0,
+            148.29494190934525
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.528955865368971,
+          "s_m": 209.72071807952634,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.50520877918261,
+          "step": 79,
+          "tangential_projection_residual_m": -1.0160573241872316e-08,
+          "tracking_error_m": 0.0006190529109280116
+        },
+        {
+          "assembly_com_position_m": [
+            148.38349533081055,
+            0.0,
+            148.3826198577881
+          ],
+          "assembly_com_velocity_mps": [
+            88.05912113189697,
+            0.0,
+            88.07009506225586
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529421252274462,
+          "attitude_error_deg": -0.0004968370520982555,
+          "backend_force_relative_error": 0.0002458554031106547,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2749.579625955921,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007759740573035856,
+          "normal_tracking_error_m": -0.0006190529109280116,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            148.38305759021026,
+            0.0,
+            148.38305759021026
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.52898989329409,
+          "s_m": 209.84533247046335,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.54216313595695,
+          "step": 80,
+          "tangential_projection_residual_m": 5.782803766385663e-09,
+          "tracking_error_m": 0.0006190529109280116
+        },
+        {
+          "assembly_com_position_m": [
+            148.47163009643555,
+            0.0,
+            148.4707546234131
+          ],
+          "assembly_com_velocity_mps": [
+            88.08528995513916,
+            0.0,
+            88.09619045257568
+          ],
+          "attached_pair_contact_count": 0,
+          "attached_pair_maximum_force_n": 0.0,
+          "attachment_inferred_proper_load_g": 4.529134048774593,
+          "attitude_error_deg": -0.0005587916280685541,
+          "backend_force_relative_error": 0.00040980383460434254,
+          "binormal_tracking_error_m": 0.0,
+          "guide_normal_force_n": 2750.41042463376,
+          "ideal_normal_force_n": 2774.687009376013,
+          "normal_speed_mps": 0.007707815655670913,
+          "normal_tracking_error_m": -0.0006190529109280116,
+          "path_normal": [
+            -0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "path_position_m": [
+            148.4711923648244,
+            0.0,
+            148.4711923648244
+          ],
+          "path_tangent": [
+            0.7071067811865476,
+            0.0,
+            0.7071067811865476
+          ],
+          "resultant_proper_load_g": 4.529022655020946,
+          "s_m": 209.96997386403936,
+          "signed_curvature_per_m": 0.0,
+          "speed_mps": 124.57911951578004,
+          "step": 81,
+          "tangential_projection_residual_m": -6.929750027062295e-09,
+          "tracking_error_m": 0.0006190529109280116
+        }
+      ],
+      "transform_writes_during_run": 0,
+      "wall_time_s": 0.3106336000491865
+    },
+    "full_speed_release": {
+      "applicable": false,
+      "passed": true,
+      "reason": "diagnostic interval ends before the zero-curvature tube exit"
+    },
+    "runtime_selection": {
+      "active_engine": "physx",
+      "device": "cpu",
+      "passed": true,
+      "physics_dt_s": 0.001,
+      "scene_ccd_enabled": false,
+      "settings": {
+        "/app/player/useFixedTimeStepping": true,
+        "/app/runLoops/main/rateLimitEnabled": false,
+        "/exts/isaacsim.core.simulation_manager/default_engine": "physx"
+      },
+      "solver_type": "TGS",
+      "switch_returned": true
+    },
+    "stop_rebuild_reset": {
+      "cart_position_error_m": 2.9141058348614024e-06,
+      "cart_velocity_error_mps": 1.9047796087079405e-06,
+      "collision_enabled": true,
+      "joint_enabled": true,
+      "maximum_position_error_m": 0.01,
+      "pair_contact_count": 0,
+      "pair_maximum_force_n": 0.0,
+      "passed": true,
+      "rocket_position_error_m": 4.760476031151484e-06,
+      "rocket_velocity_error_mps": 1.9047796087079405e-06,
+      "views_recreated_and_read": true
+    }
+  },
+  "provenance": {
+    "configuration_sha256": "c17eb8fcda2214385310a66e1bdff6dd1268f95aca65418a774ba4f28f14a4c4",
+    "experience_sha256": "66c1614eb05fb4aa50f4a2b11619e584667bf27d2442e7a5aec40b99176c3063",
+    "helper_path": "C:\\Dev\\Isaacsim\\vacuum-tube-launcher\\standalone\\qualify_anti_tunneling.py",
+    "helper_sha256": "479c0f5efb7b67ceaf0ed07aee45e2c6e792f2d567771247b8a3250d1213f6df",
+    "isaac_sim_source_git_revision": "987015050efebfd0cd5d3736ae47fffe5adee308",
+    "python_executable_sha256": "97f5b57ad5a91f8ddfc359500dcf3d29d3fa4ffe77035593a7ec7fbc47d76e12",
+    "runner_path": "C:\\Dev\\Isaacsim\\vacuum-tube-launcher\\standalone\\qualify_curved_guide.py",
+    "runner_sha256": "713f18779d1e091ed65a76efd83aa9108e36edc61fd75f1ab419e9d6bf0056c1",
+    "version_file_sha256": "228339a70b47b4217a9eb5c7453c417f14233420b06bd3cccc7fbdc9322c9e37"
+  },
+  "requested": {
+    "backend": "physx",
+    "candidate": "force_resolved_path_controller_v1",
+    "ccd_enabled": false,
+    "configuration": "C:\\Dev\\Isaacsim\\vacuum-tube-launcher\\configs\\curved_2kms.yaml",
+    "device": "cpu",
+    "end_s_m": 210.0,
+    "physics_dt_s": 0.001,
+    "start_s_m": 200.0,
+    "target_exit_speed_mps": 2000.0
+  },
+  "run_id": "cd8b5af34b53476c93c92a6666e48138",
+  "schema": "vacuum_tube_curved_guide_qualification_v1",
+  "started_utc": "2026-09-01T13:13:14.632929+00:00"
+}

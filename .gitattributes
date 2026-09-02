@@ -1,0 +1,17 @@
+# Never translate line endings, for any file, in either direction.
+#
+# This is not a style preference. Qualification artifacts record a SHA-256 closure over the
+# raw bytes of every .py file in the extension package, and the unit suite recomputes it and
+# fails on a mismatch (see README, "Evidence is bound to source"). Git for Windows ships
+# core.autocrlf=true in its system config, so without this file a fresh clone on Windows
+# would check the sources out with CRLF, change every byte hash, and turn the whole Phase 0
+# curved-guide suite red against evidence that is in fact valid -- a failure that looks like
+# a physics regression and is not one.
+#
+# Committing normalized LF is not enough on its own: it is the *checkout* direction that
+# does the damage. "-text" disables both.
+* -text
+
+# Renders and captured frames are binary; keep diffs from trying to interpret them.
+*.png binary
+*.gif binary

@@ -1,0 +1,679 @@
+{
+  "finished_utc": "2026-08-31T17:56:52.409813+00:00",
+  "host": {
+    "isaac_sim_version": "6.0.1-rc.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.13",
+    "python_executable": "C:\\Dev\\Isaacsim\\IsaacSim\\_build\\windows-x86_64\\release\\kit\\python\\kit.exe"
+  },
+  "passed": false,
+  "probes": {
+    "fixed_joint_release_continuity": {
+      "acceptance": {
+        "maximum_mutation_discontinuity": 1e-08,
+        "minimum_post_step_relative_offset_increase_m": 2.4999999999999998e-06,
+        "minimum_post_step_separating_speed_mps": 0.0025
+      },
+      "cart_orientation_component_discontinuity": 0.0,
+      "cart_position_discontinuity_m": 0.0,
+      "cart_velocity_discontinuity_mps": 0.0,
+      "collision_enabled_after_resync": true,
+      "joint_enabled_after_resync": false,
+      "mutation_continuity_passed": true,
+      "passed": false,
+      "post_step_cart_position_m": [
+        0.03640901297330856,
+        10.000003814697266,
+        0.036409009248018265
+      ],
+      "post_step_cart_velocity_mps": [
+        0.7000352740287781,
+        0.0,
+        0.7000351548194885
+      ],
+      "post_step_rocket_position_m": [
+        0.6728052496910095,
+        10.000003814697266,
+        0.6728051900863647
+      ],
+      "post_step_rocket_velocity_mps": [
+        0.7000352740287781,
+        0.0,
+        0.7000351548194885
+      ],
+      "post_step_separating_speed_mps": 0.0,
+      "relative_axial_offset_after_first_step_m": 0.9000001494967009,
+      "relative_axial_offset_before_m": 0.9000001521308789,
+      "relative_axial_offset_increase_m": -2.63417798684884e-09,
+      "resync_mechanism": "paused Kit update after USD jointEnabled mutation",
+      "rocket_orientation_component_discontinuity": 0.0,
+      "rocket_position_discontinuity_m": 0.0,
+      "rocket_velocity_discontinuity_mps": 0.0,
+      "solver_discriminator": "negative cart prismatic effort while released rocket coasts",
+      "solver_discriminator_effort_n": -30.0,
+      "solver_release_confirmed": false
+    },
+    "inclined_prismatic_attached_force": {
+      "acceptance": {
+        "maximum_cart_rocket_velocity_difference_mps": 1e-06,
+        "maximum_fixed_offset_error_m": 0.0001,
+        "maximum_relative_axial_velocity_error": 0.05,
+        "maximum_relative_displacement_error": 0.05,
+        "maximum_tracking_error_m": 0.0001
+      },
+      "articulation_root_prim": "/World/GuideAssembly/RootFixedJoint",
+      "assembly_mass_kg": 3.0,
+      "assembly_world_force_n": [
+        21.213203435596427,
+        0.0,
+        21.213203435596427
+      ],
+      "axial_displacement_m": 0.05050008519959397,
+      "axial_velocity_mps": 0.9999993085361528,
+      "cart_angular_velocity_radps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "cart_orientation_wxyz": [
+        0.9238795638084412,
+        0.0,
+        -0.3826834559440613,
+        0.0
+      ],
+      "cart_position_m": [
+        0.0357089564204216,
+        10.000003814697266,
+        0.035708948969841
+      ],
+      "cart_velocity_error_mps": 5.485434201313311e-07,
+      "cart_velocity_mps": [
+        0.707106351852417,
+        0.0,
+        0.7071062326431274
+      ],
+      "centerline_tracking_error_m": 3.814700903602072e-06,
+      "dof_armature_kg": [
+        [
+          0.0
+        ]
+      ],
+      "dof_gains": {
+        "damping": [
+          [
+            0.0
+          ]
+        ],
+        "stiffness": [
+          [
+            0.0
+          ]
+        ]
+      },
+      "dof_max_effort_n": [
+        [
+          1000000.0
+        ]
+      ],
+      "dof_names": [
+        "GuidePrismaticJoint"
+      ],
+      "expected_rigid_body_only_axial_velocity_mps": 1.0,
+      "expected_semi_implicit_axial_displacement_m": 0.0505,
+      "fixed_offset_error_m": 1.3364980810948168e-07,
+      "inclination_deg": 45.0,
+      "inferred_effective_mass_kg": 3.000002074392976,
+      "inferred_effective_mass_valid": true,
+      "inferred_joint_armature_kg": 2.0743929760591584e-06,
+      "passed": true,
+      "relative_axial_velocity_error": 6.914638471799961e-07,
+      "rocket_angular_velocity_radps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rocket_orientation_wxyz": [
+        0.9238795638084412,
+        0.0,
+        -0.3826834559440613,
+        0.0
+      ],
+      "rocket_position_m": [
+        0.6721051931381226,
+        10.000003814697266,
+        0.6721051335334778
+      ],
+      "rocket_velocity_error_mps": 5.485434201313311e-07,
+      "rocket_velocity_mps": [
+        0.707106351852417,
+        0.0,
+        0.7071062326431274
+      ]
+    },
+    "live_collision_activation_and_contact_reporting": {
+      "acceptance": {
+        "minimum_contact_points": 1,
+        "requires_finite_reported_force": true,
+        "requires_solver_release_confirmation": true
+      },
+      "collision_enabled": true,
+      "distances_m": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "forces_n": [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      "joint_enabled": false,
+      "normals": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "pair_counts": [
+        [
+          0
+        ]
+      ],
+      "passed": false,
+      "points_m": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "post_step_relative_axial_offset_m": 0.9000001494967009,
+      "pre_step_axial_overlap_m": 0.09999984786912108,
+      "sample_phase": "first integrated step after joint-disable/collision-enable resync",
+      "solver_release_confirmed": false,
+      "total_contact_points": 0
+    },
+    "live_reset_state": {
+      "accepted_method": "stop_rebuild_recreate_views",
+      "live_tensor_write_diagnostic": {
+        "cart_orientation_error": 3.129715442362624e-08,
+        "cart_position_error_m": 0.03640901297330856,
+        "cart_velocity_mps": [
+          0.7000352740287781,
+          0.0,
+          0.7000351548194885
+        ],
+        "collision_enabled": false,
+        "joint_enabled": true,
+        "passed": false,
+        "rocket_orientation_error": 3.129715442362624e-08,
+        "rocket_position_error_m": 0.03640914662311667,
+        "rocket_velocity_mps": [
+          0.7000352740287781,
+          0.0,
+          0.7000351548194885
+        ]
+      },
+      "passed": true,
+      "stop_rebuild_recreate_views": {
+        "acceptance": {
+          "maximum_dof_state_magnitude": 1e-06,
+          "maximum_orientation_component_error": 1e-06,
+          "maximum_position_error_m": 1e-05,
+          "maximum_velocity_component": 1e-06,
+          "suppressed_pair_contact_count": 0
+        },
+        "cart_angular_velocity_radps": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cart_orientation_error": 3.129715442362624e-08,
+        "cart_position_error_m": 3.814697265625e-06,
+        "cart_velocity_mps": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collision_enabled": false,
+        "dof_armature_kg": [
+          [
+            0.0
+          ]
+        ],
+        "dof_gains": {
+          "damping": [
+            [
+              0.0
+            ]
+          ],
+          "stiffness": [
+            [
+              0.0
+            ]
+          ]
+        },
+        "dof_positions": [
+          0.0
+        ],
+        "dof_velocities": [
+          0.0
+        ],
+        "force_angular_velocity_radps": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "force_orientation_error": 0.0,
+        "force_position_error_m": 0.0,
+        "force_velocity_mps": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "joint_enabled": true,
+        "passed": true,
+        "recreated_views": [
+          "guide_articulation",
+          "guide_cart_rigid_body",
+          "guide_rocket_rigid_body",
+          "force_probe_rigid_body",
+          "release_contact_view"
+        ],
+        "rocket_angular_velocity_radps": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rocket_orientation_error": 3.129715442362624e-08,
+        "rocket_position_error_m": 3.814697265625e-06,
+        "rocket_velocity_mps": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "suppressed_pair_contact_count": 0,
+        "views_exercised_after_rebuild": true
+      }
+    },
+    "reported_joint_reaction_capability": {
+      "forces_n": [
+        [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            30.0,
+            0.0,
+            1.9073486328125e-06
+          ],
+          [
+            10.0,
+            0.0,
+            -4.76837158203125e-07
+          ]
+        ]
+      ],
+      "link_names": [
+        "GuideBase",
+        "GuideCart",
+        "GuideRocket"
+      ],
+      "passed": true,
+      "supported": true,
+      "torques_nm": [
+        [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ]
+        ]
+      ]
+    },
+    "runtime_selection": {
+      "acceptance": {
+        "active_engine_equals_requested": "physx",
+        "device_contains": "cpu",
+        "fixed_time_stepping": true,
+        "physics_dt_absolute_tolerance_s": 1e-12,
+        "rate_limit_enabled": false
+      },
+      "active_engine": "physx",
+      "available_engines": [
+        [
+          "physx",
+          true
+        ]
+      ],
+      "default_engine": "physx",
+      "device": "cpu",
+      "passed": true,
+      "physics_dt_s": 0.001,
+      "settings": {
+        "/app/player/useFixedTimeStepping": true,
+        "/app/runLoops/main/manualModeEnabled": false,
+        "/app/runLoops/main/rateLimitEnabled": false,
+        "/exts/isaacsim.core.simulation_manager/default_engine": "physx",
+        "/exts/isaacsim.physics.newton/auto_switch_on_startup": null
+      },
+      "solver_type": "TGS",
+      "stepping_mode": "explicit SimulationManager.step with fixed timestep",
+      "switch_returned": true,
+      "tensor_backend": "numpy"
+    },
+    "tensor_world_force": {
+      "actual_angular_velocity_radps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_position_m": [
+        0.05049997940659523,
+        0.0,
+        0.0
+      ],
+      "actual_velocity_mps": [
+        0.9999993443489075,
+        0.0,
+        0.0
+      ],
+      "expected_semi_implicit_position_m": [
+        0.0505,
+        0.0,
+        0.0
+      ],
+      "expected_velocity_mps": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "mass_kg": 2.0,
+      "maximum_position_error_m": 2.0593404773117108e-08,
+      "maximum_velocity_error_mps": 6.556510925292969e-07,
+      "passed": true,
+      "steps": 100,
+      "world_force_n": [
+        20.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "provenance": {
+    "build_revision_environment": {},
+    "experience_path": "C:\\Dev\\Isaacsim\\IsaacSim\\_build\\windows-x86_64\\release\\apps\\isaacsim.exp.full.kit",
+    "experience_sha256": "66c1614eb05fb4aa50f4a2b11619e584667bf27d2442e7a5aec40b99176c3063",
+    "isaac_sim_source_git_revision": "987015050efebfd0cd5d3736ae47fffe5adee308",
+    "python_executable_path": "C:\\packman-repo\\chk\\kit-kernel\\110.1.2+production.windows-x86_64.release\\python\\kit.exe",
+    "python_executable_sha256": "97f5b57ad5a91f8ddfc359500dcf3d29d3fa4ffe77035593a7ec7fbc47d76e12",
+    "runner_path": "C:\\Dev\\Isaacsim\\vacuum-tube-launcher\\standalone\\qualify_phase0.py",
+    "runner_sha256": "ad851fafce907a594f6d8a06bf2f3d17ec82795e7b121afd4eda64ee01245b36",
+    "version_file_path": "C:\\Dev\\Isaacsim\\IsaacSim\\VERSION",
+    "version_file_sha256": "228339a70b47b4217a9eb5c7453c417f14233420b06bd3cccc7fbdc9322c9e37"
+  },
+  "requested": {
+    "backend": "physx",
+    "device": "cpu",
+    "experience": "C:\\Dev\\Isaacsim\\IsaacSim\\_build\\windows-x86_64\\release\\apps\\isaacsim.exp.full.kit",
+    "force_steps": 100,
+    "physics_dt_s": 0.001,
+    "stepping_mode": "explicit SimulationManager.step with fixed timestep"
+  },
+  "run_id": "f628bf4b445a4fadbf72fcd23c993a8d",
+  "schema": "vacuum_tube_phase0_qualification_v2",
+  "started_utc": "2026-08-31T17:54:42.203024+00:00"
+}

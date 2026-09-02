@@ -1,0 +1,34 @@
+[package]
+version = "0.2.0"
+category = "Simulation"
+title = "skyArc"
+description = "Vacuum-tube electromagnetic launcher simulation: can a ground launcher replace a first stage?"
+keywords = ["physics", "launcher", "aerospace", "isaac"]
+readme = "docs/Overview.md"
+changelog = "docs/CHANGELOG.md"
+writeTarget.kit = true
+
+[dependencies]
+"isaacsim.core.experimental.prims" = {}
+"isaacsim.core.experimental.utils" = {}
+"isaacsim.core.simulation_manager" = {}
+"omni.physics" = {}
+
+[[python.module]]
+name = "skyarc.extension"
+
+# Registered so omni.kit.test can discover the Kit integration suite. The package root
+# itself is deliberately not registered: it must stay importable without Isaac Sim.
+[[python.module]]
+name = "skyarc.tests"
+
+[[test]]
+timeout = 900
+args = [
+    "--/app/player/useFixedTimeStepping=true",
+    "--/app/runLoops/main/rateLimitEnabled=false",
+    "--/app/settings/persistent=0",
+]
+
+[documentation]
+pages = ["docs/Overview.md", "docs/CHANGELOG.md"]

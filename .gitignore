@@ -1,0 +1,29 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Telemetry run instances. `output.directory` in the scenario configuration defaults to
+# `outputs`, and a single complete mission writes ~60,000 samples across CSV, JSONL and
+# summary files. Run records are reproducible from the configuration and the runner, so
+# they are regenerated rather than tracked.
+/outputs/
+
+# Rendered captures written outside artifacts/. The two committed frames under
+# artifacts/production/renders/ are deliberate evidence and are NOT ignored.
+/renders/
+/captures/
+
+# Editor and OS noise
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# NOTE: artifacts/ is intentionally tracked.
+# The Phase 0 and production artifacts are evidence, not build output:
+# tests/unit/test_phase0_runner.py and tests/unit/test_production_mission.py recompute
+# hashes of the sources that produced them and fail if they are absent or stale. Removing
+# them does not make the tree lighter, it makes the suite red.

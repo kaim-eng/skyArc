@@ -1,0 +1,22 @@
+{
+  "schema": "vacuum_tube_anti_tunneling_fixture_v1",
+  "pair_name": "rocket_cradle",
+  "impact_case": "axial_rear_wall",
+  "initial_clearance_m": 0.01,
+  "rocket": {
+    "shape": "cylinder",
+    "axis": "X",
+    "mass_kg": 150.0,
+    "length_m": 4.0,
+    "diameter_m": 0.5
+  },
+  "cradle": {
+    "topology": "open_front_u",
+    "mass_kg": 250.0,
+    "outer_length_m": 2.5,
+    "outer_width_m": 1.2,
+    "outer_height_m": 0.6,
+    "wall_thickness_m": 0.1,
+    "floor_thickness_m": 0.1
+  }
+}
