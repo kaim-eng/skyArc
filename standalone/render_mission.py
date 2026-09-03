@@ -116,6 +116,14 @@ TRAIL_WIDTH_M = 110.0
 trail wide enough to be decorative swallows them -- at 320 m it hid both the ticks and the
 brake track underneath."""
 
+CHASE_TICK_RADIUS_M = 0.75
+"""Small kilometre cue below the chase rail.
+
+The original 9 m spheres could occupy most of the vehicle-scale frame whenever the camera
+crossed one.  A 0.75 m radius remains legible across the 30--85 m chase distance without
+reaching the vehicle, whose centreline is 4 m above the marker centre.
+"""
+
 COLUMNS = (
     "time_s",
     "post.cart.position_m.x",
@@ -491,7 +499,7 @@ def main() -> int:
         for index in range(1, count + 1):
             pose = path_pose(layout, index * args.marker_spacing_m)
             tick = UsdGeom.Sphere.Define(stage, f"{rail_scope}/Tick_{index}")
-            tick.CreateRadiusAttr(9.0)
+            tick.CreateRadiusAttr(CHASE_TICK_RADIUS_M)
             tick.AddTranslateOp().Set(Gf.Vec3d(*pose.position_m) + Gf.Vec3d(0.0, 0.0, -args.rail_drop_m))
             tick.CreateDisplayColorAttr([Gf.Vec3f(0.85, 0.85, 0.9)])
 
@@ -785,4 +793,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

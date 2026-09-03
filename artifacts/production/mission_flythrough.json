@@ -1,5 +1,5 @@
 {
-  "bytes": 675704,
+  "bytes": 645440,
   "configuration": "C:\\Dev\\Isaacsim\\skyArc\\configs\\curved_2kms_brake_30g_candidate.yaml",
   "frames": 81,
   "motion": "replayed_from_recorded_telemetry",
