@@ -1,5 +1,5 @@
 {
-  "finished_utc": "2026-09-02T15:20:52.548348+00:00",
+  "finished_utc": "2026-09-03T14:04:55.667963+00:00",
   "gates_evaluated": [
     "curved_force_guide",
     "full_speed_release",
@@ -96,7 +96,7 @@
       "peak_normal_tracking_error_m": 0.00033801881981338015,
       "peak_resultant_proper_load_g": 6.8262779600453625,
       "physics_steps": 216464,
-      "physics_steps_per_wall_second": 261.44007437895476,
+      "physics_steps_per_wall_second": 223.42907964120064,
       "profile_tangential_acceleration_mps2": 36.95769665240981,
       "reached_end": true,
       "sample_counts": {
@@ -108365,7 +108365,7 @@
         "peak_guide_reaction_command_relative_error": 2.402298277697655,
         "peak_inferred_attachment_proper_load_g": 6.835994566705788
       },
-      "wall_time_s": 827.9679407000076
+      "wall_time_s": 968.8264407999814
     },
     "full_speed_release": {
       "applicable": true,
@@ -108465,6 +108465,7 @@
         "launcher/analytic.py": "3bf351d9797d793fdd85cadf83377197ae4cfb7312a1524bb74791ea6a180b92",
         "launcher/atmosphere.py": "c4c04752548fc5b026c022557770c0004a66889b1f7080fddb8ad435f214e150",
         "launcher/brake.py": "2eb718c249d7bc927b8052643c319c0e94c8d1c3fe6409b5ff6a644884367629",
+        "launcher/cart_sizing.py": "b16647c8e01dd5e1b7615d346891b2b3840a11dfb982fcfa5637bba9d674f181",
         "launcher/feasibility.py": "3940f85a876bbc7ede70f27817112fd966cd325f074dce028c0b3841b959435b",
         "launcher/geometry.py": "f28522c1a433a852c38c9f75c9a45aa1328081dc3f8bd7a2eefae186947e87a0",
         "launcher/guide.py": "739b9db6d8fe462da693046ac69334e99bedfee88f97b213ba41a3063ad482e5",
@@ -108489,7 +108490,7 @@
         "telemetry/summary.py": "9b6c015766aa58313e381056f1b99ceab3910830da48180aaee7d591615af80d"
       },
       "root": "C:\\Dev\\Isaacsim\\skyArc\\exts\\skyarc\\skyarc",
-      "sha256": "5ca171ad74506aa557205f6a907e54bfbb3b0902c76cb05863f251d92a506818"
+      "sha256": "069a07c621030475100b3fbcdf9cd3bd14260c0f8d1f73741817ce296a73f357"
     },
     "python_executable_sha256": "97f5b57ad5a91f8ddfc359500dcf3d29d3fa4ffe77035593a7ec7fbc47d76e12",
     "runner_path": "C:\\Dev\\Isaacsim\\skyArc\\standalone\\qualify_curved_guide.py",
@@ -108520,7 +108521,7 @@
     "target_exit_speed_mps": 2000.0,
     "telemetry_stride": 100
   },
-  "run_id": "06ab2449500a4f7d94e6a128bd3251e8",
+  "run_id": "d023823319534303a1e04149023131f7",
   "schema": "vacuum_tube_curved_guide_qualification_v1",
-  "started_utc": "2026-09-02T15:06:36.423223+00:00"
+  "started_utc": "2026-09-03T13:47:13.290630+00:00"
 }

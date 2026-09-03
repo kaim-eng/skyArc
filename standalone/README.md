@@ -38,6 +38,10 @@ cd C:\Dev\Isaacsim\IsaacSim\_build\windows-x86_64\release
 
 # Required negative control for the translated-frame treatment
 .\python.bat C:\Dev\Isaacsim\skyArc\standalone\qualify_curved_guide.py --physics-dt-s 0.001 --normal-kp-per-s2 400 --normal-kd-per-s 40 --telemetry-stride 100 --coordinate-frame global --output C:\Dev\Isaacsim\skyArc\artifacts\phase0\curved_guide\physx_cpu_1ms_global_control.json --overwrite
+
+# Analytic brake architecture/G/jerk trade study. This does not run Isaac Sim or alter
+# the qualified mission configuration.
+.\python.bat C:\Dev\Isaacsim\skyArc\standalone\sweep_brake_design.py
 ```
 
 The current slice records and gates the resolved fixed-step runtime, checks world-frame tensor force

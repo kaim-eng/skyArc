@@ -75,6 +75,8 @@ finite-burn losses, and its loss allowance is a declared input rather than a mea
 |---|---|
 | `DESIGN_REVIEW.md` | **The authority.** Requirements, physics contracts, qualification evidence, and the panel decision record. Start at sections 1, 3 and 10.6. |
 | `HANDOFF.md` | Implementation state: what exists, what is missing, defects found and fixed, and what to do next. |
+| `BRAKE_TRADE_STUDY.md` | Reproducible architecture/G/jerk sweep addressing the 25 km exit-track problem, with the selected candidate's qualification status. |
+| `artifacts/design/brake_30g_qualification/README.md` | Evidence boundary and results for the 30 G induction-plate brake candidate. |
 | `standalone/README.md` | The evidence runners and what each artifact proves. |
 
 ## Layout
