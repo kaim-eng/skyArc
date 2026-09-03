@@ -1,11 +1,54 @@
 {
   "backend": "physx",
   "candidate": "force_resolved_path_controller_v1",
-  "captures": null,
+  "captures": {
+    "renderer": "rtx",
+    "resolution": [
+      1280,
+      720
+    ],
+    "settle_frames": 60,
+    "views": {
+      "full_system": {
+        "camera_position_m": [
+          21650.11259572546,
+          -74535.4684380666,
+          15488.283228233335
+        ],
+        "image": "C:\\Dev\\Isaacsim\\skyArc\\artifacts\\production\\renders\\full_system.png",
+        "look_at_m": [
+          21650.11259572546,
+          0.0,
+          15488.283228233335
+        ],
+        "luminance_variance": 0.0001233117606013468,
+        "mean_luminance": 0.40313228371715015,
+        "nonzero_pixel_fraction": 1.0,
+        "schematic_tube": true
+      },
+      "vehicle": {
+        "camera_position_m": [
+          0.5656854249492381,
+          -14.0,
+          2.0656854249492382
+        ],
+        "image": "C:\\Dev\\Isaacsim\\skyArc\\artifacts\\production\\renders\\vehicle.png",
+        "look_at_m": [
+          0.5656854249492381,
+          0.0,
+          0.5656854249492381
+        ],
+        "luminance_variance": 0.0036711802122957812,
+        "mean_luminance": 0.3780227816219023,
+        "nonzero_pixel_fraction": 1.0,
+        "schematic_tube": false
+      }
+    }
+  },
   "cart_path": "/World/VacuumTubeLauncher/Bodies/Cradle",
   "configuration": "C:\\Dev\\Isaacsim\\skyArc\\configs\\curved_2kms.yaml",
-  "configuration_resolved_sha256": "83e84d17600c1cdb18f0f2a9d62efce518023a5e4d4a2b4ae0b73a3f39d46f13",
-  "configuration_source_sha256": "8ad6767fc088747753a5124fd346c83b9d5e0c6f2457413ccf902d3cf27940ec",
+  "configuration_resolved_sha256": "90b3cfb8962f896630d9a2c850b8fb21abd63a94f1cf2f8195a69d9567da0505",
+  "configuration_source_sha256": "536e6fe4c624b0dc04d328f33ed145fff8c42ec2412660c7b70cffc776d512c4",
   "coordinate_frame": "translated_accelerating_v1",
   "coupling_path": "/World/VacuumTubeLauncher/Joints/CartRocketFixedJoint",
   "cradle_topology": "open_front_u",
@@ -14,8 +57,9 @@
   "exit_track_length_m": 25000.0,
   "fixed_time_stepping": true,
   "fixture": "C:\\Dev\\Isaacsim\\skyArc\\configs\\phase0_anti_tunneling_open_cradle.json",
-  "fixture_sha256": "7004d7df2bca9f91f7cab07a3c303511bb2bd381041ba00784d3d1acae5a64ec",
+  "fixture_sha256": "9fa53a3bf03e137a19f9892fb07abb271f0a50a0712ee00f475f9ed464ab797f",
   "mission_execution": "not_started_scene_construction_slice",
+  "orbit": null,
   "passed": true,
   "physics_dt_s": 0.001,
   "rate_limit_enabled": false,

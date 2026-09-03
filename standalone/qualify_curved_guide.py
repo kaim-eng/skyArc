@@ -436,26 +436,34 @@ def main() -> int:
         cart_mass = fixture.cradle.mass_kg
         rocket_mass = fixture.rocket.mass_kg
         assembly_mass = cart_mass + rocket_mass
+        offset_cart_m = scene_plan.cart_to_rocket_offset_cart_m
         offset_m = scene_plan.cart_to_rocket_offset_m
-        com_from_cart_m = rocket_mass / assembly_mass * offset_m
         profile_acceleration = args.target_exit_speed_mps**2 / (2.0 * layout.length_m)
         start_speed = math.sqrt(2.0 * profile_acceleration * args.start_s_m)
         start_omega_y = -start_speed * start_pose.signed_curvature_per_m
+        world_offset_start = [
+            offset_cart_m[0] * start_pose.tangent[i]
+            + (offset_cart_m[1] if i == 1 else 0.0)
+            + offset_cart_m[2] * start_pose.normal[i]
+            for i in range(3)
+        ]
+        rocket_mass_fraction = rocket_mass / assembly_mass
         global_cart_position_start = [
-            start_pose.position_m[i] - com_from_cart_m * start_pose.tangent[i] for i in range(3)
+            start_pose.position_m[i] - rocket_mass_fraction * world_offset_start[i]
+            for i in range(3)
         ]
         global_rocket_position_start = [
-            global_cart_position_start[i] + offset_m * start_pose.tangent[i] for i in range(3)
+            global_cart_position_start[i] + world_offset_start[i] for i in range(3)
+        ]
+        rotational_offset_velocity = [
+            start_omega_y * world_offset_start[2],
+            0.0,
+            -start_omega_y * world_offset_start[0],
         ]
         global_cart_velocity_start = [
             start_speed * start_pose.tangent[i]
-            + start_omega_y * com_from_cart_m * start_pose.normal[i]
+            - rocket_mass_fraction * rotational_offset_velocity[i]
             for i in range(3)
-        ]
-        rotational_offset_velocity = [
-            start_omega_y * offset_m * start_pose.tangent[2],
-            0.0,
-            -start_omega_y * offset_m * start_pose.tangent[0],
         ]
         global_rocket_velocity_start = [
             global_cart_velocity_start[i] + rotational_offset_velocity[i] for i in range(3)
@@ -827,6 +835,7 @@ def main() -> int:
             ),
             "guide_reference_point": "attached assembly center of mass",
             "cart_to_rocket_offset_m": offset_m,
+            "cart_to_rocket_offset_cart_m": list(offset_cart_m),
             "transform_writes_during_run": transform_writes_during_run,
             "initialization_transform_writes": transform_writes_before_run,
             "gravity_mps2": gravity,

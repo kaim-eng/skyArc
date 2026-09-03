@@ -303,7 +303,7 @@ class ConfigurationTests(unittest.TestCase):
         clearance = loaded.preflight.swept_envelope
         assert clearance is not None
         self.assertEqual(clearance.limiting_body, "cart")
-        self.assertAlmostEqual(clearance.minimum_vehicle_wall_clearance_m, 0.3175314, places=6)
+        self.assertAlmostEqual(clearance.minimum_vehicle_wall_clearance_m, 0.0280088, places=6)
         self.assertLess(clearance.polyline_chord_error_bound_m, 0.0051)
         atmosphere = loaded.config.tube.exterior_atmosphere
         assert atmosphere is not None and atmosphere.scale_height_m is not None

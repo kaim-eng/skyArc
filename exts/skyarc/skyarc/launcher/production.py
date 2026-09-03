@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence, Tuple
 
 from ..configuration.schema import ScenarioConfig
-from ..linalg import ZERO3, Quat, Vec3, add, scale, sub
+from ..linalg import ZERO3, Quat, Vec3, add, norm, scale, sub
 from ..names import BODY_CART, BODY_ROCKET
 from .geometry import TubePath, path_pose
 from .path_controller import TranslatedFrameState
@@ -72,8 +72,13 @@ class ProductionScenePlan:
     cradle: OpenCradleGeometry
     rocket: RocketGeometry
     initial_clearance_m: float
-    cart_to_rocket_offset_m: float
+    cart_to_rocket_offset_cart_m: Vec3
     reaction_evidence: str
+
+    @property
+    def cart_to_rocket_offset_m(self) -> float:
+        """Three-dimensional body-centre separation used by mass properties."""
+        return norm(self.cart_to_rocket_offset_cart_m)
 
 
 def _unique_object(pairs: Sequence[tuple[str, Any]]) -> dict[str, Any]:
@@ -203,6 +208,7 @@ def validate_fixture_against_scenario(
         ("cradle mass", fixture.cradle.mass_kg, config.cart.mass_kg),
         ("cradle length", fixture.cradle.outer_length_m, config.cart.length_m),
         ("cradle width", fixture.cradle.outer_width_m, config.cart.width_m),
+        ("cradle height", fixture.cradle.outer_height_m, config.cart.height_m),
     )
     for label, qualified, configured in comparisons:
         if not math.isclose(qualified, configured, rel_tol=0.0, abs_tol=1e-12):
@@ -272,10 +278,21 @@ def build_production_scene_plan(
     exit_pose = path_pose(layout, layout.length_m)
     exit_length = config.tube.exit_brake_track_length_m
     exit_end = add(exit_pose.position_m, scale(exit_pose.tangent, exit_length))
-    offset_m = (
-        0.5 * (fixture.cradle.outer_length_m + fixture.rocket.length_m)
+    # Nest the rocket in the independently qualified open-cradle geometry. Its aft cap
+    # clears the rear wall by the declared gap, while its axis stays on the cart/tube
+    # centreline. The deep, full-length U-cradle leaves enough floor clearance for passive
+    # separation and contains both rocket caps at release; a shallow or short tray makes
+    # the vehicle look top-mounted and lets gravity drive the rocket onto its front lip,
+    # violating the ignition angular-rate interlock.
+    rear_wall_forward_face_x_m = (
+        -0.5 * fixture.cradle.outer_length_m + fixture.cradle.wall_thickness_m
+    )
+    rocket_axial_offset_m = (
+        rear_wall_forward_face_x_m
+        + 0.5 * fixture.rocket.length_m
         + fixture.initial_clearance_m
     )
+    rocket_normal_offset_m = 0.0
     return ProductionScenePlan(
         candidate="force_resolved_path_controller_v1",
         coordinate_frame="translated_accelerating_v1",
@@ -288,7 +305,11 @@ def build_production_scene_plan(
         cradle=fixture.cradle,
         rocket=fixture.rocket,
         initial_clearance_m=fixture.initial_clearance_m,
-        cart_to_rocket_offset_m=offset_m,
+        cart_to_rocket_offset_cart_m=(
+            rocket_axial_offset_m,
+            0.0,
+            rocket_normal_offset_m,
+        ),
         reaction_evidence=(
             "commanded_and_backend_reconstructed_not_solver_constraint_reaction"
         ),
@@ -330,9 +351,14 @@ def resolve_initial_solver_states(
     half_angle_rad = 0.5 * math.radians(start.inclination_deg)
     orientation: Quat = (math.cos(half_angle_rad), 0.0, -math.sin(half_angle_rad), 0.0)
     assembly_mass_kg = fixture.cradle.mass_kg + fixture.rocket.mass_kg
-    com_from_cart_m = fixture.rocket.mass_kg / assembly_mass_kg * plan.cart_to_rocket_offset_m
-    global_cart_m = sub(start.position_m, scale(start.tangent, com_from_cart_m))
-    global_rocket_m = add(global_cart_m, scale(start.tangent, plan.cart_to_rocket_offset_m))
+    axial_offset_m, binormal_offset_m, normal_offset_m = plan.cart_to_rocket_offset_cart_m
+    world_offset_m = add(
+        add(scale(start.tangent, axial_offset_m), (0.0, binormal_offset_m, 0.0)),
+        scale(start.normal, normal_offset_m),
+    )
+    rocket_mass_fraction = fixture.rocket.mass_kg / assembly_mass_kg
+    global_cart_m = sub(start.position_m, scale(world_offset_m, rocket_mass_fraction))
+    global_rocket_m = add(global_cart_m, world_offset_m)
     solver_velocity = sub(ZERO3, reference.velocity_mps)
     return {
         BODY_CART: InitialRigidState(

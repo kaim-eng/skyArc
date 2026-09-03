@@ -296,8 +296,54 @@ class InitialPlacementTests(unittest.TestCase):
             self.plan.cart_to_rocket_offset_m,
             places=9,
         )
-        # The rocket is ahead of the cart along the tube, never behind it.
-        self.assertGreater(dot(sub(global_rocket, global_cart), entrance.tangent), 0.0)
+        body_offset = sub(global_rocket, global_cart)
+        axial_offset_m = dot(body_offset, entrance.tangent)
+        normal_offset_m = dot(body_offset, entrance.normal)
+        self.assertAlmostEqual(
+            axial_offset_m, self.plan.cart_to_rocket_offset_cart_m[0], places=9
+        )
+        self.assertAlmostEqual(
+            normal_offset_m, self.plan.cart_to_rocket_offset_cart_m[2], places=9
+        )
+
+        # The aft cap reproduces the declared rear-wall clearance. The rocket axis stays
+        # on the cart/tube centreline, and the deeper U-cradle supplies passive-release
+        # floor clearance. Both rocket caps stay within the cradle envelope so the rocket
+        # is seated in the cart rather than parked on top of or beyond it.
+        rear_wall_forward_face_m = (
+            -0.5 * self.fixture.cradle.outer_length_m
+            + self.fixture.cradle.wall_thickness_m
+        )
+        rocket_aft_m = axial_offset_m - 0.5 * self.fixture.rocket.length_m
+        rocket_nose_m = axial_offset_m + 0.5 * self.fixture.rocket.length_m
+        floor_top_m = (
+            -0.5 * self.fixture.cradle.outer_height_m
+            + self.fixture.cradle.floor_thickness_m
+        )
+        rocket_bottom_m = normal_offset_m - 0.5 * self.fixture.rocket.diameter_m
+        self.assertAlmostEqual(
+            rocket_aft_m - rear_wall_forward_face_m,
+            self.fixture.initial_clearance_m,
+            places=9,
+        )
+        floor_clearance_m = rocket_bottom_m - floor_top_m
+        self.assertGreaterEqual(floor_clearance_m, 0.25)
+        tube_radius_m = 0.5 * self.config.tube.inner_diameter_m
+        cradle_corner_radius_m = math.hypot(
+            0.5 * self.fixture.cradle.outer_width_m,
+            0.5 * self.fixture.cradle.outer_height_m,
+        )
+        self.assertLessEqual(
+            cradle_corner_radius_m + self.config.tube.guide_clearance_m,
+            tube_radius_m,
+        )
+        self.assertLess(rocket_aft_m, 0.5 * self.fixture.cradle.outer_length_m)
+        self.assertLessEqual(
+            rocket_nose_m,
+            0.5 * self.fixture.cradle.outer_length_m,
+        )
+        self.assertAlmostEqual(axial_offset_m, 0.01, places=9)
+        self.assertAlmostEqual(normal_offset_m, 0.0, places=9)
 
         # The entrance is straight, so the mass-weighted COM lies on the centerline.
         com = tuple(

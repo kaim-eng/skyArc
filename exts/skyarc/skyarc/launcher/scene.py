@@ -277,7 +277,7 @@ def author_production_bodies(
     joint = UsdPhysics.FixedJoint.Define(stage, COUPLING_PATH)
     joint.CreateBody0Rel().SetTargets([Sdf.Path(CART_PATH)])
     joint.CreateBody1Rel().SetTargets([Sdf.Path(ROCKET_PATH)])
-    joint.CreateLocalPos0Attr().Set(Gf.Vec3f(plan.cart_to_rocket_offset_m, 0.0, 0.0))
+    joint.CreateLocalPos0Attr().Set(Gf.Vec3f(*plan.cart_to_rocket_offset_cart_m))
     joint.CreateLocalPos1Attr().Set(Gf.Vec3f(0.0, 0.0, 0.0))
     joint.CreateLocalRot0Attr().Set(Gf.Quatf(1.0))
     joint.CreateLocalRot1Attr().Set(Gf.Quatf(1.0))

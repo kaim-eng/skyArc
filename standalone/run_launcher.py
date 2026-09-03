@@ -619,8 +619,6 @@ def main() -> int:
                 built.rocket.set_world_poses(
                     positions=[rocket_position], orientations=[orientation]
                 )
-                built.cart.set_velocities((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
-                built.rocket.set_velocities((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
 
             _reseat()
 

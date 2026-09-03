@@ -99,9 +99,9 @@ tube:
 
 cart:
   mass_kg: 250.0
-  length_m: 2.5
+  length_m: 4.2
   width_m: 1.2
-  height_m: 0.4
+  height_m: 1.4
   drag_coefficient: 0.30
   frontal_area_m2: 0.50
   brake_force_limit_n: 24410.321

@@ -42,8 +42,9 @@ class ProductionSceneTests(unittest.TestCase):
         validate_fixture_against_scenario(self.fixture, self.loaded.config)
         self.assertEqual(self.fixture.rocket.length_m, 4.0)
         self.assertEqual(self.fixture.rocket.diameter_m, 0.5)
-        self.assertEqual(self.fixture.cradle.outer_length_m, 2.5)
+        self.assertEqual(self.fixture.cradle.outer_length_m, 4.2)
         self.assertEqual(self.fixture.cradle.outer_width_m, 1.2)
+        self.assertEqual(self.fixture.cradle.outer_height_m, 1.4)
 
     def test_scene_plan_pins_the_approved_non_constraint_treatment(self) -> None:
         plan = build_production_scene_plan(

@@ -1,6 +1,6 @@
 {
-  "bytes": 324398,
-  "configuration": "C:\\Dev\\Isaacsim\\skyArc\\configs\\curved_2kms.yaml",
+  "bytes": 377922,
+  "configuration": "C:\\Dev\\Isaacsim\\skyArc\\configs\\curved_2kms_brake_30g_candidate.yaml",
   "frames": 65,
   "motion": "replayed_from_recorded_telemetry",
   "output": "C:\\Dev\\Isaacsim\\skyArc\\docs\\media\\cart_brake_separation.gif",
@@ -10,10 +10,10 @@
     340
   ],
   "schema": "skyarc_mission_playback_v1",
-  "telemetry": "C:\\Users\\kaim\\AppData\\Local\\Temp\\claude\\C--Dev-Isaacsim\\cae16e15-dda2-47f6-9d46-60c53278e421\\scratchpad\\telemetry_full_requal",
+  "telemetry": "C:\\Dev\\Isaacsim\\skyArc\\outputs\\telemetry_brake_30g_nested_v4\\curved_launcher_2kms_brake_study\\induction_plate_30g_300j\\0\\80f77170-e8da-4c0f-ab40-28b27fb2d1b0",
   "time_range_s": [
     54.11499999996458,
-    78.00000000000838
+    64.9989999999463
   ],
   "tube_hidden": true
 }

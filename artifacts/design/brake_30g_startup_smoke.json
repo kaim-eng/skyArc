@@ -4,8 +4,8 @@
   "candidate": "force_resolved_path_controller_v1",
   "completed_mission": false,
   "configuration": "C:\\Dev\\Isaacsim\\skyArc\\configs\\curved_2kms_brake_30g_candidate.yaml",
-  "configuration_resolved_sha256": "4aa45ca719f342ce8a8bacdc845281a6b038f0c338a967eca1831c38376f4e56",
-  "configuration_source_sha256": "e0a368f8a789c8fdfcb2356c3cb04036290afe345b017314258afa891fa44547",
+  "configuration_resolved_sha256": "2c3f4557d8cbed8115e3edbf9473f900b86f5e447464d5f9e6559755b8144d51",
+  "configuration_source_sha256": "d094fa8279474756b340327a4d4e6ca431cd9a462c281d76fa425be23924eab4",
   "controller_gains": {
     "attitude_kd_per_s": 100.0,
     "attitude_kp_per_s2": 2500.0,
@@ -19,26 +19,32 @@
   "event_names": [
     "state_transition"
   ],
-  "final_cart_speed_mps": 0.0370007417288229,
-  "final_time_s": 0.001,
+  "final_cart_speed_mps": 184.78848746045952,
+  "final_time_s": 5.000000000000004,
   "fixed_time_stepping": true,
   "fixed_time_stepping_during_playback": true,
   "fixture": "C:\\Dev\\Isaacsim\\skyArc\\configs\\brake_30g_induction_candidate_fixture.json",
-  "fixture_sha256": "446dcbddddac6a2f8993fbb829c9f4cf1a567a6be6a09da7febddf4fa12b6acf",
+  "fixture_sha256": "21789c91d0c46391ff785e0a1f7c31a6a745ecc9849e88f4718905cdccda4383",
   "guide_clearance_m": 0.05,
+  "missing_required_release_events": [
+    "burnout",
+    "ignition",
+    "release_confirmed",
+    "separation_confirmed"
+  ],
   "mission_phase": "launch_stage",
   "passed": true,
-  "peak_attitude_error_deg": 6.046125852603102e-06,
-  "peak_centerline_tracking_error_m": 0.0,
-  "peak_commanded_normal_force_n": 1345.6258860689604,
-  "peak_solver_offset_m": 2.5208020822059063,
+  "peak_attitude_error_deg": 0.0007216453202970434,
+  "peak_centerline_tracking_error_m": 3.236675806392052e-07,
+  "peak_commanded_normal_force_n": 1345.6313107131261,
+  "peak_solver_offset_m": 0.007733513381104882,
   "physics_dt_s": 0.001,
-  "physics_steps": 1,
-  "physics_steps_per_wall_second": 50.85616347144944,
+  "physics_steps": 5000,
+  "physics_steps_per_wall_second": 33.92971461517753,
   "provenance": {
-    "configuration_sha256": "e0a368f8a789c8fdfcb2356c3cb04036290afe345b017314258afa891fa44547",
+    "configuration_sha256": "d094fa8279474756b340327a4d4e6ca431cd9a462c281d76fa425be23924eab4",
     "experience_sha256": "66c1614eb05fb4aa50f4a2b11619e584667bf27d2442e7a5aec40b99176c3063",
-    "fixture_sha256": "446dcbddddac6a2f8993fbb829c9f4cf1a567a6be6a09da7febddf4fa12b6acf",
+    "fixture_sha256": "21789c91d0c46391ff785e0a1f7c31a6a745ecc9849e88f4718905cdccda4383",
     "isaac_sim_source_git_revision": "987015050efebfd0cd5d3736ae47fffe5adee308",
     "project_source_closure": {
       "files": {
@@ -84,9 +90,9 @@
         "launcher/guide.py": "739b9db6d8fe462da693046ac69334e99bedfee88f97b213ba41a3063ad482e5",
         "launcher/launch_force.py": "52a48ee6ec5576c9b24a9a9da453992a7e0fbc7c5300570673ba6f8d7cda7630",
         "launcher/path_controller.py": "cf7d4b767c901353afc0509ee312683dff1a0bb255635bc2a98ee0adefc39935",
-        "launcher/production.py": "cdc683ec70f18e025cf67350bd1d1fb7557c41a34d6a6f63fcbc55c09fc7ef8f",
+        "launcher/production.py": "b1e39c443c520a5ae338473df700a9a46651dfd07251b2aa2e7f3e1c20be7b80",
         "launcher/production_runtime.py": "dea5079f4e95d2342350161265151bab302198b3265bf82696e502f3030fc5e2",
-        "launcher/scene.py": "47fa4a6a5001ff1e426cb3322310fb7bb233c33d0d3dfac780a6019f5e22a7d6",
+        "launcher/scene.py": "f4adf7155197a7ee929e5549ec97790d9cc0ed8d40b262428affce8484df64c1",
         "linalg.py": "4c41637ad5247010c18975ec6a4f361d8ae33f87c72e117ed3d54ac45e32b7cb",
         "names.py": "8a705cc7680dfe328103caaa050dd53b6f77de6678868abb206a1adf3f5cf07a",
         "orchestrator.py": "d839ebb1e1c5237ea3288179dfa5b823b3ac7edee38e583f2e5ec37e519a4dea",
@@ -103,10 +109,10 @@
         "telemetry/summary.py": "9b6c015766aa58313e381056f1b99ceab3910830da48180aaee7d591615af80d"
       },
       "root": "C:\\Dev\\Isaacsim\\skyArc\\exts\\skyarc\\skyarc",
-      "sha256": "069a07c621030475100b3fbcdf9cd3bd14260c0f8d1f73741817ce296a73f357"
+      "sha256": "3ca6a97000dd3d195c6d2ff26f8c40ea3ec2aa86eaf5154ab4eac2d98a0fab8b"
     },
     "python_executable_sha256": "97f5b57ad5a91f8ddfc359500dcf3d29d3fa4ffe77035593a7ec7fbc47d76e12",
-    "runner_sha256": "1c7ab0da35b70396fe4af4c4a089aa608a71d207a43445cf80a35291132a5e2a",
+    "runner_sha256": "d9231ad31a31c0d9702e68aefdc1ce81687d741e025e15cc15f61a8b61ac7746",
     "version_file_sha256": "228339a70b47b4217a9eb5c7453c417f14233420b06bd3cccc7fbdc9322c9e37"
   },
   "rate_limit_enabled": false,
@@ -114,12 +120,26 @@
   "reaction_evidence": "commanded_and_backend_reconstructed_not_solver_constraint_reaction",
   "reference_profile_acceleration_mps2": 36.95769665240981,
   "reference_profile_exit_time_s": 54.11592661767224,
-  "requested_max_steps": 1,
-  "reset_replay": null,
-  "runner_sha256": "1c7ab0da35b70396fe4af4c4a089aa608a71d207a43445cf80a35291132a5e2a",
+  "release_cycle_complete": false,
+  "release_cycle_due": false,
+  "release_cycle_due_s": 61.11592661767224,
+  "requested_max_steps": 5000,
+  "reset_replay": {
+    "cart_position_error_m": 1.4391396171986592e-08,
+    "cart_velocity_error_mps": 0.0,
+    "event_count": 0,
+    "maximum_state_error": 1e-05,
+    "mission_phase": "idle",
+    "passed": true,
+    "rocket_position_error_m": 4.404797186718934e-11,
+    "rocket_velocity_error_mps": 0.0,
+    "step_index": 0,
+    "time_s": 0.0
+  },
+  "runner_sha256": "d9231ad31a31c0d9702e68aefdc1ce81687d741e025e15cc15f61a8b61ac7746",
   "schema": "vacuum_tube_production_mission_v1",
   "solver_type": "TGS",
   "telemetry_run": null,
   "telemetry_summary": null,
-  "wall_time_s": 0.019663300015963614
+  "wall_time_s": 147.36345579999033
 }

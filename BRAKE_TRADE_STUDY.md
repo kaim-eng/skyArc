@@ -44,13 +44,15 @@ Full machine-readable sweep: `240` cases in `artifacts/design/brake_design_sweep
 
 ## Candidate qualification status
 
-The selected point has now passed the available candidate checks without changing the
-10 G reference configuration:
+The selected point has now passed the available candidate checks. The 10 G reference
+brake calibration remains available as a control; both configurations now share the
+corrected full-length cradle geometry:
 
 - 4/4 anti-tunneling fixture cases passed;
 - 3/3 curved-guide timestep cases passed;
 - the production brake-stop probe stopped at 8.000 km with 2.000 km of track remaining;
-- peak measured resultant load was 26.034 G against the 30.01 G candidate bound.
+- peak measured resultant load was 26.044 G against the 30.01 G candidate bound;
+- the fully seated rocket separated with 0.0 N s measured contact impulse before ignition.
 
 The production probe was deliberately stopped after cart rest, so this is brake-focused
 qualification rather than a claim that the rocket's full free-flight tail completed.

@@ -165,6 +165,12 @@ def main() -> int:
         if str(package_parent) not in sys.path:
             sys.path.insert(0, str(package_parent))
         from skyarc.configuration import load_yaml, resolve_tube_layout
+        from skyarc.events import (
+            EVENT_BURNOUT,
+            EVENT_IGNITION,
+            EVENT_RELEASE_CONFIRMED,
+            EVENT_SEPARATION_CONFIRMED,
+        )
         from skyarc.launcher.geometry import CurvedTubeLayout
         from skyarc.launcher.production import (
             build_production_scene_plan,
@@ -351,6 +357,21 @@ def main() -> int:
                 ),
             }
 
+        event_names = {event.name for event in run_events}
+        required_release_events = {
+            EVENT_RELEASE_CONFIRMED,
+            EVENT_SEPARATION_CONFIRMED,
+            EVENT_IGNITION,
+            EVENT_BURNOUT,
+        }
+        release_cycle_due_s = (
+            runtime.reference_frame.exit_time_s
+            + config.rocket.ignition.separation_timeout_s
+            + config.rocket.motor.burn_duration_s
+        )
+        release_cycle_due = final_state.time_s + 1e-12 >= release_cycle_due_s
+        release_cycle_complete = required_release_events.issubset(event_names)
+
         summary: dict[str, object] = {
             "schema": "vacuum_tube_production_mission_v1",
             "configuration": str(args.configuration.resolve()),
@@ -400,8 +421,12 @@ def main() -> int:
             "mission_phase": run_phase.value,
             "abort_reason": run_abort_reason,
             "completed_mission": completed,
-            "event_names": sorted({event.name for event in run_events}),
+            "event_names": sorted(event_names),
             "event_count": len(run_events),
+            "release_cycle_due": release_cycle_due,
+            "release_cycle_due_s": release_cycle_due_s,
+            "release_cycle_complete": release_cycle_complete,
+            "missing_required_release_events": sorted(required_release_events - event_names),
             "final_time_s": final_state.time_s,
             "final_cart_speed_mps": math.sqrt(
                 sum(value * value for value in final_state.body(BODY_CART).linear_velocity)
@@ -423,6 +448,7 @@ def main() -> int:
             and steps > 0
             and run_phase is not MissionPhase.ABORT
             and peak_tracking_error_m <= config.tube.guide_clearance_m
+            and (not release_cycle_due or release_cycle_complete)
             and (reset_probe is None or bool(reset_probe["passed"]))
         )
 
