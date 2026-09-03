@@ -27,6 +27,17 @@ Every pose is **replayed from the recorded mission**, not re-simulated, so this 
 cannot show motion the physics did not produce. The tube itself is hidden and replaced by
 the coloured rail below the vehicle; ticks are 1 km apart. See [Rendering](#rendering).
 
+![Cart braking to a stop on the exit track while the rocket departs](docs/media/cart_brake_separation.gif)
+
+**The handoff, at system scale.** From release to the cart's full stop, 54.1 to 78.0 s.
+The cart runs **23.0 km** down the exit brake track and stops; the rocket is **47.6 km**
+out and still doing 2,081 m/s. Ticks are dropped every 2 s on both trails, so the cart's
+deceleration is visible directly in their bunching rather than asserted in a caption. The
+grey rail is the 25 km exit track drawn at true length — it is 46% as long as the entire
+guided tube and does no work on the payload, which is what makes it the design's most
+questionable structure. Markers are oversized; the vehicles are metres across in a 54 km
+frame.
+
 ![The cart and rocket at the tube entrance](docs/media/vehicle_orbit.gif)
 
 The vehicle at rest: the open-front U cradle holding the rocket cylinder, at its t=0
@@ -113,6 +124,12 @@ Drop `--headless` from `run_launcher.py` to explore the scene interactively.
 .\python.bat <repo>\standalone\render_mission.py `
     --telemetry <dir containing telemetry.csv> `
     --output <repo>\docs\media\mission_flythrough.gif
+
+# The same run at system scale: cart braking, rocket departing
+.\python.bat <repo>\standalone\render_mission.py `
+    --telemetry <dir containing telemetry.csv> --shot separation `
+    --width 900 --height 340 `
+    --output <repo>\docs\media\cart_brake_separation.gif
 
 # The static vehicle revolve
 .\python.bat <repo>\standalone\run_launcher.py --headless `

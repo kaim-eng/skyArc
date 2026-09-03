@@ -1,4 +1,4 @@
-﻿"""Render a recorded mission as an animated chase-camera flythrough.
+"""Render a recorded mission as an animated chase-camera flythrough.
 
 This is a *playback*, not a simulation. The mission already ran; every pose in every frame
 is read out of the telemetry that run produced, so this script cannot invent motion the
@@ -44,6 +44,31 @@ def _arguments() -> argparse.Namespace:
     )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--summary", type=Path)
+    parser.add_argument(
+        "--shot",
+        choices=("chase", "separation"),
+        default="chase",
+        help=(
+            "'chase' follows the assembly up the tube at vehicle scale. 'separation' pulls "
+            "back to the whole exit region to show the cart braking to a stop on its track "
+            "while the rocket departs -- a 46 km by 10 km box, at which scale the bodies "
+            "are sub-pixel and are drawn as oversized markers with trails."
+        ),
+    )
+    parser.add_argument("--sep-start-s", type=float, default=54.114)
+    parser.add_argument("--sep-end-s", type=float, default=78.0)
+    parser.add_argument("--sep-frames", type=int, default=64)
+    parser.add_argument(
+        "--tick-interval-s",
+        type=float,
+        default=2.0,
+        help=(
+            "Seconds between trail ticks. Equal-time marks are the honest way to show "
+            "deceleration: the cart's bunch together as it slows, the rocket's stay evenly "
+            "spaced, and neither depends on the reader trusting a caption."
+        ),
+    )
+    parser.add_argument("--marker-radius-m", type=float, default=420.0)
     parser.add_argument("--width", type=int, default=800)
     parser.add_argument("--height", type=int, default=450)
     parser.add_argument("--frame-ms", type=int, default=80)
@@ -86,6 +111,11 @@ def _arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
+TRAIL_WIDTH_M = 110.0
+"""Thin on purpose. The trail shows the path; the equal-time ticks show the speed, and a
+trail wide enough to be decorative swallows them -- at 320 m it hid both the ticks and the
+brake track underneath."""
+
 COLUMNS = (
     "time_s",
     "post.cart.position_m.x",
@@ -116,6 +146,15 @@ def _frame_times(args) -> list[float]:
     past the release in one. The three segments are cut at the events the mission itself
     recorded rather than at round numbers.
     """
+    if args.shot == "separation":
+        # Uniform in time, deliberately. The whole point of the shot is that the two bodies
+        # cover very different distances in equal intervals, and any non-uniform sampling
+        # would hide exactly that.
+        span = args.sep_end_s - args.sep_start_s
+        return [
+            args.sep_start_s + span * index / args.sep_frames
+            for index in range(args.sep_frames + 1)
+        ]
     exit_s = 54.114
     times = [exit_s * index / args.climb_frames for index in range(args.climb_frames)]
     times += [
@@ -228,6 +267,93 @@ def _overlay(image, row, reference_speed: float, progress: float, width: int, he
 
 
 _ALTITUDE_CACHE: dict[str, float] = {}
+
+
+def _separation_overlay(image, row, cart, rocket, history, progress, width, height):
+    """Caption the divergence with both speeds, differenced from the trail itself.
+
+    Speeds come from consecutive recorded positions rather than from a telemetry speed
+    column, because the cart's speed is the quantity on trial here and it should be the
+    same number a reader could measure off the tick spacing in the picture.
+    """
+    import math as _math
+
+    from PIL import Image, ImageDraw, ImageFont
+
+    def _font(size: int):
+        for name in ("segoeui.ttf", "arial.ttf", "DejaVuSans.ttf"):
+            try:
+                return ImageFont.truetype(name, size)
+            except OSError:
+                continue
+        return ImageFont.load_default()
+
+    large = _font(max(15, height // 18))
+    small = _font(max(12, height // 28))
+    pad = max(9, width // 70)
+
+    # The sky is a flat mid grey and the trail colours are chosen to read against the
+    # geometry, not against text. Without a backing panel the caption sits at almost the
+    # same luminance as the background and is unreadable at GIF quantisation.
+    panel = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    ImageDraw.Draw(panel).rectangle(
+        [0, 0, width, pad * 2 + large.size + 3 * (small.size + 4)],
+        fill=(8, 10, 14, 165),
+    )
+    image = Image.alpha_composite(image.convert("RGBA"), panel).convert("RGB")
+    draw = ImageDraw.Draw(image)
+
+    time_s = float(row["time_s"])
+    speeds = {}
+    for body, points in history.items():
+        speeds[body] = (
+            _math.dist(points[-1], points[-2]) / max(1e-9, _DT_CACHE.get("value", 1.0))
+            if len(points) >= 2
+            else 0.0
+        )
+
+    draw.text((pad, pad), f"t = {time_s:6.2f} s", font=large, fill=(255, 255, 255))
+    y = pad + large.size + 6
+    draw.text(
+        (pad, y),
+        f"cart    {speeds['cart']:7.0f} m/s   on the 25 km brake track",
+        font=small,
+        fill=(255, 150, 60),
+    )
+    draw.text(
+        (pad, y + small.size + 4),
+        f"rocket  {speeds['rocket']:7.0f} m/s   free flight",
+        font=small,
+        fill=(110, 190, 255),
+    )
+    draw.text(
+        (pad, y + 2 * (small.size + 4)),
+        f"apart   {_math.dist(cart, rocket)/1000:7.2f} km",
+        font=small,
+        fill=(215, 220, 228),
+    )
+    note = (
+        "ticks every "
+        f"{_TICK_CACHE.get('value', 2.0):g} s  -  markers and trails not to scale; "
+        "the vehicles are metres across in a 54 km frame"
+    )
+    note_y = height - pad - small.size - 14
+    draw.rectangle(
+        [0, note_y - 5, width, height], fill=(8, 10, 14)
+    )
+    draw.text((pad, note_y), note, font=small, fill=(178, 183, 190))
+    bar_w = width - 2 * pad
+    bar_y = height - pad - 6
+    draw.rectangle([pad, bar_y, pad + bar_w, bar_y + 4], fill=(70, 74, 80))
+    draw.rectangle(
+        [pad, bar_y, pad + int(bar_w * max(0.0, min(1.0, progress))), bar_y + 4],
+        fill=(90, 170, 255),
+    )
+    return image
+
+
+_DT_CACHE: dict[str, float] = {}
+_TICK_CACHE: dict[str, float] = {}
 
 
 def main() -> int:
@@ -377,6 +503,84 @@ def main() -> int:
             xformable.ClearXformOpOrder()
             body_ops[name] = xformable.MakeMatrixXform()
 
+        trails: dict[str, object] = {}
+        markers: dict[str, object] = {}
+        ticks: dict[str, list] = {"cart": [], "rocket": []}
+        BODY_COLOUR = {"cart": (1.0, 0.55, 0.15), "rocket": (0.35, 0.75, 1.0)}
+        if args.shot == "separation":
+            # The vehicles are metres long inside a 46 km by 10 km frame, so at this scale
+            # they are three orders of magnitude below a pixel. Hiding the real geometry and
+            # drawing deliberately oversized markers is the honest choice: an invisible
+            # to-scale body would just look like an empty frame, and a body scaled up
+            # without saying so would misrepresent the vehicle. The caption says so.
+            for path in (built.cart_path, built.rocket_path):
+                UsdGeom.Imageable(stage.GetPrimAtPath(path)).MakeInvisible()
+            for prim in stage.Traverse():
+                name = prim.GetPath().pathString
+                if name.startswith(f"{rail_scope}/Tick_") or name.startswith(f"{rail_scope}/Rail_"):
+                    UsdGeom.Imageable(prim).MakeInvisible()
+
+            # The exit brake track, drawn at its true 25 km length. This is the structure the
+            # shot exists to show: it is 46% as long as the entire guided tube and does no
+            # work on the payload.
+            track = UsdGeom.BasisCurves.Define(stage, f"{rail_scope}/BrakeTrack")
+            track.CreateTypeAttr("linear")
+            track.CreateBasisAttr("bezier")
+            track.CreateWrapAttr("nonperiodic")
+            track.CreateCurveVertexCountsAttr([len(plan.exit_track_points_m)])
+            track.CreatePointsAttr([Gf.Vec3f(*p) for p in plan.exit_track_points_m])
+            track.CreateWidthsAttr([260.0] * len(plan.exit_track_points_m))
+            track.SetWidthsInterpolation("vertex")
+            track.CreateDisplayColorAttr([Gf.Vec3f(0.55, 0.57, 0.62)])
+
+            # The last stretch of tube, so the exit reads as an exit rather than as the
+            # arbitrary start of a line.
+            tail = plan.tube_bands[-1].points_m
+            approach = UsdGeom.BasisCurves.Define(stage, f"{rail_scope}/Approach")
+            approach.CreateTypeAttr("linear")
+            approach.CreateBasisAttr("bezier")
+            approach.CreateWrapAttr("nonperiodic")
+            approach.CreateCurveVertexCountsAttr([len(tail)])
+            approach.CreatePointsAttr([Gf.Vec3f(*p) for p in tail])
+            approach.CreateWidthsAttr([260.0] * len(tail))
+            approach.SetWidthsInterpolation("vertex")
+            approach.CreateDisplayColorAttr([Gf.Vec3f(1.0, 0.35, 0.2)])
+
+            for body in ("cart", "rocket"):
+                trail = UsdGeom.BasisCurves.Define(stage, f"{rail_scope}/{body}Trail")
+                trail.CreateTypeAttr("linear")
+                trail.CreateBasisAttr("bezier")
+                trail.CreateWrapAttr("nonperiodic")
+                trail.CreateDisplayColorAttr([Gf.Vec3f(*BODY_COLOUR[body])])
+                # Seed with two real points from the record. A curve authored with a single
+                # vertex is invalid geometry, and once Hydra has seen it in that state it
+                # does not re-sync when later frames make it valid -- which is why the first
+                # cut drew ticks with no line joining them.
+                seed = [
+                    Gf.Vec3f(*_world_position(samples[0], body)),
+                    Gf.Vec3f(*_world_position(samples[min(1, len(samples) - 1)], body)),
+                ]
+                trail.CreateCurveVertexCountsAttr([len(seed)])
+                trail.CreatePointsAttr(seed)
+                trail.CreateWidthsAttr([TRAIL_WIDTH_M] * len(seed))
+                trail.SetWidthsInterpolation("vertex")
+                trails[body] = trail
+                marker = UsdGeom.Sphere.Define(stage, f"{rail_scope}/{body}Marker")
+                marker.CreateRadiusAttr(args.marker_radius_m)
+                marker.CreateDisplayColorAttr([Gf.Vec3f(*BODY_COLOUR[body])])
+                markers[body] = marker.AddTranslateOp()
+                # One tick per interval, pre-authored and revealed as its moment arrives.
+                span = args.sep_end_s - args.sep_start_s
+                for slot in range(int(span / args.tick_interval_s) + 1):
+                    tick = UsdGeom.Sphere.Define(
+                        stage, f"{rail_scope}/{body}Tick_{slot}"
+                    )
+                    tick.CreateRadiusAttr(0.42 * args.marker_radius_m)
+                    tick.CreateDisplayColorAttr([Gf.Vec3f(*BODY_COLOUR[body])])
+                    op = tick.AddTranslateOp()
+                    UsdGeom.Imageable(tick.GetPrim()).MakeInvisible()
+                    ticks[body].append((tick, op))
+
         camera = UsdGeom.Camera.Define(stage, "/World/ChaseCamera")
         camera.CreateFocalLengthAttr(24.0)
         camera.CreateHorizontalApertureAttr(20.955)
@@ -389,6 +593,47 @@ def main() -> int:
         annotator.attach([product])
 
         target_speed = float(config.launch_control.target_exit_speed_mps)
+        history: dict[str, list] = {"cart": [], "rocket": []}
+        placed: dict[str, set] = {"cart": set(), "rocket": set()}
+        separation_view = None
+        if args.shot == "separation":
+            # Frame on where the bodies actually go, read from the samples rather than
+            # guessed: the cart runs 23 km down the track while the rocket departs 47.6 km,
+            # so the box is about 46 km by 10 km and badly wrong if assumed.
+            xs, zs = [], []
+            for row in samples:
+                for body in ("cart", "rocket"):
+                    p = _world_position(row, body)
+                    xs.append(p[0])
+                    zs.append(p[2])
+            pad = 2500.0
+            low = (min(xs) - pad, min(zs) - pad)
+            high = (max(xs) + pad, max(zs) + pad)
+            centre_x = 0.5 * (low[0] + high[0])
+            centre_z = 0.5 * (low[1] + high[1])
+            half_h = math.radians(47.0) / 2.0
+            half_v = math.atan(math.tan(half_h) * args.height / args.width)
+            distance = max(
+                0.5 * (high[0] - low[0]) / math.tan(half_h),
+                0.5 * (high[1] - low[1]) / math.tan(half_v),
+            )
+            # Bias the aim upward so the subject sits below the caption panel, which covers
+            # the top quarter of the frame and otherwise clips the departing rocket.
+            aim_z = centre_z + 0.16 * (high[1] - low[1])
+            eye = Gf.Vec3d(centre_x, -distance, aim_z)
+            separation_view = (
+                Gf.Matrix4d()
+                .SetLookAt(eye, Gf.Vec3d(centre_x, 0.0, aim_z), Gf.Vec3d(0.0, 0.0, 1.0))
+                .GetInverse()
+            )
+            print(
+                f"separation framing: {(high[0]-low[0])/1000:.1f} km x "
+                f"{(high[1]-low[1])/1000:.1f} km, camera {distance/1000:.1f} km back",
+                flush=True,
+            )
+        if len(samples) >= 2:
+            _DT_CACHE["value"] = float(samples[1]["time_s"]) - float(samples[0]["time_s"])
+        _TICK_CACHE["value"] = args.tick_interval_s
         frames = []
         for index, row in enumerate(samples):
             time_s = float(row["time_s"])
@@ -411,6 +656,49 @@ def main() -> int:
             separation = math.dist(cart, rocket)
             centre = tuple(0.5 * (cart[axis] + rocket[axis]) for axis in range(3))
             speed = float(row["actual.rocket_axial_speed_mps"] or 0.0)
+
+            if args.shot == "separation":
+                history["cart"].append(cart)
+                history["rocket"].append(rocket)
+                for body in ("cart", "rocket"):
+                    markers[body].Set(Gf.Vec3d(*positions[body]))
+                    points = history[body]
+                    if len(points) >= 2:
+                        # Create, not Get: the attributes do not exist until first authored,
+                        # and Set on an invalid attribute fails silently -- which is why the
+                        # first pass drew ticks with no trail joining them.
+                        trails[body].CreateCurveVertexCountsAttr().Set([len(points)])
+                        trails[body].CreatePointsAttr().Set([Gf.Vec3f(*p) for p in points])
+                        trails[body].CreateWidthsAttr().Set([TRAIL_WIDTH_M] * len(points))
+                        trails[body].SetWidthsInterpolation("vertex")
+                    slot = int((time_s - args.sep_start_s) / args.tick_interval_s)
+                    if 0 <= slot < len(ticks[body]) and slot not in placed[body]:
+                        placed[body].add(slot)
+                        tick, op = ticks[body][slot]
+                        op.Set(Gf.Vec3d(*positions[body]))
+                        UsdGeom.Imageable(tick.GetPrim()).MakeVisible()
+                # Fixed camera on the whole episode's bounding box, computed once from the
+                # telemetry. A camera that tracked anything would cancel the very motion the
+                # shot is about.
+                camera_op.Set(separation_view)
+                for _ in range(max(1, args.settle_frames)):
+                    rep.orchestrator.step(rt_subframes=1)
+                import numpy as np
+
+                array = np.asarray(annotator.get_data())
+                if array.ndim == 1:
+                    array = array.reshape(args.height, args.width, 4)
+                image = Image.fromarray(array[:, :, :3].astype("uint8"))
+                if not args.no_overlay:
+                    image = _separation_overlay(
+                        image, row, cart, rocket, history,
+                        index / max(1, len(samples) - 1), args.width, args.height,
+                    )
+                frames.append(image)
+                if index % 8 == 0:
+                    print(f"  frame {index}/{len(samples)}  t={time_s:.2f}s  "
+                          f"sep={separation/1000:.1f} km", flush=True)
+                continue
             # Pull back as the vehicle speeds up, sub-linearly: matching distance to speed
             # exactly would cancel the apparent motion and hide the very acceleration this
             # shot exists to show. The cap is set by legibility -- the assembly is about
