@@ -15,22 +15,27 @@ The upper stage is deliberately **not** simulated. Modelling one answers a diffe
 much larger question, so it is represented by four parameters and the launcher's delivered
 state is scored against them. See `DESIGN_REVIEW.md` section 10.6.
 
-![The launcher centerline, 54 km from entrance to exit](docs/media/full_system_orbit.gif)
+![Chase camera following the cart and rocket up the tube to release](docs/media/mission_flythrough.gif)
 
-The 54 km centerline, rising 31 km. Blue is the evacuated section, the green-to-orange
-grade near the top is where the interior meets ambient air density, and the red marker is
-the release point. The banding is drawn at an exaggerated width because the real tube is
-under a pixel across from this distance.
+**The flight.** A chase camera follows the assembly up the tube from the entrance to the
+exit plane at t=54.114 s, then the last 1.6 s play back roughly ten times slower: the
+coupling releases, the cart brakes onto its own track, and the rocket carries on. The
+caption is read from the same telemetry row that placed the vehicle in each frame, so the
+numbers cannot drift from the picture — 0 to 2,032 m/s and 31.8 km over 81 frames.
+
+Every pose is **replayed from the recorded mission**, not re-simulated, so this animation
+cannot show motion the physics did not produce. The tube itself is hidden and replaced by
+the coloured rail below the vehicle; ticks are 1 km apart. See [Rendering](#rendering).
 
 ![The cart and rocket at the tube entrance](docs/media/vehicle_orbit.gif)
 
-The same scene at vehicle scale: the open-front U cradle holding the rocket cylinder, at
-its t=0 seating with the rocket's centre of mass at the tube entrance. **The tube is hidden
-in this view** — it is authored as an opaque solid with no cutaway, so leaving it in shows
-the outside of a pipe and nothing else.
+The vehicle at rest: the open-front U cradle holding the rocket cylinder, at its t=0
+seating with the rocket's centre of mass at the tube entrance. Here **only the camera
+moves** — this one is geometry, not a flight. The tube is hidden for the same reason as
+above.
 
-**In both, only the camera is moving.** The scene is static at t=0; neither is a mission
-playback, and nothing here is animated yet. See [Rendering](#rendering) for why.
+For the launcher's overall shape, `artifacts/production/renders/full_system.png` is a still
+of the whole 54 km arc.
 
 ## Current result
 
@@ -104,11 +109,12 @@ Drop `--headless` from `run_launcher.py` to explore the scene interactively.
 .\python.bat <repo>\standalone\run_launcher.py --headless `
     --capture-dir <repo>\artifacts\production\renders
 
-# The two animations above
-.\python.bat <repo>\standalone\run_launcher.py --headless `
-    --capture-orbit <repo>\docs\media\full_system_orbit.gif `
-    --orbit-view full_system --orbit-frames 36 --orbit-width 720 --orbit-height 540
+# The mission flythrough, replayed from a completed run's telemetry
+.\python.bat <repo>\standalone\render_mission.py `
+    --telemetry <dir containing telemetry.csv> `
+    --output <repo>\docs\media\mission_flythrough.gif
 
+# The static vehicle revolve
 .\python.bat <repo>\standalone\run_launcher.py --headless `
     --capture-orbit <repo>\docs\media\vehicle_orbit.gif `
     --orbit-view vehicle --orbit-mode revolve --orbit-frames 48 `
@@ -117,12 +123,15 @@ Drop `--headless` from `run_launcher.py` to explore the scene interactively.
 
 Three limits are worth knowing before you read any image here.
 
-**Nothing is animated yet.** Rigid bodies are simulated in the translated frame described
-in `DESIGN_REVIEW.md` section 7, while the visuals are authored in global coordinates. The
-two agree only at t=0, so a mission playback would show the vehicle parked at the entrance
-for the entire 54 s. Driving visual proxy prims from reconstructed global state is the
-missing piece; until then every render is the static authored scene, and `--capture-orbit`
-moves the camera rather than the subject.
+**Live views cannot be animated; recorded ones can.** Rigid bodies are simulated in the
+translated frame of `DESIGN_REVIEW.md` section 7 while the visuals are authored in global
+coordinates, so a *live* view shows the vehicle parked at the entrance for the whole 54 s.
+`render_mission.py` sidesteps this by replaying a finished run: the backend adapter resolves
+the frame below the recorder, so telemetry is already global and the script places bodies
+straight from the record. It asserts that convention on every run — the recorded cart pose
+must sit within 500 m of the reference frame, and it reads 1.21 m — because adding the
+offset a second time is a silent error that puts the vehicle at 42 km instead of 21 km.
+`run_launcher.py --capture-orbit`, by contrast, moves only the camera.
 
 **Two tube scales exist, and only one is ever visible at a time.** At true scale the tube
 is roughly a fourteenth of a pixel wide from system-scale distance, so that view swaps in

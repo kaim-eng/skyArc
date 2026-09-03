@@ -1,0 +1,19 @@
+{
+  "bytes": 892988,
+  "configuration": "C:\\Dev\\Isaacsim\\skyArc\\configs\\curved_2kms.yaml",
+  "frames": 81,
+  "motion": "replayed_from_recorded_telemetry",
+  "output": "C:\\Dev\\Isaacsim\\skyArc\\docs\\media\\mission_flythrough.gif",
+  "reconstruction": "x_global = x_solver + x_reference(t)",
+  "resolution": [
+    800,
+    450
+  ],
+  "schema": "skyarc_mission_playback_v1",
+  "telemetry": "C:\\Users\\kaim\\AppData\\Local\\Temp\\claude\\C--Dev-Isaacsim\\cae16e15-dda2-47f6-9d46-60c53278e421\\scratchpad\\telemetry_full_requal",
+  "time_range_s": [
+    0.001,
+    55.700999999960885
+  ],
+  "tube_hidden": true
+}
