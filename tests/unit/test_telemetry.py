@@ -8,6 +8,7 @@ import json
 import math
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 import _bootstrap  # noqa: F401
@@ -18,8 +19,9 @@ from skyarc.effects import EffectBatch, Frame, Wrench, aggregate
 from skyarc.effects.adapter import AppliedEffects
 from skyarc.effects.aggregator import BodyLoad
 from skyarc.effects.backends import AnalyticBackend
-from skyarc.events import EVENT_ABORT, EVENT_STAGE_TRANSITION, Event
+from skyarc.events import EVENT_ABORT, EVENT_IGNITION, EVENT_STAGE_TRANSITION, Event
 from skyarc.launcher import TubeLayout, TubeStage, path_pose
+from skyarc.launcher.feasibility import Stage2Constraint
 from skyarc.names import (
     BODY_CART,
     BODY_ROCKET,
@@ -158,6 +160,60 @@ class TelemetrySchemaAndPathTests(unittest.TestCase):
 
 
 class EnergyAndRecorderTests(unittest.TestCase):
+    def test_summary_captures_apogee_handoff_and_stage2_margin(self) -> None:
+        before = state(0.0, 0.0, 0.0)
+        rocket = replace(
+            before.body(BODY_ROCKET),
+            position=(1200.0, 0.0, 40_000.0),
+            linear_velocity=(1900.0, 0.0, 100.0),
+        )
+        after = replace(
+            before,
+            time_s=1.0,
+            step_index=1,
+            bodies={**before.bodies, BODY_ROCKET: rocket},
+        ).frozen()
+        with tempfile.TemporaryDirectory() as temporary:
+            paths = RunPaths.create(
+                temporary,
+                experiment_id="experiment",
+                condition_id="condition",
+                replicate_id=0,
+            )
+            recorder = TelemetryRecorder(
+                paths,
+                before,
+                flat_layout(),
+                telemetry_rate_hz=10.0,
+                stage2_constraint=Stage2Constraint(target_orbit_altitude_m=200_000.0),
+            )
+            recorder.record_step(
+                StepTelemetryInput(
+                    pre_state=before,
+                    observation=observation(before),
+                    command_snapshots={},
+                    accepted_effects=aggregate((), before),
+                    applied_effects=AppliedEffects.exactly(aggregate((), before)),
+                    post_state=after,
+                    post_observation=observation(after),
+                    mission_state=MissionState(),
+                )
+            )
+            recorder.record_events((Event(EVENT_IGNITION, 1.0, 1, "test"),))
+            summary = recorder.finalize(termination_reason="test", mission_phase="idle")
+
+        self.assertEqual(summary.schema_version, "run_summary_v2")
+        self.assertEqual(summary.apogee_time_s, 1.0)
+        self.assertEqual(summary.apogee_altitude_m, 40_000.0)
+        self.assertEqual(summary.handoff_time_s, 1.0)
+        self.assertEqual(summary.handoff_altitude_m, 40_000.0)
+        self.assertEqual(summary.handoff_downrange_m, 1200.0)
+        self.assertAlmostEqual(summary.handoff_speed_mps, math.hypot(1900.0, 100.0))
+        self.assertGreaterEqual(summary.pre_handoff_rocket_drag_loss_mps, 0.0)
+        self.assertIsNotNone(summary.stage2_measured_alignment_loss_mps)
+        self.assertEqual(summary.stage2_assumed_unmodeled_loss_mps, 500.0)
+        self.assertIsNotNone(summary.stage2_margin_mps)
+
     def test_energy_identity_includes_resistance_work(self) -> None:
         before = state(0.0, 0.0, 0.0)
         after = state(1.0, 4.0, 8.0)

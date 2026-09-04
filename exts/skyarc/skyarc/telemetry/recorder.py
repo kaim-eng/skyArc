@@ -14,8 +14,9 @@ from typing import Any, Iterable, Mapping, Protocol, Tuple, runtime_checkable
 from ..components.diagnostics import DiagnosticRecord, DiagnosticSchema
 from ..effects.adapter import AppliedEffects
 from ..effects.aggregator import AggregatedEffects
-from ..events import Event
+from ..events import EVENT_IGNITION, Event
 from ..launcher.geometry import TubePath, normal_jerk_mps3, path_pose
+from ..launcher.feasibility import DeliveredState, Stage2Constraint, evaluate_stage2
 from ..linalg import add, dot, norm, sub
 from ..names import (
     BODY_CART,
@@ -110,6 +111,7 @@ class TelemetryRecorder:
         gravity_mps2: tuple[float, float, float] = (0.0, 0.0, -9.81),
         schema: TelemetrySchema = CORE_TELEMETRY_SCHEMA_V2,
         diagnostic_schemas: Iterable[DiagnosticSchema] = (),
+        stage2_constraint: Stage2Constraint | None = None,
     ) -> None:
         if not math.isfinite(telemetry_rate_hz) or telemetry_rate_hz <= 0.0:
             raise ValueError("telemetry rate must be finite and positive")
@@ -120,6 +122,7 @@ class TelemetryRecorder:
         self._attached_limit = attached_load_limit_g
         self._cart_limit = cart_load_limit_g
         self._gravity = gravity_mps2
+        self._stage2_constraint = stage2_constraint
         self._period_s = 1.0 / telemetry_rate_hz
         self._next_sample_time_s = initial_state.time_s
         self._energy = EnergyAccumulator(initial_state, gravity_mps2=gravity_mps2)
@@ -131,6 +134,12 @@ class TelemetryRecorder:
         self._maximum_gap_m = 0.0
         self._actual_exit_speed: float | None = None
         self._last_state = initial_state
+        initial_rocket = initial_state.body(BODY_ROCKET)
+        self._apogee_time_s = initial_state.time_s
+        self._apogee_altitude_m = initial_rocket.position[2]
+        self._handoff_state: SimulationState | None = None
+        self._initial_downrange_m = initial_rocket.position[0]
+        self._pre_handoff_rocket_drag_loss_mps = 0.0
         self._closed = False
 
         resolved_diagnostic_schemas = tuple(diagnostic_schemas)
@@ -368,6 +377,29 @@ class TelemetryRecorder:
             record.applied_effects,
         )
         self._last_state = record.post_state
+        if self._handoff_state is None:
+            before_rocket = record.pre_state.body(BODY_ROCKET)
+            after_rocket = record.post_state.body(BODY_ROCKET)
+            average_velocity = tuple(
+                0.5 * (before_rocket.linear_velocity[index] + after_rocket.linear_velocity[index])
+                for index in range(3)
+            )
+            speed = norm(average_velocity)
+            dt_s = record.post_state.time_s - record.pre_state.time_s
+            if speed > 0.0 and dt_s > 0.0:
+                drag_force = self._slot_force(
+                    record.applied_effects, BODY_ROCKET, SLOT_ROCKET_AERODYNAMICS
+                )
+                self._pre_handoff_rocket_drag_loss_mps += max(
+                    0.0,
+                    -dot(drag_force, average_velocity)
+                    / (before_rocket.mass_kg * speed)
+                    * dt_s,
+                )
+        rocket = record.post_state.body(BODY_ROCKET)
+        if rocket.position[2] > self._apogee_altitude_m:
+            self._apogee_altitude_m = rocket.position[2]
+            self._apogee_time_s = record.post_state.time_s
         values = self._sample_values(record, energy)
         load = values["load.resultant_proper_g"]
         self._peak_load_g = max(self._peak_load_g, float(load))
@@ -410,6 +442,8 @@ class TelemetryRecorder:
             self._sequence += 1
             self._event_count += 1
             self._first_event_time.setdefault(assigned.name, assigned.time_s)
+            if assigned.name == EVENT_IGNITION and self._handoff_state is None:
+                self._handoff_state = self._last_state
             json.dump(
                 {
                     "name": assigned.name,
@@ -467,6 +501,25 @@ class TelemetryRecorder:
     def finalize(self, *, termination_reason: str, mission_phase: str) -> RunSummary:
         if self._closed:
             raise RuntimeError("telemetry recorder was already finalized")
+        delivered_state = None
+        stage2_budget = None
+        if self._handoff_state is not None:
+            rocket = self._handoff_state.body(BODY_ROCKET)
+            speed_mps = norm(rocket.linear_velocity)
+            horizontal_speed_mps = math.hypot(
+                rocket.linear_velocity[0], rocket.linear_velocity[1]
+            )
+            delivered_state = DeliveredState(
+                time_s=self._handoff_state.time_s,
+                altitude_m=rocket.position[2],
+                downrange_m=rocket.position[0] - self._initial_downrange_m,
+                speed_mps=speed_mps,
+                flight_path_angle_deg=math.degrees(
+                    math.atan2(rocket.linear_velocity[2], horizontal_speed_mps)
+                ),
+            )
+            if self._stage2_constraint is not None:
+                stage2_budget = evaluate_stage2(delivered_state, self._stage2_constraint)
         summary = build_summary(
             termination_reason=termination_reason,
             mission_phase=mission_phase,
@@ -480,6 +533,11 @@ class TelemetryRecorder:
             maximum_separation_gap_m=self._maximum_gap_m,
             energy=self._energy.snapshot,
             first_event_time_s=self._first_event_time,
+            apogee_time_s=self._apogee_time_s,
+            apogee_altitude_m=self._apogee_altitude_m,
+            pre_handoff_rocket_drag_loss_mps=self._pre_handoff_rocket_drag_loss_mps,
+            delivered_state=delivered_state,
+            stage2_budget=stage2_budget,
         )
         with self._paths.summary_json.open("w", encoding="utf-8", newline="\n") as stream:
             json.dump(summary.to_dict(), stream, indent=2, sort_keys=True, allow_nan=False)

@@ -24,6 +24,7 @@ import os
 import sys
 import time
 import traceback
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
@@ -55,6 +56,16 @@ def _arguments() -> argparse.Namespace:
     )
     parser.add_argument("--visuals", action="store_true", help="Author the tube visualization bands.")
     parser.add_argument("--summary", type=Path)
+    parser.add_argument(
+        "--controlled-factors",
+        type=Path,
+        help="JSON mapping of the factors intentionally varied for this condition.",
+    )
+    parser.add_argument(
+        "--parent-manifest",
+        type=Path,
+        help="Parent condition manifest, required when parent_condition_id is configured.",
+    )
     return parser.parse_args()
 
 
@@ -112,6 +123,31 @@ def _git_head(repository: Path) -> str | None:
     return None
 
 
+def _release_cycle_obligation(
+    *,
+    trigger_model: str,
+    final_time_s: float,
+    exit_time_s: float,
+    separation_timeout_s: float,
+    burn_duration_s: float,
+    event_times_s: dict[str, float],
+) -> tuple[bool, float | None]:
+    """Return whether the complete release/ignition cycle is due and its deadline.
+
+    The schema-v2 safety-only trigger retains its deterministic post-exit deadline. A
+    trajectory trigger has no honest absolute deadline before its trajectory condition
+    becomes true, so its burnout obligation starts at the measured ignition event.
+    """
+    if trigger_model == "safety_gates_v1":
+        due_s = exit_time_s + separation_timeout_s + burn_duration_s
+    else:
+        ignition_time_s = event_times_s.get("ignition")
+        if ignition_time_s is None:
+            return False, None
+        due_s = ignition_time_s + burn_duration_s
+    return final_time_s + 1e-12 >= due_s, due_s
+
+
 def main() -> int:
     args = _arguments()
     if args.max_steps is not None and args.max_steps <= 0:
@@ -165,6 +201,7 @@ def main() -> int:
         if str(package_parent) not in sys.path:
             sys.path.insert(0, str(package_parent))
         from skyarc.configuration import load_yaml, resolve_tube_layout
+        from skyarc.components import ComponentDescriptor, Determinism
         from skyarc.events import (
             EVENT_BURNOUT,
             EVENT_IGNITION,
@@ -172,12 +209,31 @@ def main() -> int:
             EVENT_SEPARATION_CONFIRMED,
         )
         from skyarc.launcher.geometry import CurvedTubeLayout
+        from skyarc.launcher.feasibility import Stage2Constraint
+        from skyarc.experiments import (
+            ComponentProvenance,
+            NamedRandomStreams,
+            NumericalProvenance,
+            SchemaProvenance,
+            SoftwareProvenance,
+            build_manifest,
+            builtin_package_code_identity,
+            canonical_value,
+            get_criterion_policy,
+            sha256_value,
+        )
         from skyarc.launcher.production import (
             build_production_scene_plan,
             load_production_fixture,
         )
         from skyarc.launcher.production_runtime import ProductionMissionRuntime
-        from skyarc.names import BODY_CART, BODY_ROCKET
+        from skyarc.names import (
+            ALL_SLOTS,
+            BODY_CART,
+            BODY_ROCKET,
+            SLOT_BACKEND_ADAPTER,
+            SLOT_TELEMETRY_SINK,
+        )
         from skyarc.state_machine import MissionPhase
         from skyarc.telemetry import (
             CORE_TELEMETRY_SCHEMA_V2,
@@ -243,6 +299,19 @@ def main() -> int:
                     attached_load_limit_g=config.launch_control.maximum_resultant_load_g,
                     cart_load_limit_g=config.cart.maximum_resultant_load_g,
                     gravity_mps2=gravity_mps2,
+                    stage2_constraint=(
+                        None
+                        if config.stage2_constraint is None
+                        else Stage2Constraint(
+                            model=config.stage2_constraint.model,
+                            specific_impulse_s=config.stage2_constraint.specific_impulse_s,
+                            propellant_mass_fraction=config.stage2_constraint.propellant_mass_fraction,
+                            target_orbit_altitude_m=config.stage2_constraint.target_orbit_altitude_m,
+                            assumed_unmodeled_loss_mps=(
+                                config.stage2_constraint.assumed_unmodeled_loss_mps
+                            ),
+                        )
+                    ),
                 )
                 telemetry_run = {
                     "core_schema_version": CORE_TELEMETRY_SCHEMA_V2.version,
@@ -267,6 +336,7 @@ def main() -> int:
 
         mission = runtime.mission
         backend = runtime.backend
+        initial_state = backend.read_state()
         peak_tracking_error_m = 0.0
         peak_attitude_error_deg = 0.0
         peak_commanded_normal_force_n = 0.0
@@ -275,7 +345,7 @@ def main() -> int:
         while mission.mission_state.phase not in (MissionPhase.COMPLETE, MissionPhase.ABORT):
             if args.max_steps is not None and steps >= args.max_steps:
                 break
-            mission.step()
+            runtime.step()
             steps += 1
             reaction = backend.last_guide_reaction
             if reaction is not None:
@@ -299,8 +369,11 @@ def main() -> int:
         peak_solver_offset_m = backend.peak_solver_offset_m
 
         telemetry_summary = None
+        telemetry_summary_record = None
+        run_paths = None
         if recorder is not None:
-            telemetry_summary = recorder.finalize(
+            run_paths = recorder.paths
+            telemetry_summary_record = recorder.finalize(
                 termination_reason=(
                     run_abort_reason
                     if run_phase is MissionPhase.ABORT
@@ -308,9 +381,123 @@ def main() -> int:
                 )
                 or "abort",
                 mission_phase=run_phase.value,
-            ).to_dict()
+            )
+            telemetry_summary = telemetry_summary_record.to_dict()
             recorder.close()
             recorder = None
+
+        criterion_result = None
+        manifest_path = None
+        if telemetry_summary_record is not None and run_paths is not None:
+            criterion_policy = get_criterion_policy(config.output.criterion_policy)
+            criterion_result = criterion_policy.evaluate(
+                telemetry_summary_record.to_dict()
+            ).to_dict()
+            code_identity = builtin_package_code_identity()
+            component_records = [
+                ComponentProvenance.create(
+                    component.descriptor,
+                    resolved_parameters={
+                        "slot": component.descriptor.slot,
+                        "resolved_configuration_sha256": loaded.resolved_sha256,
+                    },
+                    code=code_identity,
+                )
+                for component in mission.provenance_components
+            ]
+            for descriptor in (
+                ComponentDescriptor(
+                    slot=SLOT_BACKEND_ADAPTER,
+                    model_id="isaac_physx_translated_frame_v1",
+                    model_version="1.0.0",
+                    parameter_schema_version="1",
+                    code_hash=code_identity.sha256,
+                    determinism=Determinism.DETERMINISTIC,
+                    required_backend_capabilities=("translated_accelerating_frame",),
+                ),
+                ComponentDescriptor(
+                    slot=SLOT_TELEMETRY_SINK,
+                    model_id="streaming_recorder_v2",
+                    model_version="2.0.0",
+                    parameter_schema_version="2",
+                    code_hash=code_identity.sha256,
+                    determinism=Determinism.DETERMINISTIC,
+                ),
+            ):
+                component_records.append(
+                    ComponentProvenance.create(
+                        descriptor,
+                        resolved_parameters={
+                            "slot": descriptor.slot,
+                            "resolved_configuration_sha256": loaded.resolved_sha256,
+                        },
+                        code=code_identity,
+                    )
+                )
+            controlled_factors = (
+                {}
+                if args.controlled_factors is None
+                else json.loads(args.controlled_factors.read_text(encoding="utf-8"))
+            )
+            if not isinstance(controlled_factors, dict):
+                raise ValueError("--controlled-factors must contain a JSON object")
+            parent_factors = None
+            if args.parent_manifest is not None:
+                parent_payload = json.loads(args.parent_manifest.read_text(encoding="utf-8"))
+                parent_factors = parent_payload["lineage"]["controlled_factors"]
+            if (config.experiment.parent_condition_id is None) != (parent_factors is None):
+                raise ValueError(
+                    "--parent-manifest must be supplied exactly when parent_condition_id is configured"
+                )
+            run_paths.resolved_config.write_text(
+                json.dumps(canonical_value(config), indent=2, sort_keys=True, allow_nan=False) + "\n",
+                encoding="utf-8",
+            )
+            resolved_geometry = [
+                asdict(segment) for segment in config.tube.centerline
+            ]
+            repository_revision = _git_head(project)
+            manifest = build_manifest(
+                paths=run_paths,
+                loaded=loaded,
+                components=component_records,
+                initial_state=initial_state,
+                scene_sha256=sha256_value(plan),
+                software=SoftwareProvenance(
+                    version_file.read_text(encoding="utf-8").strip(),
+                    repository_revision or "working_tree_without_git_revision",
+                ),
+                numerical=NumericalProvenance(
+                    backend=SimulationManager.get_active_physics_engine(),
+                    device=str(SimulationManager.get_device()),
+                    solver=str(SimulationManager.get_solver_type()),
+                    physics_dt_s=SimulationManager.get_physics_dt(),
+                    render_dt_s=config.simulation.render_dt_s,
+                    substeps=config.simulation.substeps,
+                    ccd_enabled=config.simulation.ccd_enabled,
+                    contact_settings={
+                        "pair": fixture.pair_name,
+                        "always_present": True,
+                        "quantity": "impulse",
+                    },
+                    execution_profile=config.simulation.profile,
+                    fixed_time_stepping=bool(startup_settings["fixed_time_stepping"]),
+                    aggregator_pre_step_order=0,
+                ),
+                random_streams=NamedRandomStreams(config.experiment.seed, ALL_SLOTS),
+                schemas=SchemaProvenance(
+                    observation="ground_truth_observation_v1",
+                    telemetry=CORE_TELEMETRY_SCHEMA_V2.version,
+                    outcome=telemetry_summary_record.schema_version,
+                ),
+                criterion_policy=criterion_policy,
+                summary=telemetry_summary_record,
+                controlled_factors=controlled_factors,
+                parent_factors=parent_factors,
+                resolved_geometry=resolved_geometry,
+            )
+            manifest.write(run_paths.experiment_manifest)
+            manifest_path = str(run_paths.experiment_manifest.resolve())
 
         reset_probe: dict[str, object] | None = None
         if args.reset_replay:
@@ -358,18 +545,21 @@ def main() -> int:
             }
 
         event_names = {event.name for event in run_events}
+        event_times_s = {event.name: event.time_s for event in run_events}
         required_release_events = {
             EVENT_RELEASE_CONFIRMED,
             EVENT_SEPARATION_CONFIRMED,
             EVENT_IGNITION,
             EVENT_BURNOUT,
         }
-        release_cycle_due_s = (
-            runtime.reference_frame.exit_time_s
-            + config.rocket.ignition.separation_timeout_s
-            + config.rocket.motor.burn_duration_s
+        release_cycle_due, release_cycle_due_s = _release_cycle_obligation(
+            trigger_model=config.rocket.ignition.trigger.model,
+            final_time_s=final_state.time_s,
+            exit_time_s=runtime.reference_frame.exit_time_s,
+            separation_timeout_s=config.rocket.ignition.separation_timeout_s,
+            burn_duration_s=config.rocket.motor.burn_duration_s,
+            event_times_s=event_times_s,
         )
-        release_cycle_due = final_state.time_s + 1e-12 >= release_cycle_due_s
         release_cycle_complete = required_release_events.issubset(event_names)
 
         summary: dict[str, object] = {
@@ -437,6 +627,8 @@ def main() -> int:
             "peak_solver_offset_m": peak_solver_offset_m,
             "guide_clearance_m": config.tube.guide_clearance_m,
             "telemetry_summary": telemetry_summary,
+            "criterion_result": criterion_result,
+            "experiment_manifest": manifest_path,
             "telemetry_run": telemetry_run,
             "reset_replay": reset_probe,
         }
@@ -455,7 +647,9 @@ def main() -> int:
         rendered = json.dumps(summary, indent=2, sort_keys=True, allow_nan=False)
         if args.summary is not None:
             args.summary.parent.mkdir(parents=True, exist_ok=True)
-            args.summary.write_text(rendered + "\n", encoding="utf-8")
+            args.summary.write_text(
+                rendered + "\n", encoding="utf-8", newline="\n"
+            )
         print(rendered)
         sys.stdout.flush()
         return 0 if summary["passed"] else 2

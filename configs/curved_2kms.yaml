@@ -100,7 +100,8 @@ tube:
 cart:
   mass_kg: 250.0
   length_m: 4.2
-  width_m: 1.2
+  # 1.25 m outer width leaves 25 mm per side around the 1.0 m rocket envelope.
+  width_m: 1.25
   height_m: 1.4
   drag_coefficient: 0.30
   frontal_area_m2: 0.50
@@ -114,6 +115,7 @@ cart:
 
 guided_phase_aerodynamics:
   drag_coefficient: 0.25
+  # Legacy in-tube equivalent area retained pending recalibration for the 1 m body.
   reference_area_m2: 0.20
   axial_air_velocity_mps: 0.0
   boundary_blend_distance_m: 40.0
@@ -122,9 +124,10 @@ guided_phase_aerodynamics:
 rocket:
   initial_mass_kg: 150.0
   length_m: 4.0
-  diameter_m: 0.5
+  # Conservative fitted envelope for the detailed Jupiter-C upper-stack visual.
+  diameter_m: 1.0
   drag_coefficient: 0.25
-  reference_area_m2: 0.20
+  reference_area_m2: 0.7853981633974483
   inertia_mode: auto
   aft_clearance_marker: rocket_aft
   motor:
@@ -139,16 +142,19 @@ rocket:
     separation_timeout_s: 2.0
     maximum_contact_impulse_ns: 25.0
     maximum_angular_rate_deg_s: 5.0
+    trigger:
+      model: trajectory_thresholds_v1
+      minimum_altitude_m: 40000.0
 
 # The upper stage is a constraint on the launcher, not a simulated body. These four
 # numbers decide whether the delivered state closes the gap to orbit; `model` is the seam
 # where a full stage-2 model can replace the parametric screen later.
 stage2_constraint:
-  model: parametric_deltav_v1
+  model: parametric_deltav_v2
   specific_impulse_s: 350.0
   propellant_mass_fraction: 0.85
   target_orbit_altitude_m: 200000.0
-  loss_allowance_mps: 500.0
+  assumed_unmodeled_loss_mps: 500.0
 
 launch_control:
   mode: target_exit_speed

@@ -1,0 +1,192 @@
+schema_version: 3
+experiment:
+  experiment_id: ignition_altitude_sweep
+  condition_id: ignition_43km
+  parent_condition_id: ignition_40km
+  replicate_id: 0
+  seed: 12345
+simulation:
+  backend: physx
+  device: cpu
+  physics_dt_s: 0.001
+  render_dt_s: 0.016666667
+  reference_density_kg_m3: 1.225
+  maximum_run_time_s: 130.0
+  profile: interactive_rendered
+  substeps: 1
+  ccd_enabled: false
+  release_command_latency_s: 0.0
+  release_confirmation_steps: 1
+evidence:
+  free_flight_start_event: separation_confirmed
+  free_flight_duration_s: 66.0
+  completion_margin_s: 2.0
+  atmosphere_stage_refinement_factor: 2
+  maximum_exit_speed_relative_change: 0.001
+  maximum_peak_load_change_g: 0.02
+  maximum_drag_work_relative_change: 0.005
+models:
+  launch_force: abstract_axial_v1
+  atmosphere: density_drag_v1
+  guide: tangent_following_v1
+  coupling: fixed_joint_v1
+  separation_actuator: none_v1
+  cart_brake: force_limited_v1
+  rocket_motor: constant_mass_thrust_v1
+  rocket_aerodynamics: quadratic_point_drag_v1
+  observer: ground_truth_v1
+tube:
+  geometry_mode: planar_centerline
+  inner_diameter_m: 2.0
+  guide_clearance_m: 0.05
+  exterior_atmosphere:
+    model: exponential_v1
+    reference_ratio: 0.015
+    reference_altitude_m: 30976.6
+    scale_height_m: 6260.0
+  centerline:
+  - type: straight
+    length_m: 20000.0
+    initial_angle_deg: 45.0
+  - type: clothoid
+    length_m: 2700.0
+    start_curvature_per_m: 0.0
+    end_curvature_per_m: -1.66666667e-05
+  - type: circular_arc
+    radius_m: 60000.0
+    signed_turn_deg: -27.42169
+  - type: clothoid
+    length_m: 2700.0
+    start_curvature_per_m: -1.66666667e-05
+    end_curvature_per_m: 0.0
+  exit_track:
+    type: tangent_straight
+    length_m: 25000.0
+    inclination_deg: 15.0
+    curvature_per_m: 0.0
+  stages:
+  - name: vacuum
+    length_m: 50000.0
+    effective_density_ratio: 0.0
+    color_rgb:
+    - 0.2
+    - 0.5
+    - 1.0
+    opacity: 0.35
+  - name: transition_1
+    length_m: 1500.0
+    effective_density_ratio: 0.003
+    color_rgb:
+    - 0.2
+    - 1.0
+    - 0.6
+    opacity: 0.35
+  - name: transition_2
+    length_m: 1300.0
+    effective_density_ratio: 0.008
+    color_rgb:
+    - 1.0
+    - 0.7
+    - 0.2
+    opacity: 0.35
+  - name: exit
+    length_m: 1315.9265
+    effective_density_ratio: 0.015
+    color_rgb:
+    - 1.0
+    - 0.3
+    - 0.2
+    opacity: 0.35
+  anti_tunneling_pairs:
+  - name: rocket_cradle
+    test_relative_speed_mps: 2500.0
+cart:
+  mass_kg: 250.0
+  length_m: 4.2
+  width_m: 1.2
+  height_m: 1.4
+  drag_coefficient: 0.3
+  frontal_area_m2: 0.5
+  brake_force_limit_n: 24410.321
+  brake_jerk_limit_mps3: 50.0
+  brake_stop_margin_m: 2000.0
+  stopped_speed_threshold_mps: 0.05
+  guide_resistance_n: 0.0
+  inertia_mode: auto
+  maximum_resultant_load_g: 10.0
+guided_phase_aerodynamics:
+  drag_coefficient: 0.25
+  reference_area_m2: 0.2
+  axial_air_velocity_mps: 0.0
+  boundary_blend_distance_m: 40.0
+  force_model: density_drag
+rocket:
+  initial_mass_kg: 150.0
+  length_m: 4.0
+  diameter_m: 0.5
+  drag_coefficient: 0.25
+  reference_area_m2: 0.2
+  inertia_mode: auto
+  aft_clearance_marker: rocket_aft
+  motor:
+    model: constant
+    thrust_n: 8000.0
+    burn_duration_s: 5.0
+  ignition:
+    delay_s: 0.25
+    minimum_cart_clearance_m: 3.0
+    minimum_relative_speed_mps: 0.1
+    no_recontact_dwell_s: 0.1
+    separation_timeout_s: 2.0
+    maximum_contact_impulse_ns: 25.0
+    maximum_angular_rate_deg_s: 5.0
+    trigger:
+      model: trajectory_thresholds_v1
+      minimum_altitude_m: 43000.0
+stage2_constraint:
+  model: parametric_deltav_v2
+  specific_impulse_s: 350.0
+  propellant_mass_fraction: 0.85
+  target_orbit_altitude_m: 200000.0
+  assumed_unmodeled_loss_mps: 500.0
+launch_control:
+  mode: target_exit_speed
+  target_exit_speed_mps: 2000.0
+  maximum_force_n: 24000.0
+  maximum_acceleration_mps2: 45.0
+  maximum_resultant_load_g: 10.0
+  maximum_normal_jerk_mps3: 50.0
+  force_ramp_up_distance_m: 0.0
+  force_ramp_down_distance_m: 0.0
+markers:
+  rocket_aft:
+    body: rocket
+    offset_m:
+    - -2.0
+    - 0.0
+    - 0.0
+  rocket_stagnation:
+    body: rocket
+    offset_m:
+    - 2.0
+    - 0.0
+    - 0.0
+  assembly_exit:
+    body: rocket
+    offset_m:
+    - 2.0
+    - 0.0
+    - 0.0
+  cart_cradle_front:
+    body: cart
+    offset_m:
+    - 1.25
+    - 0.0
+    - 0.0
+output:
+  directory: outputs
+  telemetry_rate_hz: 500.0
+  diagnostics_format: jsonl
+  validity_policy: per_field_v1
+  criterion_policy: curved_reference_v1
+  capture_profile: interactive_v1

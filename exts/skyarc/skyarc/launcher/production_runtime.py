@@ -36,11 +36,23 @@ from pxr import Gf, UsdPhysics
 from ..configuration.schema import ScenarioConfig
 from ..effects.backends.isaac import IsaacPhysxBackend, flatten_numbers
 from ..linalg import ZERO3, Vec3, add, scale
-from ..names import BODY_CART, BODY_ROCKET, JOINT_COUPLING, PAIR_ROCKET_CRADLE
+from ..names import (
+    BODY_CART,
+    BODY_ROCKET,
+    JOINT_COUPLING,
+    PAIR_ROCKET_CRADLE,
+    SLOT_CART_BRAKE,
+    SLOT_LAUNCH_FORCE,
+    SLOT_ROCKET_AERODYNAMICS,
+    SLOT_ROCKET_MOTOR,
+)
 from ..orchestrator import SimulationOrchestrator, build_mission
 from ..state import ContactReport, SimulationState
 from ..telemetry.recorder import TelemetrySink
-from .geometry import TubePath
+from ..visualization.cameras import AuthoredCameraRig, camera_views
+from ..visualization.overlays import ForceOverlay, MagneticFieldOverlay
+from ..visualization.proxies import GlobalVisualProxies
+from .geometry import TubePath, path_pose
 from .path_controller import (
     ForceResolvedPathReaction,
     LaunchProfileReferenceFrame,
@@ -166,6 +178,8 @@ class ProductionMissionRuntime:
         if plan.candidate != "force_resolved_path_controller_v1":
             raise ValueError("the production runtime implements only the accepted candidate")
         self._stage = stage
+        self._layout = layout
+        self._gravity_mps2 = gravity_mps2
         self._update = update if update is not None else omni.kit.app.get_app().update
         self._dt_s = float(config.simulation.physics_dt_s)
 
@@ -207,6 +221,23 @@ class ProductionMissionRuntime:
             BODY_CART: self._built.cart_path,
             BODY_ROCKET: self._built.rocket_path,
         }
+        # Author every visualization prim before physics views exist. Mutating visibility on
+        # live rigid prims can force a Fabric/physics resync; in the target build that allowed
+        # the attached assembly to settle a few millimetres before its first controlled step.
+        # Proxy transforms remain the only transforms written once simulation is running.
+        self._visual_proxies = None
+        self._camera_rig = None
+        self._force_overlay = None
+        self._field_overlay = None
+        if author_visuals:
+            self._visual_proxies = GlobalVisualProxies(
+                stage,
+                plan,
+                simulated_paths=(self._built.cart_path, self._built.rocket_path),
+            )
+            self._camera_rig = AuthoredCameraRig(stage, camera_views(layout))
+            self._force_overlay = ForceOverlay(stage)
+            self._field_overlay = MagneticFieldOverlay(stage)
         self._handles = {
             name: _RigidBodyHandle(path) for name, path in self._paths.items()
         }
@@ -253,6 +284,10 @@ class ProductionMissionRuntime:
             resync_callback=self._resync,
             reset_callback=self._reset,
         )
+        if self._visual_proxies is not None:
+            initial_global = self._backend.read_state()
+            self._visual_proxies.update(initial_global)
+            self._camera_rig.update(initial_global)
         self._telemetry_sink = (
             None if telemetry_sink_factory is None else telemetry_sink_factory(self._backend.read_state())
         )
@@ -293,6 +328,47 @@ class ProductionMissionRuntime:
     @property
     def telemetry_sink(self) -> TelemetrySink | None:
         return self._telemetry_sink
+
+    def step(self):  # type: ignore[no-untyped-def]
+        """Advance the common mission and refresh visualization-only global proxies."""
+        mission_state = self._mission.step()
+        if self._visual_proxies is None:
+            return mission_state
+        state = self._backend.read_state()
+        self._visual_proxies.update(state)
+        if self._camera_rig is not None:
+            self._camera_rig.update(state)
+        applied = self._mission.last_applied_effects
+        if applied is not None and self._force_overlay is not None:
+            cart = state.body(BODY_CART)
+            rocket = state.body(BODY_ROCKET)
+
+            def slot_force(body: str, slot: str):  # type: ignore[no-untyped-def]
+                load = applied.loads.get(body)
+                if load is None:
+                    return (0.0, 0.0, 0.0)
+                return load.force_by_slot.get(slot, (0.0, 0.0, 0.0))
+
+            self._force_overlay.update(
+                {
+                    "launch": (cart.position, slot_force(BODY_CART, SLOT_LAUNCH_FORCE)),
+                    "brake": (cart.position, slot_force(BODY_CART, SLOT_CART_BRAKE)),
+                    "drag": (
+                        rocket.position,
+                        slot_force(BODY_ROCKET, SLOT_ROCKET_AERODYNAMICS),
+                    ),
+                    "thrust": (rocket.position, slot_force(BODY_ROCKET, SLOT_ROCKET_MOTOR)),
+                    "gravity": (
+                        rocket.position,
+                        tuple(rocket.mass_kg * value for value in self._gravity_mps2),
+                    ),
+                }
+            )
+        if self._field_overlay is not None:
+            cart = state.body(BODY_CART)
+            pose = path_pose(self._layout, self._layout.axial_position(cart.position))
+            self._field_overlay.update(cart.position, pose.tangent)
+        return mission_state
 
     # --- Isaac-side lifecycle -------------------------------------------------------
 

@@ -1,8 +1,8 @@
 # Configurable Vacuum-Tube Electromagnetic Launch Simulation
 
-**Document status:** Draft for panel review  
-**Version:** 0.32  
-**Date:** 2026-09-01  
+**Document status:** Implementation review; formal panel checklist remains unsigned
+**Version:** 0.36
+**Date:** 2026-09-04
 **Target platform:** NVIDIA Isaac Sim 6.0.1-rc.7; backend qualified against the exact implementation build  
 **Codebase review reference:** `987015050efebfd0cd5d3736ae47fffe5adee308`  
 **Document purpose:** Review, approve, and track the staged implementation of the simulation architecture
@@ -44,6 +44,11 @@
 | 0.31 | 2026-09-01 | Corrected the v0.30 implementation review before accepting its evidence. Reset replay now preserves the pre-reset mission phase, abort reason and events, so it cannot turn an abort into a pass; reported cart speed is the vector magnitude. Production mission artifacts now bind the complete production Python closure and the Isaac experience, version, executable and source revision. `MomentumPolicy.CONSERVE` now preserves global linear momentum across a real translated-frame mass update. Per-slot torque attribution makes telemetry work full wrench work; `core_telemetry_v2` remains the active schema while a distinct frozen `CORE_TELEMETRY_SCHEMA_V1` preserves compatibility, and work channels remain reportable when total energy closure is invalid. The Phase 0 assembly-COM-at-entrance condition is restored; launch control uses assembly COM progress and speed rather than changing the physical initial condition to satisfy a cart-coordinate gate. Both production mission artifacts were regenerated against source closure `eafb1223…`; the 5,000-step run preserves `launch_stage` and three events across reset replay, reports the true 184.788 m/s speed, tracks within 1.02 µm, and resets within 43 nm. All 10 Kit integration tests pass, including conserved global momentum in real PhysX. The three curved-guide artifacts remain deliberately stale and must be regenerated before current Phase 0 qualification or throughput claims are made. The previous 256.78–267.21 steps/s range remains historical accepted evidence, not a measurement of this revision. |
 | 0.32 | 2026-09-02 | Recorded the project's actual objective and the first complete mission. The overall goal — replacing the first stage rather than simulating a whole launch vehicle — is now stated in sections 1 and 3, and section 10.6 defines the upper stage as a *parameterised constraint* on the launcher's delivered state rather than a simulated body, with `model` reserved as the seam for a later full stage. Section 6.9 adds the `stage2_constraint` block. Two corrections follow from running the mission to completion. The inertially coasting post-exit reference frame of v0.30 is withdrawn: it runs away from the decelerating cart without bound, reached 34,046.9 m of solver offset and aborted a complete mission on `guide_tracking_error` six seconds after the cart had stopped, with tracking at 0.0495851 m against a 0.05 m limit. The frame now follows the cart over the configured braking distance, and the same run then completed — 120,679 steps to `flight_window_complete`, peak tracking 0.0004619 m, a 107-fold improvement. Section 10.4 records a gap rather than a fix: all seven ignition gates are safety gates, so the rocket ignites 0.56 s after release rather than coasting to altitude, and "ignite timing" is therefore not yet an explorable parameter. Measured against the completed run, the launcher supplies 2,030 m/s of ideal delta-v to a 200 km orbit and delivers at 31.3 km, where a ground launch's drag and gravity losses are largely avoided. Section 13 gains the two-scale visualization the captures forced: the true 2 m tube is about a twenty-fifth of a pixel at system range, so an explicitly non-physical schematic band set is authored invisible alongside it and recorded per captured view. Exposure was retuned from a measured 0.80–0.83 mean luminance to 0.37–0.40. |
 
+| 0.33 | 2026-09-03 | Synchronized the design record with the current repository after source-bound requalification and the first post-handoff implementation passes. The current CPU PhysX/TGS curved-guide and anti-tunneling matrices are regenerated against source closure `3ca6a970...`; all baseline and 30 G candidate refinements pass, the required global-coordinate control fails, the stdlib suite passes 200/200, and the Kit boundary suite passes 10/10. Added the telemetry-replayed mission flythrough and system-scale separation render, which provide truthful recorded animation while live translated-frame visualization remains open. Recorded the qualified 43.986 kg, 30 G induction-plate brake candidate as a separate design point rather than silently replacing the 10 G reference configuration. Corrected the Kit release-resync regression by replacing a stale post-release distance probe from the former short-cradle geometry with the qualified one-step separating-relative-speed discriminator; this directly proves that PhysX consumed the joint disable. Trajectory-conditioned ignition, first-class delivered-state scoring, measured loss estimation, the interactive visualization layer, production sweep execution, packaging, and unloaded throughput measurement remain open. |
+| 0.34 | 2026-09-03 | Implemented the post-handoff objective-order slice. Schema v3 now has a separate trajectory-conditioned ignition trigger while retaining all seven safety gates as preconditions; the curved references trigger at 40 km altitude and schema v2 retains its prior safety-only behavior and resolved identity. `run_summary_v2` records measured apogee and stage-2 handoff state, a `curved_reference_v1` criterion gates completion, exit error, peak load, and nonnegative upper-stage margin, and production runs emit complete manifests. Added a strict sequential ignition-altitude sweep with controlled-factor lineage and paired contrasts. Replaced the opaque upper-stage loss allowance with a measured handoff-vector alignment penalty, measured pre-handoff rocket drag loss, and a separately named assumed unmodeled loss; the upper stage remains unsimulated, so finite-burn loss cannot honestly be measured here. Added live global visual proxies, the seven prescribed camera definitions, force and explanatory magnetic-field overlays, a callback-driven panel module, extension build packaging, and cached orchestrator state reads. Moving visual authoring ahead of physics startup corrected a target-build-only settling regression; the visual/nonvisual 10-step smokes now match and the Kit boundary suite passes 10/10. The panel is not yet bound to an application owner, the production sweep is not yet executed, and unloaded throughput remains unmeasured. Because these are core/configuration changes, the v0.33 source-bound qualification and production artifacts are intentionally stale pending regeneration; a 207-test audit currently has only the nine expected artifact-identity failures. |
+| 0.35 | 2026-09-03 | Regenerated the baseline and 30 G 1.0/0.5/0.25 ms curved-guide artifacts against project closure `991ef45f...`, the required global-coordinate control, the production scene, both bounded production mission records, and the 65,000-step 30 G brake-stop record. The unloaded baseline refinements pass at 276.738/269.117/268.850 physics steps/s; the global control fails as required. The executed 35/40/43 km sweep exposed the same pre-handoff `separation_contact_impulse_exceeded` abort at step 54,389 in every 10 G reference condition, so handoff and stage-2 metrics are honestly null and only the identical 31,117.456 m apogee can be contrasted. The aggregator now preserves failed conditions, declares partial missing metrics, and supports aggregate-only recovery. The 30 G candidate instead confirms zero contact impulse, stops the cart at 8,000.000006 m by 61.996 s, and remains safely pre-trigger at 35,898.976 m after 65 s. Corrected the production runner so a trajectory-triggered mission does not inherit the schema-v2 safety-only ignition deadline before ignition actually occurs. The stdlib/artifact suite passes 211/211; the target-build Kit suite remains 10/10. |
+| 0.36 | 2026-09-04 | Replaced the simple visible rocket cylinder with the visual-only Stage-1-free Jupiter-C USD in both the physical-scene and global-proxy paths while retaining one authoritative conservative cylinder for mass and collision. The native 2.884 m by 0.851 m asset is centered, rotated from +Z to +X, and fitted non-uniformly to the requested 4.0 m by 1.0 m envelope. The cradle grows from 1.20 m to 1.25 m outer width to preserve 25 mm lateral clearance per side and 0.10 m floor clearance while remaining inside the 2.0 m tube; both clearances now fail closed. The new cart-limited swept wall clearance is 0.011547 m. Free-flight reference area follows the 1.0 m disk at 0.785398 m2; the 0.20 m2 guided-phase equivalent area is explicitly a legacy coefficient pending recalibration, not a current calibration claim. The asset and manifest are hash-bound in the development scene, and composed-reference scanning rejects any physics APIs/properties under the detailed model. The manifest records the official NASA source, NASA/Michael D. Carbajal attribution, and NASA Images and Media Usage Guidelines, clearing source redistribution under those terms; installed-extension packaging and portable scene export remain unverified. Target-build scene construction and the expanded 11/11 Kit boundary audit pass, visual/nonvisual 10-step runs match exactly, and the changed collider passes the complete 1.0/0.5/0.25 ms discrete anti-tunneling matrix plus the 1 ms CCD control. The stdlib/artifact audit is 202/214 with exactly 12 expected stale-evidence identity assertion failures—nine curved-guide, two production-mission, and one 30 G candidate—and no logic or geometry failures. The former curved-guide, production-mission, sweep, and 30 G mission artifacts are now intentionally stale pending source-bound requalification. |
+
 ## 1. Executive summary
 
 **The objective is to decide whether a ground launcher can replace a launch vehicle's first stage.** Everything below serves that one question. It is why the tube is staged from vacuum to the ambient density at its exit, why the centerline climbs steeply and then flattens, why the cart releases the rocket at altitude rather than at the ground, and why the design is parameterised along tunnel curvature, exit altitude, ignition timing, and rocket mass and geometry: those are the axes the answer is sensitive to.
@@ -52,7 +57,18 @@ The question is deliberately *not* "does this vehicle reach orbit". Simulating a
 
 This project will create an interactive simulation and visualization of a configurable vacuum-tube launching system. The schema-v2 baseline is straight and inclined. The schema-v3 extension, introduced in version 0.6, corrected through version 0.9, and implemented in the backend-neutral core in version 0.10, uses a planar curved centerline that climbs steeply for altitude and then flattens to direct more of the exit velocity downrange. A cart transports a rocket through virtual effective-density regions, and an abstract electromagnetic launcher applies controlled force along the local tube tangent. At the tube exit, the launcher releases the rocket, brakes the cart on a separate tangent-continuous track, confirms physical separation, and permits the rocket motor to ignite for independent flight.
 
-The curved reference candidate is not a claim of construction feasibility. Its configuration, centerline mathematics, preflight gates, and standalone force-resolved controller characterization are implemented, but full physical-guide qualification, the production Isaac tube, scene adapter, and rendered mission are not. The reference has a 20 km straight segment at 45 degrees, curvature-continuous entry and exit transitions, a nominal 60 km bend radius, a 15-degree exit tangent, approximately 54.1 km total path length, approximately 31.0 km exit altitude, and a 2,000 m/s exit target. Its purpose is to test whether one launcher can provide a useful fraction of first-stage velocity while also reaching thin atmosphere and producing a more orbital downrange flight-path angle. Answering that question about the *flight* additionally requires a declared exterior atmosphere model, because Section 8.1 shows the inherited constant-density baseline costs 466 m/s of a 2,000 m/s exit over the evidence window; the guided phase up to separation does not depend on that choice.
+The curved reference candidate is not a claim of construction feasibility. Its configuration,
+centerline mathematics, preflight gates, source-bound CPU PhysX qualification, production Isaac
+scene and adapter, complete mission, static captures, and telemetry-replayed mission renders are
+implemented. The reference has a 20 km straight segment at 45 degrees, curvature-continuous entry
+and exit transitions, a nominal 60 km bend radius, a 15-degree exit tangent, approximately 54.1 km
+total path length, approximately 31.0 km exit altitude, and a 2,000 m/s exit target. Its purpose is
+to test whether one launcher can provide a useful fraction of first-stage velocity while also
+reaching thin atmosphere and producing a more orbital downrange flight-path angle. Answering that
+question about the *flight* additionally requires a declared exterior atmosphere model, because
+Section 8.1 shows the inherited constant-density baseline costs 466 m/s of a 2,000 m/s exit over
+the evidence window; the guided phase up to separation does not depend on that choice. The current
+force-resolved guide is accepted for system-level simulation, not hardware contact-load validation.
 
 The launcher and rocket are deliberately separate subsystems:
 
@@ -109,7 +125,13 @@ Detailed hardware design, coil construction, pressure-vessel certification, and 
 
 ## 4. Key design assumptions
 
-- The schema-v2 baseline remains straight and unchanged. The schema-v3 extension is a planar vertical-profile centerline made from straight, clothoid, and circular-arc segments. Its backend-neutral configuration, geometry, and preflight are implemented in parallel and do not replace the default baseline; its physical scene still requires panel approval and Phase 0 guide qualification.
+- The schema-v2 baseline remains straight and unchanged. The schema-v3 extension is a planar
+  vertical-profile centerline made from straight, clothoid, and circular-arc segments. Its
+  backend-neutral configuration, geometry, preflight, selected CPU PhysX treatment, and production
+  scene are implemented in parallel and do not replace the default baseline. The v0.29 panel
+  decision accepts that treatment for system-level simulation only; the formal checklist in
+  Section 21 remains unsigned, and hardware contact-load validation still requires a constraint-
+  capable guide.
 - Centerline position, tangent, and curvature are continuous at authored joins. Curvature may not jump directly from zero to (1/R), because that would create an unbounded normal-jerk command at nonzero speed.
 - The reference curved treatment starts with a 20 km straight segment at 45 degrees, uses 2.7 km entry and exit clothoids around a 60 km nominal-radius bend, and exits at 15 degrees. The exact resolved geometry, rather than rounded summary values, is archived with evidence.
 - During attached launch, the reference high-speed treatment limits the magnitude of the assembly's combined tangential and guide-normal non-gravitational acceleration to 10G and targets 2,000 m/s at the named exit marker. After release, a separate cart supervisor limits the vector sum of cart brake, cart drag/resistance, and guide-normal reaction to 10G. Rocket free-flight limits remain rocket-owned. None of these limits is a human-rating claim.
@@ -295,9 +317,9 @@ tube:
 
 cart:
   mass_kg: 250.0
-  length_m: 2.5
-  width_m: 1.2
-  height_m: 0.4
+  length_m: 4.2
+  width_m: 1.25
+  height_m: 1.4
   drag_coefficient: 0.30
   frontal_area_m2: 0.50
   brake_force_limit_n: 12000.0
@@ -308,6 +330,7 @@ cart:
 
 guided_phase_aerodynamics:
   drag_coefficient: 0.25
+  # Legacy in-tube equivalent area; recalibration is required for the 1 m body.
   reference_area_m2: 0.20
   axial_air_velocity_mps: 0.0
   boundary_blend_distance_m: 0.25
@@ -316,9 +339,9 @@ guided_phase_aerodynamics:
 rocket:
   initial_mass_kg: 150.0
   length_m: 4.0
-  diameter_m: 0.5
+  diameter_m: 1.0
   drag_coefficient: 0.25
-  reference_area_m2: 0.20
+  reference_area_m2: 0.7853981633974483
   inertia_mode: auto
   aft_clearance_marker: aft_marker
   motor:
@@ -426,6 +449,9 @@ rocket:
     thrust_n: 8000.0
   ignition:
     separation_timeout_s: 2.0
+    trigger:
+      model: trajectory_thresholds_v1
+      minimum_altitude_m: 40000.0
 
 launch_control:
   mode: target_exit_speed
@@ -448,7 +474,7 @@ The corresponding conservative completion-time screen is approximately 54.12 sec
 
 Speed changes which numerical settings are resolvable, and two configuration fields that were immaterial in the straight baseline become load-bearing here. At 2,000 m/s and the configured 1 kHz rate the assembly advances 2 m per physics step. The baseline's 0.25 m boundary blend would be traversed in one eighth of a single step, which reduces the three transition stages to the step change in drag they exist to prevent, and Section 7 requires rejecting a configuration whose atmosphere discontinuity cannot be resolved within a split or substep. The blend distance is therefore configured at 40 m, giving at least ten resolved samples, and the general rule is \(d_{blend}\ge 10\,v_{max}\Delta t\) subject to the existing constraint that it not exceed the shortest stage length.
 
-The anti-tunneling pair list is likewise not optional at this speed. Section 12 requires every collision pair active at speed to be named with its test speed, and Section 16.2 tests at 1.25 times design speed, here 2,500 m/s, or 2.5 m per step at 1 kHz. That exceeds the 2.0 m tube inner diameter even though it is shorter than the corrected 4.2 m cart. The rocket-to-cradle pair is now authored at startup with positive clearance; while the coupling joint is active its telemetry and interlock reports are ignored, and after release they become authoritative without a live collision-filter mutation. The 4.0 m by 0.5 m X-axis cylindrical rocket is centered in a full-length 4.2 m by 1.2 m by 1.4 m open U-cradle, with both caps inside its axial envelope. Phase 0 measurement detects physical rear-wall impact before traversal under discrete CPU PhysX at 1.0, 0.5, and 0.25 ms. The 1 ms CCD control passes as well, so this production fixture does not require CCD. Thinner, differently oriented, or otherwise changed colliders still reopen the gate.
+The anti-tunneling pair list is likewise not optional at this speed. Section 12 requires every collision pair active at speed to be named with its test speed, and Section 16.2 tests at 1.25 times design speed, here 2,500 m/s, or 2.5 m per step at 1 kHz. That exceeds the 2.0 m tube inner diameter even though it is shorter than the corrected 4.2 m cart. The rocket-to-cradle pair is now authored at startup with positive clearance; while the coupling joint is active its telemetry and interlock reports are ignored, and after release they become authoritative without a live collision-filter mutation. The 4.0 m by 1.0 m X-axis cylindrical rocket is centered in a full-length 4.2 m by 1.25 m by 1.4 m open U-cradle, leaving 25 mm lateral clearance on each side and keeping both caps inside its axial envelope. Phase 0 measurement detects physical rear-wall impact before traversal under discrete CPU PhysX at 1.0, 0.5, and 0.25 ms. The 1 ms CCD control passes as well, so this production fixture does not require CCD. Thinner, differently oriented, or otherwise changed colliders still reopen the gate.
 
 The 2.7 km exit clothoid follows the screening relation \(L_{ramp}\ge v^3/(Rj_{n,max})\): at 2,000 m/s, \(R=60\) km and \(j_{n,max}=50\ \mathrm{m/s^3}\), the bound is approximately 2.67 km. This relation is necessary but not sufficient, and it is not conservative in general. It retains only the \(v^3\,d\kappa_s/ds\) term of Section 7 and drops \(2v\dot v\kappa_s\), whose sign depends on which clothoid is being traversed: on the exit clothoid curvature is returning to zero and the two terms partially cancel, while on the entry clothoid curvature is growing and they add. The configuration is within limits only because of that asymmetry combined with the speed profile. On the resolved profile the maxima are approximately 15.0 m/s³ on the entry clothoid, where the speed is only about 1,295 m/s, and 49.4 m/s³ on the exit clothoid against the 50 m/s³ limit. Had both terms applied at 2,000 m/s the total would be 51.9 m/s³, above the limit.
 
@@ -492,11 +518,11 @@ Optional, schema version 3 only. Absent means *do not score feasibility*, never 
 
 ```yaml
 stage2_constraint:
-  model: parametric_deltav_v1      # the reserved seam; see section 10.6
+  model: parametric_deltav_v2      # the reserved seam; see section 10.6
   specific_impulse_s: 350.0
   propellant_mass_fraction: 0.85   # strictly within (0, 1)
   target_orbit_altitude_m: 200000.0
-  loss_allowance_mps: 500.0
+  assumed_unmodeled_loss_mps: 500.0
 ```
 
 A propellant fraction of exactly 1.0 is a stage with no dry mass; the logarithm diverges and the screen would report an unbounded margin for an impossible vehicle, so the open interval is enforced rather than assumed. The target orbit must lie above the handoff altitude.
@@ -574,7 +600,7 @@ This deliberately conservative expression applies across geometric and atmospher
 
 The tube sweep itself has two independent gates. Local regularity requires \(\kappa_{max}R_{tube}<1\), preventing the inner offset surface from collapsing at a radius of curvature no larger than the tube. Global uniqueness requires non-neighboring centerline branches to remain more than \(2R_{tube}\) apart, which prevents tube self-overlap and makes nearest-centerline projection unique throughout the validated guide envelope. The implementation samples a bounded-curvature polyline, uses the conservative chord bound \(\epsilon\le\kappa_{max}\Delta s^2/2\), and rejects segment pairs at or below \(2R_{tube}+2\epsilon\); a spatial index avoids a quadratic all-pairs sweep. Its cell size is at least both the padded detection distance and the longest indexed chord, so even a diagonal chord occupies at most four cells instead of rasterizing its complete bounding box at tube-diameter resolution. Arc neighbors within \(\pi R_{tube}\) are handled by the local-curvature proof rather than misclassified as global overlap.
 
-For the checked-in 2 km/s curve, \(R_{tube}=1.0\) m, \(c_{guide}=0.05\) m, and \(\kappa_{max}=1/60000\) m\(^{-1}\). The cart is limiting: its 0.632456 m cross-section radius plus 0.000013 m longitudinal-curvature allowance leaves 0.317531 m certified wall clearance. The rocket's 0.25 m radius plus 0.000033 m allowance leaves 0.699967 m. The global check uses at most 24.487 m chord spacing with a 4.997 mm error bound and verifies the required 2.0 m nonlocal separation. These are pure geometry certificates; they do not substitute for Phase 0 measured tracking error, guide reaction, attachment load, or anti-tunneling evidence.
+For the checked-in 2 km/s curve, \(R_{tube}=1.0\) m, \(c_{guide}=0.05\) m, and \(\kappa_{max}=1/60000\) m\(^{-1}\). The widened cart is limiting: its 0.938416 m cross-section radius plus 0.000037 m longitudinal-curvature allowance leaves 0.011547 m certified wall clearance. The rocket's 0.5 m radius plus 0.000033 m allowance leaves 0.449967 m. The global check uses at most 24.487 m chord spacing with a 4.997 mm error bound and verifies the required 2.0 m nonlocal separation. These are pure geometry certificates; they do not substitute for Phase 0 measured tracking error, guide reaction, attachment load, or anti-tunneling evidence.
 
 The straight baseline uses a prismatic guide along \(\hat e\). The curved treatment requires a tangent-following guide with a validated swept envelope and reported normal reaction; it may not be represented as one world-fixed prismatic joint. The rocket becomes a free six-degree-of-freedom rigid body only after the zero-curvature exit segment and release transaction are confirmed.
 
@@ -751,9 +777,9 @@ Two limits in this document constrain rocket angular rate: an ignition gate and 
 
 Contact quantities are recorded as impulses. The runtime returns contact force or contact impulse from the same call depending on a time-scaling argument, and nothing in the returned value distinguishes them, so the telemetry schema records the scaling used for every contact field and the interlock is evaluated against the impulse form. The contact buffer is fixed in size when the view is created, which is consistent with the bounded-array rule of Section 5.1 and is recorded with the run.
 
-**Open gap — the interlock decides whether ignition is *safe*, not whether it is *right*.** Every gate above is a safety precondition, and the configured ignition delay is a post-separation settling time, not a trajectory target. There is no altitude, apogee, or flight-path-angle condition anywhere in the interlock. The consequence is measurable rather than theoretical: in the first complete mission the rocket ignited at 54.679 s, **0.56 seconds after release and essentially at exit altitude**, rather than coasting to height. Section 3.1 lists ignition timing as an axis the objective is sensitive to, so until a trajectory-conditioned trigger exists alongside these safety gates, that axis is declared and not yet supported. The safety gates are correct and should be retained as preconditions when the trigger is added; they are the wrong mechanism to express *when* to light.
+**Implemented trigger boundary.** Every gate above remains a safety precondition, and the configured ignition delay remains a post-separation settling time. A separate `rocket.ignition.trigger` decides *when* ignition is trajectory-appropriate. `safety_gates_only_v1` adds no trajectory threshold and is the schema-v2 compatibility behavior. `trajectory_thresholds_v1` requires at least one configured altitude, maximum flight-path-angle, or maximum vertical-speed threshold and evaluates those global-SI quantities independently of the safety interlock. The checked-in curved references use `minimum_altitude_m: 40000.0`; ignition occurs only when that trigger and all seven safety gates are simultaneously ready. This corrects the first complete mission's 54.679 s ignition, which occurred 0.56 seconds after release at essentially exit altitude.
 
-For reference, the coast is analytically predictable to a few percent, so a trigger does not need to search: from the handoff state, `t_apogee = v sin(gamma) / g` and `h_apogee = h_0 + (v sin(gamma))^2 / 2g` gave 52.03 s and 44.54 km against a measured 110.12 s and 46.57 km — the measured values include the demonstrator burn, so the residual is motor gain net of drag, not drag alone.
+For reference, the coast is analytically predictable to a few percent, so a trigger does not need to search: from the handoff state, `t_apogee = v sin(gamma) / g` and `h_apogee = h_0 + (v sin(gamma))^2 / 2g` provide review checks. The recorder now reports the actual apogee and ignition-handoff state directly; a completed requalification run, rather than the historical early-ignition artifact, must supply the new reference values.
 
 ### 10.5 Independent post-separation behavior
 
@@ -771,18 +797,18 @@ The baseline motor returns a constant-mass axial thrust wrench at a named rocket
 
 ### 10.6 Upper stage as a constraint, not a body
 
-The objective in Section 1 is whether the launcher can replace a first stage. That question is answered by what the launcher *delivers*, so the upper stage is not simulated. Modelling one would require variable mass, a thrust profile and a steering law, and for this question all of it collapses to a single number: does the stage have enough delta-v left. The upper stage is therefore declared as four parameters — specific impulse, propellant mass fraction, target orbit altitude, and a loss allowance — and the launcher's delivered state is scored against them.
+The objective in Section 1 is whether the launcher can replace a first stage. That question is answered by what the launcher *delivers*, so the upper stage is not simulated. Modelling one would require variable mass, a thrust profile and a steering law, and for this question all of it collapses to a single number: does the stage have enough delta-v left. The upper stage is therefore declared as four parameters — specific impulse, propellant mass fraction, target orbit altitude, and an explicitly assumed unmodeled loss — and the launcher's measured delivered state is scored against them.
 
 The screen is evaluated **at stage-2 ignition**, which is the handoff point. That choice is what prevents double counting: the demonstrator burn that follows is outside the budget, so the in-simulation motor and the parametric stage can never both claim the same delta-v. A zero-thrust motor is admissible and is the right setting for a feasibility sweep; the burn duration remains strictly positive so that a coasting configuration is an explicit choice rather than an unset field.
 
-Required delta-v is a single impulsive energy raise from the handoff state to the target circular orbit's specific energy:
+Required delta-v starts with a scalar impulsive energy raise from the handoff state to the target circular orbit's specific energy:
 
 \[
 v_{needed}=\sqrt{2\left(\varepsilon_{target}+\frac{\mu}{r_{handoff}}\right)},\qquad
-\Delta v = v_{needed}-v_{handoff} + \Delta v_{loss}
+\Delta v_{energy}=\max(0,v_{needed}-v_{handoff})
 \]
 
-with available delta-v from Tsiolkovsky over the declared mass fraction. **This is a screen, not a trajectory.** It ignores where in the orbit the impulse is applied, plane change, finite-burn losses, and the shape of the transfer, and it credits the handoff speed in full — ignoring that at a 14.85-degree flight-path angle roughly 3.3 percent of it is vertical, worth about 66 m/s. The loss allowance is a *declared input* rather than a fitted correction, so a reader can see how much of any answer is assumption. Two configurations are comparable under this screen; an absolute margin near zero is not a prediction that a vehicle reaches orbit.
+The measured flight-path angle then supplies the instantaneous vector correction to a horizontal target velocity. The difference between that vector impulse and `delta_v_energy` is reported as `measured_alignment_loss_mps`. Required delta-v is `ideal_energy_raise_mps + measured_alignment_loss_mps + assumed_unmodeled_loss_mps`, with available delta-v from Tsiolkovsky over the declared mass fraction. **This is a screen, not a trajectory.** It still ignores plane change, finite-burn dynamics, steering history, and transfer shape. Those effects cannot be measured while the upper stage is intentionally absent, so the residual remains an explicit authored assumption rather than being fitted or mislabeled as measured. The recorder separately integrates actual pre-handoff rocket drag impulse per unit mass as `pre_handoff_rocket_drag_loss_mps`; it is diagnostic and is not added again to the handoff budget.
 
 Measured against the first complete mission, which handed over at 31.267 km and 1991.87 m/s:
 
@@ -792,7 +818,7 @@ Measured against the first complete mission, which handed over at 31.267 km and 
 | The same, from the launcher's handoff state | 5,999.2 m/s |
 | **Ideal delta-v supplied by the launcher** | **2,030.0 m/s** |
 
-A ground launch additionally pays roughly 1,500–2,000 m/s of drag and gravity loss that a 31 km, 2 km/s handoff largely avoids, so the launcher's effective contribution is comparable to a first stage's 2,500–3,500 m/s. The binding constraint moves to the upper stage: at a 500 m/s allowance a 350 s, 0.85-fraction stage closes the gap by only 12 m/s, and the margin moves ±500 m/s with the allowance alone. Replacing that allowance with a measured quantity is consequently the highest-value modelling work remaining, and the simulation already integrates the drag part of it.
+A ground launch additionally pays roughly 1,500–2,000 m/s of drag and gravity loss that a 31 km, 2 km/s handoff largely avoids, so the launcher's effective contribution is comparable to a first stage's 2,500–3,500 m/s. The historical table above remains useful context, but its 12 m/s margin used the older scalar `parametric_deltav_v1` screen. `parametric_deltav_v2` must be evaluated against the newly measured ignition handoff before a current margin is claimed. Sensitivity to the 500 m/s assumed residual remains explicit; closing it requires a simulated finite-burn upper stage and is outside the current objective boundary.
 
 `model` is the reserved seam. A later `full_stage_v1` becomes a variable-mass component in the effect path — `MomentumPolicy.ACCOUNTED`, `SLOT_MASS_OWNERSHIP`, and the validation rejecting accounted mass flow without an exhaust velocity all exist for it already — and consumes the same delivered-state interface, carrying a measured insertion state instead of an estimate.
 
@@ -945,6 +971,12 @@ outputs/<experiment-id>/<condition-id>/<replicate-id>/<run-instance-id>/
 ├── frames/
 └── launch.mp4
 ```
+
+`summary.json` uses `run_summary_v2`. In addition to termination, exit, load, separation, impulse,
+and energy fields, it records actual apogee time/altitude; ignition-handoff time, altitude,
+downrange, speed, and flight-path angle; integrated pre-handoff rocket drag loss; and the complete
+stage-2 budget split and margin. `run_mission.py` evaluates the versioned criterion and writes both
+the criterion result and a complete production experiment manifest when telemetry output is enabled.
 
 `run_instance_id` is unique per execution and is deliberately not derived from configuration content. Re-running a condition therefore produces a new directory rather than overwriting an existing one, and reproducibility is established by the manifest hashes rather than by the path. The two properties are separate: identical hashes across two `run_instance_id` values is the evidence that a run reproduced.
 
@@ -1154,19 +1186,19 @@ experience, always-present cart/rocket pair, and external fixed-joint coupling.
 The `rocket_cradle` anti-tunneling harness now uses the authored production geometry from the
 separately hashed `configs/phase0_anti_tunneling_open_cradle.json` fixture. The current artifact is
 produced by `standalone/qualify_anti_tunneling.py`, runner SHA-256
-`2f900a390ed4be5cd8f43b27e22e74eb85d82838b796f7a56dfb969a8fe54665`, with fixture SHA-256
-`7004d7df2bca9f91f7cab07a3c303511bb2bd381041ba00784d3d1acae5a64ec`. The probe uses the reference
-150 kg, 4.0 m by 0.5 m X-axis cylindrical rocket and fixed 250 kg, open-front U-shaped cradle,
+`07b3675c1b782b781a12951b7a739f197f8ead4793af1d2075029f0dc90c7705`, with fixture SHA-256
+`ece6a1c39f3462d2929eb83b3df3ad5498ed183b5b639313c294b1b933fc26e2`. The probe uses the reference
+150 kg, 4.0 m by 1.0 m X-axis cylindrical rocket and fixed 250 kg, 1.25 m-wide open-front U-shaped cradle,
 begins with 0.01 m axial clearance, and approaches its rear wall at 2,500 m/s. A pass requires a
 nonzero finite contact force and forbids full rear-wall traversal, including a sample that reports
 contact and traversal simultaneously. All matched conditions pass:
 
 | Contact treatment | Physics step | Free travel per step | Maximum contact count | Maximum reported contact impulse | Far-face traversal |
 |---|---:|---:|---:|---:|---|
-| Discrete | 1.00 ms | 2.500 m | 7 | 261.32 kN s | No |
-| Discrete | 0.50 ms | 1.250 m | 7 | 262.37 kN s | No |
-| Discrete | 0.25 ms | 0.625 m | 7 | 270.90 kN s | No |
-| CCD | 1.00 ms | 2.500 m | 7 | 261.32 kN s | No |
+| Discrete | 1.00 ms | 2.500 m | 10 | 180.216 kN s | No |
+| Discrete | 0.50 ms | 1.250 m | 10 | 176.914 kN s | No |
+| Discrete | 0.25 ms | 0.625 m | 10 | 168.828 kN s | No |
+| CCD | 1.00 ms | 2.500 m | 10 | 180.216 kN s | No |
 
 CCD-on and discrete 1 ms samples are identical. CCD is therefore not required for this production
 fixture's measured no-pass-through outcome. This is deliberately a fixed-cradle mechanism stress
@@ -1299,7 +1331,7 @@ visualization fallback each remains a new named condition and cannot inherit the
 - Experiment manifests, criterion policies, and paired incremental contrasts.
 - Unit tests independent of Isaac Sim.
 
-**Implementation status:** The schema-v3 configuration, centerline pose/frame/curvature/projection, arc-length stage mapping and refinement, two-sided guide-normal and normal-jerk gates, exterior-atmosphere/evidence validation, exit-track continuity, swept-envelope clearance, braking bound, and run-time feasibility are implemented. The deterministic analytic adapter, effective-density guided/cart and detached-rocket drag, four-mode launch controller, ideal analytic path guide, jerk-limited vector-supervised brake with a physical hold latch, constant-mass rocket motor, reversible coupling, ordered release/resync transaction, named-envelope separation monitor, seven-gate ignition interlock, finite concurrent-branch state machine, and common mission orchestrator now exercise the effect boundary through a complete analytic schema-v2 mission. The mission repeats bit-identically after reset and rejects out-of-order ignition. Versioned core telemetry records distinct pre-state, observation, command, accepted-effect, backend-applied-effect, post-state, and derived-post phases with per-field validity; streams registered diagnostics and monotonically sequenced events; accumulates the Section 16.2 energy identity from backend-applied per-slot forces, including resistance and separation; writes run summaries; and allocates collision-safe run instances whose identity is not derived from configuration content. Complete experiment manifests fail closed on missing component slots or identity fields, record exact factor lineage and every Section 14.1 numerical/schema/software input, and evaluate a versioned criterion policy. Code identity covers an explicitly declared source closure and resolved external versions; the built-in mission conservatively declares the entire backend-neutral package, so it may invalidate more hashes than a later packaging-generated per-model closure but cannot miss a shared-code change. Named streams are stable under access-order changes, and contrast generation accepts only paired seeds and identical initial-state hashes. Because `BodyState` does not yet carry inertia, energy closure is deliberately limited to translational kinetic plus gravitational potential energy and marks the energy channels invalid for nonzero angular velocity rather than reporting a misleading residual or aborting the run. The configured 1 ms curved guided run remains 1,999.991 m/s in 54.115 s with 7.668G peak resultant load and 49.371 m/s³ peak normal jerk; its cart stops in 23.000 km and 22.504 s at a 9.066G peak without reversal, and controlled energy residual decreases when timestep is halved. The reference swept-envelope certificate is cart-limited at 0.317531 m wall clearance after the guide allowance; local tube regularity and nonlocal 2.0 m branch separation also pass. The backend-neutral Phase 1 implementation is complete. The production Isaac slice is implemented too: the Kit extension, PhysX/CPU translated-frame adapter, shared resolved-scene plan, exact production bodies and coupling, tube bands, exit track, marker, and lighting all load in the target build, and the *same* `build_mission` orchestrator that drives the analytic suite now drives that scene. `run_launcher.py` still deliberately stops after scene construction; `run_mission.py` is the runner that executes a mission. The commanded guide reaction is reported as an applied backend effect under the `backend_adapter` slot and accounted by its own `guide_reaction` work term, so the difference between accepted and applied load stays attributable and the non-constraint treatment's energy injection stays visible. The closed-form `force_vs_position` feasibility screen currently uses the table's maximum authored force and is consequently optimistic for short or sparse high-force intervals; it is an early rejection screen, not trajectory acceptance, and the analytic runner remains authoritative for the resolved profile until that screen is integrated piecewise.
+**Implementation status:** The schema-v3 configuration, centerline geometry/preflight, complete mission effect path, separate trajectory ignition trigger, `run_summary_v2` delivered-state capture, stage-2 v2 scoring, and `curved_reference_v1` criterion are implemented. The deterministic analytic and production PhysX paths share the same orchestrator; it now caches the current state so each step avoids the former redundant adapter read. Production telemetry writes complete manifests with component/source/configuration/scene/numerical/software identity, controlled-factor lineage, named streams, schemas, and criterion result. `sweep_mission.py` strictly materializes a configuration plan, preflights every condition before execution, runs conditions sequentially, consumes their manifests, and emits paired contrasts; failed conditions remain explicit rows, metrics unavailable because of an upstream abort remain null, and `contrast_status` distinguishes a complete comparison from a partial one. The checked-in plan varies the 40 km ignition threshold to 35 km and 43 km. The upper-stage budget exposes measured vector alignment and pre-handoff drag separately from the authored unmodeled residual. Because the upper stage is intentionally not simulated, finite-burn and steering losses remain assumptions rather than falsely measured outputs. The prior geometry, load, energy-validity, and fail-closed provenance boundaries remain in force. The v0.35 source-bound artifacts and 211-test passing audit are historical. The current v0.36 stdlib/artifact audit passes 202/214, with exactly 12 stale-evidence identity assertion failures pending regeneration—nine curved-guide, two production-mission, and one 30 G candidate—and no logic or geometry failures.
 
 **Phase 0 dependency correction (v0.29):** Straight live release, the always-present contact
 treatment, the production cylindrical-rocket/open-front-cradle anti-tunneling matrix, and curved
@@ -1318,6 +1350,17 @@ still does not supply solver-reported guide reaction.
 - Mass, inertia, collision, and attachment setup.
 - Start hold and reset behavior.
 
+**Current status (v0.36):** Implemented on the selected CPU PhysX condition. The generated scene
+contains the resolved curved tube and virtual stages, exact production cart/cradle/rocket geometry,
+always-present coupling/contact pair, tangent-continuous exit track, lighting, true-scale and
+schematic visualization bands, cold reset, and USD export. The live visualization layer now authors
+global-state vehicle proxies, all seven prescribed camera definitions, force arrows, and an explicitly
+explanatory magnetic-field arrow. The Stage-1-free Jupiter-C USD is visual-only, hash-bound in the
+scene record, rotated and fitted to the 4.0 m by 1.0 m conservative physics cylinder, and scanned
+after composition to reject physics APIs/properties. Official NASA source, author, and media-usage
+provenance is recorded; installed packaging and portable export remain pending verification. A callback-driven control-panel module exists, but it is not yet
+bound to an application owner; therefore the interactive execution profile is not claimed complete.
+
 **Review gate:** Approve geometry, curvature continuity, swept clearances, scale, and visual presentation.
 
 ### Phase 3: Attached launch
@@ -1327,6 +1370,13 @@ still does not supply solver-reported guide reaction.
 - Stage transitions and atmospheric drag.
 - Tangent-frame target exit-speed control, vector G supervision, curvature/jerk monitoring, and telemetry.
 
+**Current status (v0.36):** Implemented and exercised through the common orchestrator. The first
+complete production mission reached 1,999.9254 m/s, stayed within the 10 G and guide-clearance
+limits, and completed the configured evidence window. Those numbers and the v0.35
+1.0/0.5/0.25 ms curved refinement rates are historical after the vehicle envelope change. The
+v0.36 anti-tunneling matrix is current, but the full-profile curved refinements and matched global
+control must be regenerated before current-source convergence or throughput is claimed.
+
 **Review gate:** Approve attached-phase trajectory, guide-normal reaction, vector-load accounting, and timestep convergence.
 
 ### Phase 4: Separation and ignition
@@ -1334,6 +1384,18 @@ still does not supply solver-reported guide reaction.
 - Exit detection, force ramp-down, and joint release.
 - Cart braking and clearance calculation.
 - Ignition interlocks and initial rocket motor.
+
+**Current status (v0.36):** The ordered release/resync transaction, independent cart braking,
+clearance measurement, re-contact/contact-impulse monitoring, seven fail-closed safety gates, and
+rocket motor are implemented. The trajectory-conditioned trigger is independent of those gates and
+the curved reference requires at least 40 km altitude. The production runner retains the schema-v2
+safety-only post-exit deadline, but for trajectory-triggered runs starts the burnout obligation at
+the measured ignition event instead of falsely requiring ignition before the trajectory condition.
+The v0.36 Kit boundary audit passes 11/11 after the geometry/source and composed-asset checks.
+Its release-resync test
+uses the same one-step separating-relative-speed discriminator as the qualified runner, directly
+proving that PhysX consumed the joint disable without relying on motion that the corrected
+full-length cradle geometry physically obstructs.
 
 **Review gate:** Approve event ordering, clearance, and independent force behavior.
 
@@ -1343,6 +1405,15 @@ still does not supply solver-reported guide reaction.
 - Powered-flight visualization.
 - Live plots, force arrows, cameras, exports, and video.
 
+**Current status (v0.36):** Rocket free flight, the demonstrator burn, telemetry export, static
+captures, a telemetry-replayed chase flythrough, and a system-scale separation animation are
+implemented. The replay path consumes recorded global-SI state and therefore does not re-simulate
+the mission. Live global proxy motion, force/field overlays, and all seven camera definitions are
+implemented in the production runtime. Application ownership for the panel and live plots remains
+outstanding. Fresh 10-step target-build smokes with the imported asset prove the visual and
+nonvisual paths produce identical mission phase, 0.369605 m/s final cart speed, and
+3.3594e-7 m tracking error after visual authoring was moved before physics startup.
+
 **Review gate:** Approve complete end-to-end demonstration.
 
 ### Phase 6: Validation and packaging
@@ -1351,6 +1422,22 @@ still does not supply solver-reported guide reaction.
 - Headless runner, ablation-chain execution, and parameter-sweep support.
 - Separate execution profiles: pure unit tests, Kit physics-only integration, rendered headless evidence, and interactive UI.
 - Final baseline configuration and review evidence.
+
+**Current status (v0.36):** Partial. The changed 4.0 m by 1.0 m collider passes the complete
+anti-tunneling matrix and the asset-bound production scene smoke passes. The v0.35 curved-guide,
+mission, sweep, and 30 G evidence is historical until regenerated against the new geometry and
+source closure. Headless runners, the current 202/214 audit with 12 expected stale-evidence
+identity assertion failures, and a
+240-case analytic brake trade study exist. The 43.986 kg, 30 G induction-plate candidate passes the
+historical curved-guide, release, and 8 km stopping checks but remains a separate
+candidate configuration pending structural, guide-load, thermal, power and full-flight closure.
+The Jupiter-C manifest now records the official NASA source, author, and media-usage terms. A clean
+installed-extension package smoke and portable scene export remain open. The strict
+35/40/43 km sweep has been executed. All three 10 G reference conditions abort identically at step
+54,389 on `separation_contact_impulse_exceeded`, before any altitude trigger or stage-2 handoff;
+the aggregate is therefore `partial_missing_metrics` and records zero apogee contrast only. The
+interactive execution profile, correction and requalification of the reference separation/braking
+treatment, full delivered-state sweep, and final baseline acceptance remain outstanding.
 
 **Review gate:** Accept baseline or authorize detailed-model development.
 
@@ -1387,7 +1474,8 @@ Following baseline acceptance, separately reviewed upgrades may include:
 - Coil switching, current, voltage, efficiency, and thermal models.
 - Lumped one-dimensional tube gas dynamics.
 - Pressure-differential forces and leakage.
-- Imported detailed cart and rocket USD assets.
+- Imported detailed cart USD assets and higher-fidelity stage-separated rocket models. The
+  Stage-1-free Jupiter-C visual is already integrated for the current upper-stack representation.
 - Time-varying thrust and propellant mass depletion.
 - Six-degree-of-freedom aerodynamic coefficient tables.
 - Rocket guidance, control surfaces, and thrust-vector control.
@@ -1506,6 +1594,21 @@ Every quantity introduced or changed in v0.8 was recomputed independently and re
 ## 21. Panel decision record
 
 The panel should record one of: **Approve**, **Approve with actions**, or **Revise and resubmit**.
+
+**Record status at v0.36:** No signed checklist or named reviewer disposition is present below, so
+the boxes remain intentionally unchecked. The implementation has proceeded under the narrower v0.29
+recorded decision to accept the force-resolved controller and translated frame for system-level
+simulation while excluding hardware contact-load validation. Evidence completion is not treated as
+a substitute for formal approval. Trajectory-timed ignition, first-class delivered-state scoring,
+the measurable loss split, production manifest wiring, sweep support, and live proxies/cameras/overlays
+are implemented. Target-build visual smoke and the expanded 11/11 Kit boundary audit pass; the
+current stdlib/artifact audit is 202/214 with 12 stale-evidence identity assertion failures.
+Installed asset packaging/portable export and current source-bound requalification remain open. The executed
+production sweep is blocked upstream of ignition by the reference cart/rocket separation-contact
+impulse, while the 30 G candidate clears separation and stops successfully but has not yet reached
+its 40 km trigger at 65 s. The open actions are correction and requalification of the reference
+separation/braking treatment, a full delivered-state sweep, panel/application ownership and live
+plots, and final baseline selection.
 
 Requested decisions:
 

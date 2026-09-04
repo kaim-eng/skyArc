@@ -227,6 +227,21 @@ class MotorConfig:
 
 
 @dataclass(frozen=True)
+class IgnitionTriggerConfig:
+    """Trajectory condition that decides *when* safe ignition should occur.
+
+    Safety remains the responsibility of :class:`IgnitionConfig`'s seven interlock
+    gates.  ``trajectory_thresholds_v1`` evaluates every authored threshold as a
+    conjunction; ``safety_gates_only_v1`` preserves the schema-v2 immediate behavior.
+    """
+
+    model: str
+    minimum_altitude_m: float | None = None
+    maximum_flight_path_angle_deg: float | None = None
+    maximum_vertical_speed_mps: float | None = None
+
+
+@dataclass(frozen=True)
 class IgnitionConfig:
     delay_s: float
     minimum_cart_clearance_m: float
@@ -235,6 +250,7 @@ class IgnitionConfig:
     separation_timeout_s: float
     maximum_contact_impulse_ns: float
     maximum_angular_rate_deg_s: float
+    trigger: IgnitionTriggerConfig
 
 
 @dataclass(frozen=True)
@@ -308,11 +324,11 @@ class Stage2ConstraintConfig:
     config layer and the screen cannot disagree about what is admissible.
     """
 
-    model: str = "parametric_deltav_v1"
+    model: str = "parametric_deltav_v2"
     specific_impulse_s: float = 350.0
     propellant_mass_fraction: float = 0.85
     target_orbit_altitude_m: float = 200000.0
-    loss_allowance_mps: float = 500.0
+    assumed_unmodeled_loss_mps: float = 500.0
 
 
 @dataclass(frozen=True)

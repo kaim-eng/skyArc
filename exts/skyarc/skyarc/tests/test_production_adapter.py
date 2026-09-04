@@ -25,7 +25,7 @@ import isaacsim.core.experimental.utils.stage as stage_utils
 import omni.kit.app
 import omni.kit.test
 from isaacsim.core.simulation_manager import SimulationManager
-from pxr import UsdPhysics
+from pxr import Usd, UsdPhysics
 
 from ..components.contract import ScenarioContext
 from ..components.observers import GroundTruthObserver
@@ -59,6 +59,7 @@ from ..names import (
     JOINT_COUPLING,
     PAIR_ROCKET_CRADLE,
     SLOT_BACKEND_ADAPTER,
+    SLOT_CART_BRAKE,
     SLOT_LAUNCH_FORCE,
     SLOT_ROCKET_MOTOR,
 )
@@ -112,7 +113,7 @@ class ProductionAdapterTestBase(omni.kit.test.AsyncTestCase):
             self.fixture,
             self.plan,
             gravity_mps2=GRAVITY_MPS2,
-            author_visuals=False,
+            author_visuals=True,
             update=omni.kit.app.get_app().update,
         )
         self.backend = self.runtime.backend
@@ -138,6 +139,25 @@ class ProductionAdapterTestBase(omni.kit.test.AsyncTestCase):
 
 
 class TestProductionAdapterBoundary(ProductionAdapterTestBase):
+    async def test_detailed_rocket_reference_is_strictly_visual_only(self) -> None:
+        built = self.runtime.built_scene
+        self.assertIsNotNone(built.rocket_visual_path)
+        visual = self.stage.GetPrimAtPath(built.rocket_visual_path)
+        self.assertTrue(visual.IsValid())
+        for prim in Usd.PrimRange(visual):
+            applied = tuple(str(schema) for schema in prim.GetAppliedSchemas())
+            properties = tuple(str(name) for name in prim.GetPropertyNames())
+            self.assertFalse(
+                any(schema.startswith(("Physics", "Physx")) for schema in applied),
+                f"visual prim owns a physics API: {prim.GetPath()} {applied}",
+            )
+            self.assertFalse(
+                any(name.startswith(("physics:", "physx")) for name in properties),
+                f"visual prim owns a physics property: {prim.GetPath()} {properties}",
+            )
+        collision = self.stage.GetPrimAtPath(f"{built.rocket_path}/Collision")
+        self.assertTrue(collision.HasAPI(UsdPhysics.CollisionAPI))
+
     async def test_selected_runtime_and_capabilities_are_the_phase0_condition(self) -> None:
         capabilities = self.backend.capabilities
         self.assertEqual(capabilities.backend, "physx")
@@ -421,9 +441,6 @@ class TestProductionReleaseTransaction(ProductionAdapterTestBase):
             self.backend.step()
 
         before = self.backend.read_state()
-        attached_spacing_m = norm(
-            sub(before.body(BODY_ROCKET).position, before.body(BODY_CART).position)
-        )
         observation = observe(before)
         request_events = coupling.request_release(observation, aft_marker_outside=True)
         self.assertTrue(request_events)
@@ -448,17 +465,53 @@ class TestProductionReleaseTransaction(ProductionAdapterTestBase):
         self.assertIn(EVENT_RELEASE_CONFIRMED, [event.name for event in confirmation])
         self.assertTrue(coupling.brake_eligible)
 
-        # A disabled joint the solver never consumed would hold the two bodies at the
-        # authored spacing forever, so the released rocket must actually drift.
-        for _ in range(100):
-            state = self.backend.read_state()
-            self.backend.apply(aggregate((self.launch_batch(state),), state))
-            self.backend.step()
-        released = self.backend.read_state()
-        released_spacing_m = norm(
-            sub(released.body(BODY_ROCKET).position, released.body(BODY_CART).position)
+        # Use the same brake-direction velocity discriminator as the qualified runner.
+        # Continuing the launch force here used to work only while the rocket sat beyond
+        # the old short cradle. With the production rocket correctly seated inside the
+        # full-length U, that direction drives it into the rear wall and tests contact
+        # instead of testing whether PhysX consumed the joint disable.
+        separating_effort_n = -1000.0
+        before_probe = self.backend.read_state()
+        pose = path_pose(
+            self.layout,
+            self.layout.axial_position(before_probe.body(BODY_CART).position),
         )
-        self.assertGreater(abs(released_spacing_m - attached_spacing_m), 0.01)
+        pre_relative_speed_mps = dot(
+            sub(
+                before_probe.body(BODY_ROCKET).linear_velocity,
+                before_probe.body(BODY_CART).linear_velocity,
+            ),
+            pose.tangent,
+        )
+        separating_batch = EffectBatch(
+            source=SLOT_CART_BRAKE,
+            wrenches=(
+                Wrench(
+                    source=SLOT_CART_BRAKE,
+                    body=BODY_CART,
+                    force_n=scale(pose.tangent, separating_effort_n),
+                    application_point_m=before_probe.body(BODY_CART).position,
+                    frame=Frame.WORLD,
+                ),
+            ),
+        )
+        self.backend.apply(aggregate((separating_batch,), before_probe))
+        self.backend.step()
+        released = self.backend.read_state()
+        separating_speed_increase_mps = dot(
+            sub(
+                released.body(BODY_ROCKET).linear_velocity,
+                released.body(BODY_CART).linear_velocity,
+            ),
+            pose.tangent,
+        ) - pre_relative_speed_mps
+        minimum_increase_mps = (
+            0.25
+            * abs(separating_effort_n)
+            / before_probe.body(BODY_CART).mass_kg
+            * self.config.simulation.physics_dt_s
+        )
+        self.assertGreaterEqual(separating_speed_increase_mps, minimum_increase_mps)
 
     async def test_the_reaction_resizes_to_the_cart_once_the_joint_is_inactive(self) -> None:
         """After release the guide holds the cart, not the cart plus the rocket.

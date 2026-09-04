@@ -476,7 +476,7 @@ def validate_scenario(config: ScenarioConfig) -> PreflightReport:
                 specific_impulse_s=constraint.specific_impulse_s,
                 propellant_mass_fraction=constraint.propellant_mass_fraction,
                 target_orbit_altitude_m=constraint.target_orbit_altitude_m,
-                loss_allowance_mps=constraint.loss_allowance_mps,
+                assumed_unmodeled_loss_mps=constraint.assumed_unmodeled_loss_mps,
             )
         except ValueError as exc:
             raise ConfigurationError(f"invalid stage2_constraint: {exc}") from exc
@@ -725,6 +725,34 @@ def validate_scenario(config: ScenarioConfig) -> PreflightReport:
         _finite_positive(label, value, allow_zero=label.endswith("delay_s"))
     if ignition.minimum_cart_clearance_m >= tube.exit_brake_track_length_m:
         raise ConfigurationError("minimum ignition clearance is incompatible with the exit track geometry")
+    trigger = ignition.trigger
+    trigger_fields = (
+        ("minimum_altitude_m", trigger.minimum_altitude_m),
+        ("maximum_flight_path_angle_deg", trigger.maximum_flight_path_angle_deg),
+        ("maximum_vertical_speed_mps", trigger.maximum_vertical_speed_mps),
+    )
+    if trigger.model == "safety_gates_only_v1":
+        if any(value is not None for _, value in trigger_fields):
+            raise ConfigurationError(
+                "safety_gates_only_v1 ignition trigger may not declare trajectory thresholds"
+            )
+    elif trigger.model == "trajectory_thresholds_v1":
+        if all(value is None for _, value in trigger_fields):
+            raise ConfigurationError(
+                "trajectory_thresholds_v1 ignition trigger requires at least one threshold"
+            )
+        for field, value in trigger_fields:
+            if value is not None and not math.isfinite(value):
+                raise ConfigurationError(f"rocket.ignition.trigger.{field} must be finite")
+        if trigger.minimum_altitude_m is not None and trigger.minimum_altitude_m < 0.0:
+            raise ConfigurationError("minimum ignition altitude must be nonnegative")
+        if (
+            trigger.maximum_flight_path_angle_deg is not None
+            and not -90.0 <= trigger.maximum_flight_path_angle_deg <= 90.0
+        ):
+            raise ConfigurationError("maximum ignition flight-path angle must be within [-90, 90] degrees")
+    else:
+        raise ConfigurationError(f"unsupported ignition trigger model {trigger.model!r}")
 
     if rocket.aft_clearance_marker not in config.markers:
         raise ConfigurationError(f"rocket aft marker {rocket.aft_clearance_marker!r} is not configured")

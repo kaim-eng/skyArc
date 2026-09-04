@@ -9,6 +9,21 @@ __pycache__/
 # they are regenerated rather than tracked.
 /outputs/
 
+# Large raw mission streams and exploratory scene smokes. Canonical summaries and qualification
+# artifacts remain tracked; these run-instance directories are reproducible from their manifests.
+/artifacts/**/telemetry/
+/artifacts/sweeps/*/runs/
+/artifacts/sweeps/*_dry_run/
+/artifacts/smoke_*/
+
+# Jupiter-C conversion intermediates and local previews. The runtime USD, its textures, manifest,
+# and attribution README are tracked.
+/assets/vehicles/jupiter_c/Explorer_JupiterC_Decompressed.glb
+/assets/vehicles/jupiter_c/Explorer_JupiterC_ImportReady.glb
+/assets/vehicles/jupiter_c/Explorer_JupiterC_Full.usdc
+/assets/vehicles/jupiter_c/Explorer_JupiterC_NoStage1_preview.png
+/assets/vehicles/jupiter_c/Explorer_JupiterC_NoStage1_preview.usda
+
 # Rendered captures written outside artifacts/. The two committed frames under
 # artifacts/production/renders/ are deliberate evidence and are NOT ignored.
 /renders/

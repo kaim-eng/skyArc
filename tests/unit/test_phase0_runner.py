@@ -216,7 +216,7 @@ class Phase0RunnerContractTests(unittest.TestCase):
         self.assertEqual(fixture["rocket"]["shape"], "cylinder")
         self.assertEqual(fixture["rocket"]["axis"], "X")
         self.assertEqual(fixture["rocket"]["length_m"], 4.0)
-        self.assertEqual(fixture["rocket"]["diameter_m"], 0.5)
+        self.assertEqual(fixture["rocket"]["diameter_m"], 1.0)
         self.assertEqual(fixture["cradle"]["topology"], "open_front_u")
 
     def test_anti_tunneling_fixture_rejects_wrong_or_impossible_geometry(self) -> None:
@@ -224,8 +224,8 @@ class Phase0RunnerContractTests(unittest.TestCase):
         hostile_cases = (
             ("rocket shape", ("rocket", "shape"), "box", "X-axis cylinder"),
             ("cradle topology", ("cradle", "topology"), "closed_box", "open_front_u"),
-            ("wall thickness", ("cradle", "wall_thickness_m"), 0.61, "open interior"),
-            ("rocket fit", ("rocket", "diameter_m"), 1.0, "does not fit"),
+            ("wall thickness", ("cradle", "wall_thickness_m"), 0.63, "open interior"),
+            ("rocket fit", ("rocket", "diameter_m"), 1.05, "does not fit"),
         )
         with TemporaryDirectory() as temporary_directory:
             path = Path(temporary_directory) / "fixture.json"

@@ -29,6 +29,16 @@ EXTENSION_TOML = (
 )
 PRODUCTION_RUNNER = PROJECT / "standalone" / "run_launcher.py"
 PRODUCTION_SMOKE = PROJECT / "artifacts" / "production" / "scene_smoke.json"
+ROCKET_VISUAL_ASSET = (
+    PROJECT / "assets" / "vehicles" / "jupiter_c" / "Explorer_JupiterC_NoStage1.usdc"
+)
+ROCKET_VISUAL_MANIFEST = (
+    PROJECT
+    / "assets"
+    / "vehicles"
+    / "jupiter_c"
+    / "Explorer_JupiterC_NoStage1.manifest.json"
+)
 
 
 class ProductionSceneTests(unittest.TestCase):
@@ -41,9 +51,9 @@ class ProductionSceneTests(unittest.TestCase):
     def test_fixture_and_scenario_are_one_geometry_condition(self) -> None:
         validate_fixture_against_scenario(self.fixture, self.loaded.config)
         self.assertEqual(self.fixture.rocket.length_m, 4.0)
-        self.assertEqual(self.fixture.rocket.diameter_m, 0.5)
+        self.assertEqual(self.fixture.rocket.diameter_m, 1.0)
         self.assertEqual(self.fixture.cradle.outer_length_m, 4.2)
-        self.assertEqual(self.fixture.cradle.outer_width_m, 1.2)
+        self.assertEqual(self.fixture.cradle.outer_width_m, 1.25)
         self.assertEqual(self.fixture.cradle.outer_height_m, 1.4)
 
     def test_scene_plan_pins_the_approved_non_constraint_treatment(self) -> None:
@@ -95,6 +105,15 @@ class ProductionSceneTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "duplicate JSON key"):
                 load_production_fixture(path)
 
+    def test_fixture_rejects_a_rocket_that_intersects_the_cradle_floor(self) -> None:
+        with TemporaryDirectory() as temporary_directory:
+            path = Path(temporary_directory) / "floor_intersection.json"
+            source = json.loads(FIXTURE.read_text(encoding="utf-8"))
+            source["cradle"]["outer_height_m"] = 1.2
+            path.write_text(json.dumps(source), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "intersects the cradle floor"):
+                load_production_fixture(path)
+
     def test_extension_entrypoint_does_not_replace_the_isaac_free_package_root(self) -> None:
         manifest = EXTENSION_TOML.read_text(encoding="utf-8")
         self.assertIn(
@@ -121,6 +140,21 @@ class ProductionSceneTests(unittest.TestCase):
         self.assertEqual(artifact["solver_type"], "TGS")
         self.assertEqual(artifact["cradle_topology"], "open_front_u")
         self.assertEqual(artifact["rocket_shape"], "cylinder_x")
+        self.assertEqual(artifact["rocket_length_m"], 4.0)
+        self.assertEqual(artifact["rocket_diameter_m"], 1.0)
+        self.assertEqual(artifact["rocket_visual_redistribution_status"], "cleared")
+        self.assertEqual(
+            artifact["rocket_visual_reference_portability"],
+            "development_absolute_source_reference",
+        )
+        self.assertEqual(
+            artifact["rocket_visual_asset_sha256"],
+            hashlib.sha256(ROCKET_VISUAL_ASSET.read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            artifact["rocket_visual_manifest_sha256"],
+            hashlib.sha256(ROCKET_VISUAL_MANIFEST.read_bytes()).hexdigest(),
+        )
         self.assertEqual(
             artifact["configuration_source_sha256"],
             hashlib.sha256(CONFIGURATION.read_bytes()).hexdigest(),

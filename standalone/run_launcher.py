@@ -701,6 +701,27 @@ def main() -> int:
             "exit_track_length_m": config.tube.exit_brake_track_length_m,
             "cart_path": built.cart_path,
             "rocket_path": built.rocket_path,
+            "rocket_visual_path": built.rocket_visual_path,
+            "rocket_visual_asset": (
+                None if built.rocket_visual_asset is None else str(built.rocket_visual_asset.usd_path)
+            ),
+            "rocket_visual_asset_sha256": (
+                None if built.rocket_visual_asset is None else _sha256(built.rocket_visual_asset.usd_path)
+            ),
+            "rocket_visual_manifest": (
+                None if built.rocket_visual_asset is None else str(built.rocket_visual_asset.manifest_path)
+            ),
+            "rocket_visual_manifest_sha256": (
+                None if built.rocket_visual_asset is None else _sha256(built.rocket_visual_asset.manifest_path)
+            ),
+            "rocket_visual_redistribution_status": (
+                None
+                if built.rocket_visual_asset is None
+                else built.rocket_visual_asset.redistribution_status
+            ),
+            "rocket_visual_reference_portability": "development_absolute_source_reference",
+            "rocket_length_m": plan.rocket.length_m,
+            "rocket_diameter_m": plan.rocket.diameter_m,
             "coupling_path": built.coupling_path,
             "cradle_topology": "open_front_u",
             "rocket_shape": "cylinder_x",
@@ -715,6 +736,9 @@ def main() -> int:
             and summary["rate_limit_enabled"] is False
             and stage.GetPrimAtPath(built.cart_path).IsValid()
             and stage.GetPrimAtPath(built.rocket_path).IsValid()
+            and built.rocket_visual_path is not None
+            and built.rocket_visual_asset is not None
+            and stage.GetPrimAtPath(built.rocket_visual_path).IsValid()
             and stage.GetPrimAtPath(built.coupling_path).IsValid()
         )
 
@@ -725,7 +749,9 @@ def main() -> int:
         rendered = json.dumps(summary, indent=2, sort_keys=True, allow_nan=False)
         if args.summary is not None:
             args.summary.parent.mkdir(parents=True, exist_ok=True)
-            args.summary.write_text(rendered + "\n", encoding="utf-8")
+            args.summary.write_text(
+                rendered + "\n", encoding="utf-8", newline="\n"
+            )
         print(rendered)
         sys.stdout.flush()
         return 0 if summary["passed"] else 2

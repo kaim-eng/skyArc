@@ -1,0 +1,299 @@
+{
+  "conditions": [
+    {
+      "condition_id": "ignition_40km",
+      "criterion_result": {
+        "passed": false,
+        "policy_sha256": "2503317342577a983c804f8eb9488dc45b1f8df6ef51b1862025c41547849e69",
+        "policy_version": "curved_reference_v1",
+        "rules": [
+          {
+            "actual": "separation_contact_impulse_exceeded",
+            "metric": "termination_reason",
+            "operation": "eq",
+            "passed": false,
+            "threshold": "complete",
+            "valid": true
+          },
+          {
+            "actual": "abort",
+            "metric": "mission_phase",
+            "operation": "eq",
+            "passed": false,
+            "threshold": "complete",
+            "valid": true
+          },
+          {
+            "actual": 1.8535201375357248e-05,
+            "metric": "exit_speed_relative_error",
+            "operation": "lte",
+            "passed": true,
+            "threshold": 0.001,
+            "valid": true
+          },
+          {
+            "actual": 7.620534375007134,
+            "metric": "peak_resultant_load_g",
+            "operation": "lte",
+            "passed": true,
+            "threshold": 10.0,
+            "valid": true
+          },
+          {
+            "actual": null,
+            "metric": "stage2_margin_mps",
+            "operation": "gte",
+            "passed": false,
+            "threshold": 0.0,
+            "valid": false
+          }
+        ]
+      },
+      "manifest": "C:\\Dev\\Isaacsim\\skyArc\\artifacts\\sweeps\\ignition_altitude\\runs\\ignition_altitude_sweep\\ignition_40km\\0\\e5abac03-88ea-4952-ae44-10c0f266cad2\\experiment_manifest.json",
+      "metrics": {
+        "apogee_altitude_m": 31117.456198772485,
+        "handoff_altitude_m": null,
+        "handoff_flight_path_angle_deg": null,
+        "handoff_speed_mps": null,
+        "stage2_margin_mps": null
+      },
+      "unavailable_metrics": [
+        "stage2_margin_mps",
+        "handoff_altitude_m",
+        "handoff_speed_mps",
+        "handoff_flight_path_angle_deg"
+      ]
+    },
+    {
+      "condition_id": "ignition_35km",
+      "criterion_result": {
+        "passed": false,
+        "policy_sha256": "2503317342577a983c804f8eb9488dc45b1f8df6ef51b1862025c41547849e69",
+        "policy_version": "curved_reference_v1",
+        "rules": [
+          {
+            "actual": "separation_contact_impulse_exceeded",
+            "metric": "termination_reason",
+            "operation": "eq",
+            "passed": false,
+            "threshold": "complete",
+            "valid": true
+          },
+          {
+            "actual": "abort",
+            "metric": "mission_phase",
+            "operation": "eq",
+            "passed": false,
+            "threshold": "complete",
+            "valid": true
+          },
+          {
+            "actual": 1.8535201375357248e-05,
+            "metric": "exit_speed_relative_error",
+            "operation": "lte",
+            "passed": true,
+            "threshold": 0.001,
+            "valid": true
+          },
+          {
+            "actual": 7.620534375007134,
+            "metric": "peak_resultant_load_g",
+            "operation": "lte",
+            "passed": true,
+            "threshold": 10.0,
+            "valid": true
+          },
+          {
+            "actual": null,
+            "metric": "stage2_margin_mps",
+            "operation": "gte",
+            "passed": false,
+            "threshold": 0.0,
+            "valid": false
+          }
+        ]
+      },
+      "manifest": "C:\\Dev\\Isaacsim\\skyArc\\artifacts\\sweeps\\ignition_altitude\\runs\\ignition_altitude_sweep\\ignition_35km\\0\\3a1b2b78-3d71-42be-9b06-1b1bf4c343b6\\experiment_manifest.json",
+      "metrics": {
+        "apogee_altitude_m": 31117.456198772485,
+        "handoff_altitude_m": null,
+        "handoff_flight_path_angle_deg": null,
+        "handoff_speed_mps": null,
+        "stage2_margin_mps": null
+      },
+      "unavailable_metrics": [
+        "stage2_margin_mps",
+        "handoff_altitude_m",
+        "handoff_speed_mps",
+        "handoff_flight_path_angle_deg"
+      ]
+    },
+    {
+      "condition_id": "ignition_43km",
+      "criterion_result": {
+        "passed": false,
+        "policy_sha256": "2503317342577a983c804f8eb9488dc45b1f8df6ef51b1862025c41547849e69",
+        "policy_version": "curved_reference_v1",
+        "rules": [
+          {
+            "actual": "separation_contact_impulse_exceeded",
+            "metric": "termination_reason",
+            "operation": "eq",
+            "passed": false,
+            "threshold": "complete",
+            "valid": true
+          },
+          {
+            "actual": "abort",
+            "metric": "mission_phase",
+            "operation": "eq",
+            "passed": false,
+            "threshold": "complete",
+            "valid": true
+          },
+          {
+            "actual": 1.8535201375357248e-05,
+            "metric": "exit_speed_relative_error",
+            "operation": "lte",
+            "passed": true,
+            "threshold": 0.001,
+            "valid": true
+          },
+          {
+            "actual": 7.620534375007134,
+            "metric": "peak_resultant_load_g",
+            "operation": "lte",
+            "passed": true,
+            "threshold": 10.0,
+            "valid": true
+          },
+          {
+            "actual": null,
+            "metric": "stage2_margin_mps",
+            "operation": "gte",
+            "passed": false,
+            "threshold": 0.0,
+            "valid": false
+          }
+        ]
+      },
+      "manifest": "C:\\Dev\\Isaacsim\\skyArc\\artifacts\\sweeps\\ignition_altitude\\runs\\ignition_altitude_sweep\\ignition_43km\\0\\eb686266-b15a-4a12-b121-59dc373f8368\\experiment_manifest.json",
+      "metrics": {
+        "apogee_altitude_m": 31117.456198772485,
+        "handoff_altitude_m": null,
+        "handoff_flight_path_angle_deg": null,
+        "handoff_speed_mps": null,
+        "stage2_margin_mps": null
+      },
+      "unavailable_metrics": [
+        "stage2_margin_mps",
+        "handoff_altitude_m",
+        "handoff_speed_mps",
+        "handoff_flight_path_angle_deg"
+      ]
+    }
+  ],
+  "contrast_metrics": [
+    "apogee_altitude_m"
+  ],
+  "contrast_status": "partial_missing_metrics",
+  "contrasts": [
+    {
+      "experiment_id": "ignition_altitude_sweep",
+      "factor_diff": {
+        "rocket.ignition.trigger.minimum_altitude_m": {
+          "after": 35000.0,
+          "after_present": true,
+          "before": 40000.0,
+          "before_present": true
+        }
+      },
+      "kind": "incremental",
+      "metric_delta": {
+        "apogee_altitude_m": 0.0
+      },
+      "reference_condition_id": "ignition_40km",
+      "replicate_id": "0",
+      "schema_version": "paired_contrast_v1",
+      "treatment_condition_id": "ignition_35km"
+    },
+    {
+      "experiment_id": "ignition_altitude_sweep",
+      "factor_diff": {
+        "rocket.ignition.trigger.minimum_altitude_m": {
+          "after": 35000.0,
+          "after_present": true,
+          "before": 40000.0,
+          "before_present": true
+        }
+      },
+      "kind": "versus_baseline",
+      "metric_delta": {
+        "apogee_altitude_m": 0.0
+      },
+      "reference_condition_id": "ignition_40km",
+      "replicate_id": "0",
+      "schema_version": "paired_contrast_v1",
+      "treatment_condition_id": "ignition_35km"
+    },
+    {
+      "experiment_id": "ignition_altitude_sweep",
+      "factor_diff": {
+        "rocket.ignition.trigger.minimum_altitude_m": {
+          "after": 43000.0,
+          "after_present": true,
+          "before": 40000.0,
+          "before_present": true
+        }
+      },
+      "kind": "incremental",
+      "metric_delta": {
+        "apogee_altitude_m": 0.0
+      },
+      "reference_condition_id": "ignition_40km",
+      "replicate_id": "0",
+      "schema_version": "paired_contrast_v1",
+      "treatment_condition_id": "ignition_43km"
+    },
+    {
+      "experiment_id": "ignition_altitude_sweep",
+      "factor_diff": {
+        "rocket.ignition.trigger.minimum_altitude_m": {
+          "after": 43000.0,
+          "after_present": true,
+          "before": 40000.0,
+          "before_present": true
+        }
+      },
+      "kind": "versus_baseline",
+      "metric_delta": {
+        "apogee_altitude_m": 0.0
+      },
+      "reference_condition_id": "ignition_40km",
+      "replicate_id": "0",
+      "schema_version": "paired_contrast_v1",
+      "treatment_condition_id": "ignition_43km"
+    }
+  ],
+  "metrics": [
+    "stage2_margin_mps",
+    "handoff_altitude_m",
+    "handoff_speed_mps",
+    "handoff_flight_path_angle_deg",
+    "apogee_altitude_m"
+  ],
+  "paired_stream_seeds": {
+    "atmosphere": 337400205713604042902631698389582599069,
+    "backend_adapter": 68952723257024286906045750055224289781,
+    "cart_brake": 214539471520728742457640274161989217526,
+    "coupling": 100152413719788241260343557907866477526,
+    "guide": 296185111547695225055365357677899154602,
+    "launch_force": 202316002359941168001618105573907750190,
+    "observer": 52831867491350320773029982151621525906,
+    "rocket_aerodynamics": 227196086552544671458208818784182569719,
+    "rocket_motor": 328351266678594511814622362885884836918,
+    "separation_actuator": 144383557063423332410278052164120153351,
+    "telemetry_sink": 323000436032311985621328421849266397121
+  },
+  "schema_version": "production_mission_sweep_v1"
+}

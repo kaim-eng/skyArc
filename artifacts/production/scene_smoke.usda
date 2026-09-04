@@ -70,10 +70,7 @@ def "Render" (
         no_delete = true
     )
     {
-        rel products = [
-            </Render/OmniverseKit/HydraTextures/omni_kit_widget_viewport_ViewportTexture_0>,
-            </Render/OmniverseKit/HydraTextures/Replicator>,
-        ]
+        rel products = </Render/OmniverseKit/HydraTextures/omni_kit_widget_viewport_ViewportTexture_0>
     }
 
     def "Vars"
@@ -117,8 +114,6 @@ def "World"
         {
             def Xform "TrueScale"
             {
-                token visibility = "invisible"
-
                 def BasisCurves "Tube_vacuum"
                 {
                     uniform token basis = "bezier"
@@ -200,7 +195,7 @@ def "World"
 
             def Xform "Schematic"
             {
-                token visibility = "inherited"
+                token visibility = "invisible"
 
                 def BasisCurves "Tube_vacuum"
                 {
@@ -304,14 +299,14 @@ def "World"
                 prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxContactReportAPI", "PhysxRigidBodyAPI"]
             )
             {
-                vector3f physics:angularVelocity = (0, 0.00001761184, 0)
+                vector3f physics:angularVelocity = (0, -4.432801e-8, 0)
                 float physics:mass = 250
-                vector3f physics:velocity = (-1.305284e-7, 0, -9.810059)
+                vector3f physics:velocity = (-6.604978e-9, 0, -0.17657995)
                 float physxContactReport:threshold = 0
                 bool physxRigidBody:enableCCD = 0
-                quatf xformOp:orient = (0.9238795, 0, -0.3826835, 0)
+                quatf xformOp:orient = (0.9238795, 0, -0.38268355, 0)
                 float3 xformOp:scale = (1, 1, 1)
-                double3 xformOp:translate = (-0.002651648595929146, 0, -9.668192863464355)
+                double3 xformOp:translate = (-0.002651665359735489, 0, -0.004329293966293335)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
                 def Cube "Floor" (
@@ -320,7 +315,7 @@ def "World"
                 {
                     color3f[] primvars:displayColor = [(0.18, 0.2, 0.24)]
                     double size = 1
-                    float3 xformOp:scale = (4.2, 1.2, 0.1)
+                    float3 xformOp:scale = (4.2, 1.25, 0.1)
                     double3 xformOp:translate = (0, 0, -0.6499999761581421)
                     uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
                 }
@@ -332,7 +327,7 @@ def "World"
                     color3f[] primvars:displayColor = [(0.18, 0.2, 0.24)]
                     double size = 1
                     float3 xformOp:scale = (4.2, 0.1, 1.3)
-                    double3 xformOp:translate = (0, -0.550000011920929, 0.05000000074505806)
+                    double3 xformOp:translate = (0, -0.574999988079071, 0.05000000074505806)
                     uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
                 }
 
@@ -343,7 +338,7 @@ def "World"
                     color3f[] primvars:displayColor = [(0.18, 0.2, 0.24)]
                     double size = 1
                     float3 xformOp:scale = (4.2, 0.1, 1.3)
-                    double3 xformOp:translate = (0, 0.550000011920929, 0.05000000074505806)
+                    double3 xformOp:translate = (0, 0.574999988079071, 0.05000000074505806)
                     uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
                 }
 
@@ -353,7 +348,7 @@ def "World"
                 {
                     color3f[] primvars:displayColor = [(0.18, 0.2, 0.24)]
                     double size = 1
-                    float3 xformOp:scale = (0.1, 1.2, 1.3)
+                    float3 xformOp:scale = (0.1, 1.25, 1.3)
                     double3 xformOp:translate = (-2.049999952316284, 0, 0.05000000074505806)
                     uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
                 }
@@ -363,14 +358,14 @@ def "World"
                 prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxContactReportAPI", "PhysxRigidBodyAPI"]
             )
             {
-                vector3f physics:angularVelocity = (0, 0.000017611841, 0)
+                vector3f physics:angularVelocity = (0, -4.432897e-8, 0)
                 float physics:mass = 150
-                vector3f physics:velocity = (2.2015092e-7, 0, -9.810059)
+                vector3f physics:velocity = (1.10380824e-8, 0, -0.17657994)
                 float physxContactReport:threshold = 0
                 bool physxRigidBody:enableCCD = 0
-                quatf xformOp:orient = (0.9238795, 0, -0.3826835, 0)
+                quatf xformOp:orient = (0.9238795, 0, -0.38268355, 0)
                 float3 xformOp:scale = (1, 1, 1)
-                double3 xformOp:translate = (0.004419430159032345, 0, -9.661121368408203)
+                double3 xformOp:translate = (0.004419412929564714, 0, 0.002741850446909666)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
                 def Cylinder "Collision" (
@@ -379,8 +374,32 @@ def "World"
                 {
                     uniform token axis = "X"
                     double height = 4
-                    color3f[] primvars:displayColor = [(0.7, 0.72, 0.76)]
-                    double radius = 0.25
+                    double radius = 0.5
+                    token visibility = "invisible"
+                }
+
+                def Xform "Visual"
+                {
+                    double3 xformOp:translate = (-2, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                    def Xform "AxisZToX"
+                    {
+                        float xformOp:rotateY = 90
+                        uniform token[] xformOpOrder = ["xformOp:rotateY"]
+
+                        def Xform "FittedEnvelope"
+                        {
+                            float3 xformOp:scale = (1.1745423, 1.1745423, 1.3871672)
+                            uniform token[] xformOpOrder = ["xformOp:scale"]
+
+                            def Xform "Model" (
+                                prepend references = @C:/Dev/Isaacsim/skyArc/assets/vehicles/jupiter_c/Explorer_JupiterC_NoStage1.usdc@
+                            )
+                            {
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -399,278 +418,6 @@ def "World"
                 quatf physics:localRot0 = (1, 0, 0, 0)
                 quatf physics:localRot1 = (1, 0, 0, 0)
             }
-        }
-    }
-}
-
-def Scope "Replicator"
-{
-    def Xform "Camera_Xform"
-    {
-        bool replicatorCameraXform
-        bool replicatorXform = 1
-        float3 xformOp:rotateXYZ = (83.8845, -0, 0)
-        float3 xformOp:scale = (1, 1, 1)
-        double3 xformOp:translate = (0.5656854249492381, -14, 2.0656854249492382)
-        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
-
-        def Camera "Camera" (
-            prepend apiSchemas = ["OmniRtxCameraAutoExposureAPI_1", "OmniRtxCameraExposureAPI_1"]
-            append apiSchemas = ["OmniSensorAPI"]
-        )
-        {
-            token cameraProjectionType = "pinhole"
-            float4[] clippingPlanes = []
-            float2 clippingRange = (1, 1000000)
-            string crossCameraReferenceName
-            float exposure:fStop = 5
-            float exposure:responsivity = 1.1026709
-            float exposure:time = 0.02
-            float focalLength = 24
-            float focusDistance = 400
-            float fStop = 0
-            float fthetaCx = 970.94244
-            float fthetaCy = 600.3748
-            float fthetaHeight = 1216
-            float fthetaMaxFov = 200
-            float fthetaPolyA = 0
-            float fthetaPolyB = 0.00245
-            float fthetaPolyC = 0
-            float fthetaPolyD = 0
-            float fthetaPolyE = 0
-            float fthetaPolyF = 0
-            float fthetaWidth = 1936
-            float horizontalAperture = 20.955
-            float horizontalApertureOffset = 0
-            string omni:sensor:marketName = ""
-            string omni:sensor:modelName = ""
-            string omni:sensor:modelVendor = ""
-            string omni:sensor:modelVersion = ""
-            float omni:sensor:tickRate = 0
-            float omni_col_sensor_col_tickRate
-            float openCVFx = 731.7879
-            float openCVFy = 731.7879
-            float p0 = -0.00037
-            float p1 = -0.00074
-            token projection = "perspective"
-            uniform token purpose = "default"
-            float s0 = -0.00058
-            float s1 = -0.00022
-            float s2 = 0.00019
-            float s3 = -0.0002
-            double shutter:close = 0
-            double shutter:open = 0
-            uniform token stereoRole = "mono"
-            float verticalApertureOffset = 0
-            float3 xformOp:rotateXYZ = (0, -0, 0)
-            float3 xformOp:scale = (1, 1, 1)
-            double3 xformOp:translate = (0, 0, 0)
-            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
-        }
-    }
-
-    def OmniGraph "SDGPipeline"
-    {
-        token evaluationMode = "Automatic"
-        token evaluator:type = "execution"
-        token fabricCacheBacking = "StageWithoutHistory"
-        int2 fileFormatVersion = (1, 9)
-        token pipelineStage = "pipelineStageSimulation"
-
-        def OmniGraphNode "OgnGroup"
-        {
-            custom rel inputs:primsIn = </Replicator/Camera_Xform> (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-            custom rel inputs:primsIn1 (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-            token node:type = "omni.replicator.core.OgnGroup"
-            int node:typeVersion = 1
-            custom rel outputs:prims (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-        }
-
-        def OmniGraphNode "OgnGroup_01"
-        {
-            custom rel inputs:primsIn = </Replicator/Camera_Xform/Camera> (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-            custom rel inputs:primsIn1 (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-            token node:type = "omni.replicator.core.OgnGroup"
-            int node:typeVersion = 1
-            custom rel outputs:prims (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-        }
-
-        def OmniGraphNode "OgnGroup_02"
-        {
-            custom rel inputs:primsIn = </Replicator/Camera_Xform_01> (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-            custom rel inputs:primsIn1 (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-            token node:type = "omni.replicator.core.OgnGroup"
-            int node:typeVersion = 1
-            custom rel outputs:prims (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-        }
-
-        def OmniGraphNode "OgnGroup_03"
-        {
-            custom rel inputs:primsIn = </Replicator/Camera_Xform_01/Camera> (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-            custom rel inputs:primsIn1 (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-            token node:type = "omni.replicator.core.OgnGroup"
-            int node:typeVersion = 1
-            custom rel outputs:prims (
-                customData = {
-                    dictionary omni = {
-                        dictionary graph = {
-                            string relType = "target"
-                        }
-                    }
-                }
-            )
-        }
-    }
-
-    def Xform "Camera_Xform_01"
-    {
-        bool replicatorCameraXform
-        bool replicatorXform = 1
-        float3 xformOp:rotateXYZ = (90, -0, 0)
-        float3 xformOp:scale = (1, 1, 1)
-        double3 xformOp:translate = (21650.11259572546, -74535.4684380666, 15488.283228233335)
-        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
-
-        def Camera "Camera" (
-            prepend apiSchemas = ["OmniRtxCameraAutoExposureAPI_1", "OmniRtxCameraExposureAPI_1"]
-            append apiSchemas = ["OmniSensorAPI"]
-        )
-        {
-            token cameraProjectionType = "pinhole"
-            float4[] clippingPlanes = []
-            float2 clippingRange = (1, 1000000)
-            string crossCameraReferenceName
-            float exposure:fStop = 5
-            float exposure:responsivity = 1.1026709
-            float exposure:time = 0.02
-            float focalLength = 24
-            float focusDistance = 400
-            float fStop = 0
-            float fthetaCx = 970.94244
-            float fthetaCy = 600.3748
-            float fthetaHeight = 1216
-            float fthetaMaxFov = 200
-            float fthetaPolyA = 0
-            float fthetaPolyB = 0.00245
-            float fthetaPolyC = 0
-            float fthetaPolyD = 0
-            float fthetaPolyE = 0
-            float fthetaPolyF = 0
-            float fthetaWidth = 1936
-            float horizontalAperture = 20.955
-            float horizontalApertureOffset = 0
-            string omni:sensor:marketName = ""
-            string omni:sensor:modelName = ""
-            string omni:sensor:modelVendor = ""
-            string omni:sensor:modelVersion = ""
-            float omni:sensor:tickRate = 0
-            float omni_col_sensor_col_tickRate
-            float openCVFx = 731.7879
-            float openCVFy = 731.7879
-            float p0 = -0.00037
-            float p1 = -0.00074
-            token projection = "perspective"
-            uniform token purpose = "default"
-            float s0 = -0.00058
-            float s1 = -0.00022
-            float s2 = 0.00019
-            float s3 = -0.0002
-            double shutter:close = 0
-            double shutter:open = 0
-            uniform token stereoRole = "mono"
-            float verticalApertureOffset = 0
-            float3 xformOp:rotateXYZ = (0, -0, 0)
-            float3 xformOp:scale = (1, 1, 1)
-            double3 xformOp:translate = (0, 0, 0)
-            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
         }
     }
 }

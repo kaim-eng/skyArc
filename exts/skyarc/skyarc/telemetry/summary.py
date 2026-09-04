@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Mapping
 
+from ..launcher.feasibility import DeliveredState, Stage2Budget
 from .energy import EnergySnapshot
 
 
@@ -31,6 +32,20 @@ class RunSummary:
     energy_closure_valid: bool
     energy_closure_defect: str | None
     first_event_time_s: Mapping[str, float]
+    apogee_time_s: float
+    apogee_altitude_m: float
+    handoff_time_s: float | None
+    handoff_altitude_m: float | None
+    handoff_downrange_m: float | None
+    handoff_speed_mps: float | None
+    handoff_flight_path_angle_deg: float | None
+    pre_handoff_rocket_drag_loss_mps: float
+    stage2_ideal_energy_raise_mps: float | None
+    stage2_measured_alignment_loss_mps: float | None
+    stage2_delta_v_required_mps: float | None
+    stage2_delta_v_available_mps: float | None
+    stage2_assumed_unmodeled_loss_mps: float | None
+    stage2_margin_mps: float | None
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -50,6 +65,11 @@ def build_summary(
     maximum_separation_gap_m: float,
     energy: EnergySnapshot,
     first_event_time_s: Mapping[str, float],
+    apogee_time_s: float,
+    apogee_altitude_m: float,
+    pre_handoff_rocket_drag_loss_mps: float,
+    delivered_state: DeliveredState | None = None,
+    stage2_budget: Stage2Budget | None = None,
 ) -> RunSummary:
     relative_error = None
     if (
@@ -59,7 +79,7 @@ def build_summary(
     ):
         relative_error = abs(actual_exit_speed_mps - target_exit_speed_mps) / target_exit_speed_mps
     return RunSummary(
-        schema_version="run_summary_v1",
+        schema_version="run_summary_v2",
         termination_reason=termination_reason,
         mission_phase=mission_phase,
         elapsed_s=elapsed_s,
@@ -79,4 +99,30 @@ def build_summary(
         energy_closure_valid=energy.valid,
         energy_closure_defect=energy.invalid_reason,
         first_event_time_s=dict(first_event_time_s),
+        apogee_time_s=apogee_time_s,
+        apogee_altitude_m=apogee_altitude_m,
+        handoff_time_s=None if delivered_state is None else delivered_state.time_s,
+        handoff_altitude_m=None if delivered_state is None else delivered_state.altitude_m,
+        handoff_downrange_m=None if delivered_state is None else delivered_state.downrange_m,
+        handoff_speed_mps=None if delivered_state is None else delivered_state.speed_mps,
+        handoff_flight_path_angle_deg=(
+            None if delivered_state is None else delivered_state.flight_path_angle_deg
+        ),
+        pre_handoff_rocket_drag_loss_mps=pre_handoff_rocket_drag_loss_mps,
+        stage2_ideal_energy_raise_mps=(
+            None if stage2_budget is None else stage2_budget.ideal_energy_raise_mps
+        ),
+        stage2_measured_alignment_loss_mps=(
+            None if stage2_budget is None else stage2_budget.measured_alignment_loss_mps
+        ),
+        stage2_delta_v_required_mps=(
+            None if stage2_budget is None else stage2_budget.delta_v_required_mps
+        ),
+        stage2_delta_v_available_mps=(
+            None if stage2_budget is None else stage2_budget.delta_v_available_mps
+        ),
+        stage2_assumed_unmodeled_loss_mps=(
+            None if stage2_budget is None else stage2_budget.assumed_unmodeled_loss_mps
+        ),
+        stage2_margin_mps=None if stage2_budget is None else stage2_budget.margin_mps,
     )

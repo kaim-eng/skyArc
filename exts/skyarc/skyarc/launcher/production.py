@@ -184,6 +184,12 @@ def load_production_fixture(path: str | Path) -> ProductionFixture:
         raise ValueError("production cradle floor leaves no open interior")
     if rocket.diameter_m >= cradle.outer_width_m - 2.0 * cradle.wall_thickness_m:
         raise ValueError("production rocket does not fit between cradle side walls")
+    floor_clearance_m = (
+        0.5 * (cradle.outer_height_m - rocket.diameter_m)
+        - cradle.floor_thickness_m
+    )
+    if floor_clearance_m <= 0.0:
+        raise ValueError("production rocket intersects the cradle floor")
 
     return ProductionFixture(
         source_path=str(source),
@@ -280,7 +286,7 @@ def build_production_scene_plan(
     exit_end = add(exit_pose.position_m, scale(exit_pose.tangent, exit_length))
     # Nest the rocket in the independently qualified open-cradle geometry. Its aft cap
     # clears the rear wall by the declared gap, while its axis stays on the cart/tube
-    # centreline. The deep, full-length U-cradle leaves enough floor clearance for passive
+    # centreline. The full-length U-cradle leaves positive floor clearance for passive
     # separation and contains both rocket caps at release; a shallow or short tray makes
     # the vehicle look top-mounted and lets gravity drive the rocket onto its front lip,
     # violating the ignition angular-rate interlock.

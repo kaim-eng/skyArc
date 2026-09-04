@@ -1,7 +1,7 @@
 # Handoff: skyArc implementation
 
-**Date:** 2026-09-02
-**Spec:** `DESIGN_REVIEW.md` v0.32 in this directory. It is the authority; this file only records
+**Date:** 2026-09-04
+**Spec:** `DESIGN_REVIEW.md` v0.36 in this directory. It is the authority; this file only records
 where the implementation of it stands.
 
 **Read this first.** The project's objective is to decide whether this launcher can replace a
@@ -9,13 +9,16 @@ first stage — not to simulate a launch vehicle. The upper stage is a parameter
 (DESIGN_REVIEW section 10.6), not a body. Work that does not move that question forward, or does
 not keep its evidence honest, is not the priority however interesting it looks.
 
-**Headline results as of this revision.** The first complete mission ran end to end on real CPU
+**Historical qualified reference.** The first complete mission ran end to end on real CPU
 PhysX: 120,679 steps to `flight_window_complete`, exit speed 1999.9254 m/s (3.7e-5 relative
 error), peak load 9.066G, peak centerline tracking 0.0004619 m against a 0.05 m limit, and the
 orchestrator's stop/rebuild reset restoring the authored state within 43 nm. Scored against a
 200 km circular target, the launcher supplies **2,030 m/s** of ideal delta-v and hands over at
 31.267 km where a ground launch's drag and gravity losses are largely avoided. The binding
-constraint is now the upper stage, not the launcher.
+constraint was the upper stage, not the launcher. Those end-to-end v0.33 numbers remain historical
+comparison context. The v0.36 vehicle-envelope change makes the v0.35 curved-guide and mission
+records historical until they are regenerated; the old 10 G sweep found a release-time
+contact-impulse abort before handoff.
 **Status:** The backend-neutral Phase 1 core is complete. The contract, geometry, configuration, registry,
 and baseline observer slices are implemented. The schema-v3 curved configuration, centerline, stage
 mapping, preflight, analytic backend, guided drag, launch controller, and guided trajectory slices
@@ -39,28 +42,79 @@ reset. Final matched evidence moves the cart/rocket fixed joint outside the guid
 CPU PhysX then proves solver-side live release, rejects live collision activation, and passes the
 always-present pair treatment including nonzero-force contact and full reset. Newton cannot step the
 required external-joint topology and remains unable to report incoming guide reaction. CPU PhysX is
-selected for curved-guide work. The authored cylindrical-rocket/open-front-cradle pair passes its
-2.5 km/s 1.0/0.5/0.25 ms matrix without CCD, and its 1 ms CCD control is identical. The
-force-resolved curved controller also passes its complete 54.116 km physical profile at 2 km/s,
-including inferred load, tracking, attachment geometry, release, and cold reset at 1.0/0.5/0.25 ms
-using the exact production bodies. It does not expose a solver constraint reaction. The other three
+selected for curved-guide work. The current 4.0 m by 1.0 m cylindrical-rocket, 1.25 m-wide
+open-cradle pair passes its 2.5 km/s 1.0/0.5/0.25 ms matrix without CCD plus the 1 ms CCD control.
+The v0.35 force-resolved curved-controller records passed the complete 54.116 km profile, but they
+predate this geometry and are no longer current evidence. It does not expose a solver constraint
+reaction. The other three
 candidates are formally rejected or limited to visualization fallback. The production Isaac layer is
 implemented: an extension manifest/entrypoint, pure resolved-scene plan, PhysX/CPU translated-frame
 adapter, exact scene builder, explicit lighting, a standalone scene-construction runner, and — as of
 this revision — the common mission orchestrator running on that scene through `IsaacPhysxBackend`.
-The suite now contains **175 stdlib unit tests**. At this handoff, 168 pass and 7 assertions
-correctly reject artifacts produced before the current source closure — every artifact is stale,
-because the extension was renamed out of NVIDIA's `isaacsim.examples.*` namespace into the
-project's own `skyarc`, which changes both the closure and the runner hashes. A single
-requalification pass clears all seven. **All 10 Kit integration tests pass** as of the last run
-before that rename, including the real-PhysX conserved-momentum case; they need one more run
-against the renamed package. The
+The v0.36 production scene is current and hash-binds the detailed USD plus its manifest. Matching
+visual/nonvisual 10-step smokes pass. The v0.35 baseline and 30 G curved-guide series, matched global
+control, bounded missions, sweep, and 65,000-step candidate brake-stop record are historical pending
+requalification. The v0.36 target-build scene passes and the Kit boundary audit is **11/11**. The
+current stdlib/artifact audit is **202/214**, with exactly 12 expected stale-artifact identity
+assertion failures—nine curved-guide, two production-mission, and one 30 G candidate—and no logic or geometry failures; focused configuration, scene-planning, visual-asset,
+placement, and anti-tunneling checks pass. The
+release-resync regression was a stale discriminator from the former
+short-cradle geometry: continuing positive launch force after release drove the now-seated rocket
+toward the rear wall. The corrected test applies a one-step brake-direction effort and verifies the
+solver-side increase in separating relative speed, matching the qualified release probe. The
 backend-neutral tree compiles without forbidden Isaac Sim, Omni, Warp, or NumPy imports; the four
 Kit boundary modules intentionally import Isaac/Omni only after `SimulationApp` startup, and
 `tests/unit/test_production_mission.py` now enforces that rule by parsing the imports rather than
 by trusting it. Two earlier review passes closed the preflight and contract defects recorded in
 sections 2.1–2.2; the execution-slice review corrections are in section 2.3 and the mission-wiring
 corrections in section 2.4.
+
+Post-handoff work now includes both recorded and live visualization paths. The mission chase,
+system-scale separation animation, and static vehicle revolve consume recorded global-SI telemetry.
+The production runtime additionally drives visual-only cart/rocket proxy prims from reconstructed
+global state, defines all seven Section 13.3 cameras, and authors force and explanatory magnetic-field
+arrows without writing simulated-body transforms. A callback-driven panel module exists but is not
+yet owned by an application/extension lifecycle, and live plots are still absent; the interactive
+profile is therefore not complete.
+
+The rocket proxy and physical-scene visual now reference the Stage-1-free Jupiter-C USD under
+`assets/vehicles/jupiter_c`. Its native 2.884 m by 0.851 m Z-axis bounds are centered, rotated onto
+the simulation's +X axis, and fitted to a conservative 4.0 m by 1.0 m cylinder. The mesh remains
+visual-only; mass, inertia and collision still come from the qualified cylinder, and scene
+construction now scans the composed reference for physics APIs/properties. The production scene
+summary binds both source files by SHA-256. The manifest now records the official NASA source,
+NASA/Michael D. Carbajal attribution, and NASA Images and Media Usage Guidelines, clearing source
+redistribution under those terms. Installed-extension packaging still needs a clean package smoke;
+development exports retain an absolute source reference and are not portable deliverables.
+
+The v0.34 target-build visual smoke initially exposed a 1 ms `assembly_behind_tube_entrance` abort:
+visual prim authoring and simulated-prim visibility mutation happened after physics views were live,
+allowing the assembly to settle before its first controlled step. Visual authoring now happens before
+physics startup. Fresh v0.36 visual and nonvisual 10-step runs both remain in `launch_stage`, report
+no abort, and produce the same 0.369605 m/s cart speed and 3.3594e-7 m peak tracking error.
+The 240-case brake study selected a 43.986 kg induction-plate cart at 30 G and 300 m/s3; its 4/4
+anti-tunneling cases, 3/3 guide refinements, release, and production brake-stop probe pass, stopping
+at 8.000000006 km with 2.000 km of track remaining. At the 65-second bound the rocket apogee is
+35.899 km, below the 40 km trajectory trigger, so no ignition/handoff or stage-2 margin is claimed.
+It remains a candidate configuration rather than a silent replacement for the 10 G reference mission.
+
+The objective-order modelling slice is implemented. Schema v3 has a separate
+`trajectory_thresholds_v1` ignition trigger; the curved references require 40 km altitude while all
+seven interlock gates remain mandatory. `run_summary_v2` records measured apogee and ignition-handoff
+time, altitude, downrange, speed, and flight-path angle. `curved_reference_v1` self-scores completion,
+exit error, peak load, and nonnegative stage-2 margin. Production telemetry runs emit complete
+manifests, and `sweep_mission.py` can materialize, preflight, execute, and contrast the checked-in
+35/40/43 km ignition-altitude plan sequentially. The v0.35 execution gives the same
+`separation_contact_impulse_exceeded` abort at step 54,389 for all three 10 G conditions, before
+the trigger can act. The aggregate therefore declares `partial_missing_metrics`, retains null
+handoff/stage-2 values, and reports only a zero apogee contrast at 31,117.456 m. Stage-2 model
+`parametric_deltav_v2` separates the
+measured handoff-vector alignment penalty and measured pre-handoff rocket drag from
+`assumed_unmodeled_loss_mps`; finite-burn loss remains assumed because the upper stage is intentionally
+not simulated. The runner preserves the schema-v2 safety-only ignition deadline, while a trajectory-
+triggered run acquires its burnout deadline only from a measured ignition event. The extension now
+has a `premake5.lua`, and the orchestrator caches its current state
+to eliminate one redundant adapter read per step.
 
 Version 0.20 implements schema version 3 in the backend-neutral core as a parallel, explicit
 extension. `configs/baseline.yaml` remains the unchanged schema-version-2 default, including its
@@ -182,8 +236,8 @@ same as the shipped Isaac extensions.
 | `configs/baseline.yaml` | Complete baseline including grade, guide resistance, release latency/confirmation, markers, anti-tunneling pair, validity policy, criterion policy, and capture profile. It resolves successfully. | 6.6–6.7, 12–14 |
 | `configs/curved_2kms.yaml` | Complete schema-v3 reference: 400 kg attached mass, 10G resultant limits, 2 km/s target, 54.116 km centerline, three transition stages, exponential exterior atmosphere, 25 km exit track, and explicit evidence/refinement controls. It resolves successfully. | 6.7–8.1, 16.1 |
 | `effects/backends/isaac.py` | **Kit boundary.** Production `BackendAdapter` for PhysX/CPU: Warp-safe tensor reads, translated-frame reconstruction into global SI, the fictitious `-m*a_r` body force, the commanded guide reaction reported under `backend_adapter` in `AppliedEffects`, mass/constraint mutation, the refusal of live collision-filter changes, and `peak_solver_offset_m` as the measured form of the post-release precision limitation. | 10.2, 12, 14 |
-| `tests/` (inside the package) | 9 `omni.kit.test` integration cases for the adapter boundary: selected runtime and capabilities, global-SI reconstruction on the centerline, applied-minus-accepted equalling exactly the backend slot, refusal of live collision mutation, a resync that does not advance time, 200 guided steps inside the guide clearance and on the commanded profile, a stop/rebuild reset that restores state and clears mission history, a release transaction resynced with forces already pending, and the reaction resizing from assembly to cart on release. Excluded from every component's source closure. | 16.2–16.3 |
-| `tests/unit/` | 157 NumPy/Isaac-free `unittest` cases covering the prior contracts plus schema-v3 routing, curve resolution and exterior projection, analytic backend/release semantics, all launch modes and authored/acceleration/resultant ceilings, drag scaling/sign, guide monitoring, Section 7 normal jerk, jerk/vector/no-reversal braking and hold, all ignition gates, separation/recontact failure, strict concurrent state progression, full baseline mission reset/replay, baseline energy convergence, telemetry contracts, controlled resistance/separation-inclusive energy closure, dependency identities, complete manifests, criteria, named streams, factor lineage, paired contrasts, swept rigid-body clearance, local singularity, global self-overlap, localized downrange reversal, accumulated-float endpoints, differently scaled spatial indexing, the 2 km/s launch/stop limits, Phase 0 runtime and artifact contracts, the production anti-tunneling matrix, curved-guide source closure, full-profile timestep convergence, the force-resolved reaction law and reference frame, the executable import boundary, full-wrench guide-reaction work attribution, frozen telemetry V1 compatibility, and the bound production mission artifacts. | 16.1 |
+| `tests/` (inside the package) | 11 `omni.kit.test` integration cases for the adapter boundary: selected runtime and capabilities, composed visual-only asset enforcement, global-SI reconstruction on the centerline, applied-minus-accepted equalling exactly the backend slot, refusal of live collision mutation, a resync that does not advance time, conserved momentum, 200 guided steps inside the guide clearance and on the commanded profile, a stop/rebuild reset that restores state and clears mission history, a release transaction resynced with forces already pending, and the reaction resizing from assembly to cart on release. Excluded from every component's source closure. Current audit: 11/11 pass. | 16.2–16.3 |
+| `tests/unit/` | 214 NumPy/Isaac-free `unittest` cases covering the prior contracts plus the trajectory trigger, trigger-aware release-cycle deadline, summary-v2 delivered state/loss split, curved criterion, production sweep materialization/failed-condition aggregation, pure visualization definitions, strict artifact identity, visual-asset envelope/manifest validation, and fail-closed cradle-floor clearance. Current v0.36 audit: 202/214 pass; all 12 assertion failures are deliberately stale evidence bindings—nine curved-guide, two production-mission, and one 30 G candidate—awaiting regeneration. | 16.1 |
 
 ### 2.1 Defects found and fixed by review
 
@@ -390,7 +444,7 @@ bootstrap, which intentionally inserts the directory containing the pure `skyarc
 package; inserting the extension root instead is shadowed by the bundled runtime's regular
 `isaacsim` package outside a Kit application.
 
-### Phases 2–5 — Isaac Sim layer (mission execution implemented; visualization outstanding)
+### Phases 2–5 — Isaac Sim layer (mission execution implemented; visualization partial)
 
 Implemented:
 
@@ -399,8 +453,9 @@ Implemented:
   `backend_adapter`, mass, coupling, reset, and resync.
 - `launcher/path_controller.py` — the backend-neutral reaction law and reference frame.
 - `launcher/production.py` and `launcher/scene.py` — strict fixture/scene planning plus the four
-  tube bands, exit marker/track, exact open U cradle and X-axis cylinder, always-present fixed
-  coupling, explicit lighting rig, and the shared initial-state placement.
+  tube bands, exit marker/track, exact open U cradle and X-axis cylinder, the fitted visual-only
+  Jupiter-C USD, always-present fixed coupling, explicit lighting rig, and the shared initial-state
+  placement.
 - `launcher/production_runtime.py` — the Isaac-side mission lifetime, wiring `build_mission` to the
   production scene.
 - `extension.py`, `config/extension.toml`, and `docs/`. The module entrypoint is
@@ -408,7 +463,8 @@ Implemented:
 - `standalone/run_launcher.py` — scene construction only, target-build-smoked.
 - `standalone/run_mission.py` — target-build mission execution with bounded runs, telemetry, and an
   orchestrator reset replay.
-- `exts/.../skyarc/tests/` — seven Kit integration tests for the adapter boundary.
+- `exts/.../skyarc/tests/` — eleven Kit integration tests for the adapter boundary, including a
+  composed-asset check that rejects physics APIs or properties below the detailed model.
 
 Also implemented since:
 
@@ -422,25 +478,38 @@ Also implemented since:
 - Static rendering. `run_launcher.py --capture-dir` renders authored views through replicator and
   records mean luminance, variance and `schematic_tube` per view; `artifacts/production/renders/`
   holds the current pair. §13.4 explains the two-scale band sets.
+- Recorded mission rendering. `standalone/render_mission.py` replays completed global-SI telemetry
+  into a chase flythrough and a system-scale separation shot; it does not re-simulate the mission.
+- Cart sizing and the brake trade study. The 240-case screen selected a 43.986 kg, 30 G,
+  300 m/s3 induction-plate candidate. Its available physical checks pass, but the reference mission
+  remains unchanged until structural, guide-load, thermal, power, and complete-flight closure exist.
 
-Outstanding:
+Outstanding after the v0.36 vehicle-asset slice:
 
-- `visualization/` — `ui.py` (Kit panel, §13.1 controls), `overlays.py` (force arrows, coil bands,
-  field arrows), `cameras.py` (the remaining five of the seven §13.3 views).
-- **Animated mission rendering is blocked.** The visuals are authored in global coordinates and
-  the bodies live in solver coordinates; they coincide only at t=0. Rendering a mission today
-  would show the vehicle parked at the tube entrance for all 54 s. The fix is visual proxy prims
-  driven from the reconstructed global state — which does *not* touch the Phase 0
-  `transform_writes_during_run: 0` invariant, because proxies are not the simulated bodies.
-- **A trajectory-conditioned ignition trigger.** See DESIGN_REVIEW §10.4: the seven gates are all
-  safety gates, so the rocket ignites 0.56 s after release rather than coasting to altitude, and
-  ignition timing is a declared exploration axis that is not yet supported.
-- Delivered-state outputs (apogee altitude/time, downrange, flight-path angle) as first-class
-  summary fields, so runs self-score instead of needing a script against raw telemetry; then a
-  criterion policy gating on the §10.6 margin; then a sweep runner.
-- Replacing the §10.6 loss allowance with a measured quantity. It moves the margin ±500 m/s and is
-  currently a declared guess, which makes it the highest-value modelling work remaining.
-- Remaining packaging assets (`premake5.lua`, `data/`) where required by the repository build.
+- Regenerate the baseline and 30 G candidate 1.0/0.5/0.25 ms full-profile curved-guide records,
+  the matched global-coordinate control, and production mission evidence. The Kit boundary suite
+  is already current at 11/11; the new collider and package source closure intentionally invalidate
+  the remaining v0.35 evidence hashes.
+- Run a clean installed-extension packaging smoke and make exported USD references portable. The
+  Jupiter-C manifest now records its official NASA source, author, and media-usage terms.
+- Recalibrate or justify the retained 0.20 m2 guided-phase equivalent flow area for the 1.0 m body;
+  it is a legacy model coefficient, not a currently identified calibration result.
+
+- Bind `LauncherControlPanel` to one application/extension owner and add live plots. The panel must
+  observe and command the common orchestrator; it must not become a second mission loop.
+- Bind the visual smoke result into a durable production artifact if the panel requires it; the
+  current v0.36 matching visual/nonvisual mission results are scratch evidence, while the
+  asset-bound scene construction record is durable.
+- Correct and requalify the 10 G reference separation/braking treatment. All three executed sweep
+  conditions abort at step 54,389 on `separation_contact_impulse_exceeded`, before ignition; this is
+  an upstream blocker, not evidence about the 35/40/43 km trigger choice.
+- Re-execute the ignition-altitude sweep only after the reference reaches handoff. The current
+  `sweep.json` is valid partial evidence and explicitly leaves unavailable metrics null.
+- Close the finite-burn residual only if scope expands to a real upper-stage model. The current
+  simulation honestly exposes it as `assumed_unmodeled_loss_mps` rather than claiming it is measured.
+- A controlled full-stack mission throughput measurement remains optional; the unloaded bare-guide
+  refinements must be regenerated before the v0.35 276.738/269.117/268.850 physics steps/s values
+  can be replaced by current measurements.
 
 ### Phase 0 — evidence complete; non-constraint treatment accepted
 
@@ -455,24 +524,22 @@ nonzero-force contact, and complete stop/rebuild reset. Its live-activation cont
 but passes the shapes through without force. Newton produces repeated `Adjoint.return_var` step
 errors for the external-joint topology, leaves the independent force body motionless, and still
 lacks incoming reaction reporting. CPU PhysX/CPU/1 ms/TGS with the always-present pair is the
-selection. The production anti-tunneling artifacts use runner SHA-256
-`2f900a390ed4be5cd8f43b27e22e74eb85d82838b796f7a56dfb969a8fe54665` and fixture SHA-256
-`7004d7df2bca9f91f7cab07a3c303511bb2bd381041ba00784d3d1acae5a64ec`. A 4.0 m by 0.5 m X-axis
-cylindrical rocket impacts the rear wall of an open-front U-shaped cradle at 2.5 km/s. Every
-discrete 1.0/0.5/0.25 ms run reports seven physical contacts before traversal; impulses are
-261.32/262.37/270.90 kN s. The 1 ms CCD result is sample-identical to discrete, so CCD is
-unnecessary for this production geometry's no-pass-through outcome. The curved-guide refinement
-artifacts use runner SHA-256
-`76000ec00846eee33953d35e595f12befac1e683c9a96861002470ab864f4f9f` and project-source closure
-SHA-256 `5d32212ac2d979b95f3c81e07e685bf5088bf14bf2e1bf82834d23c6a8765897`. This is historical v0.29
-evidence; v0.31 source changes invalidate it until the complete matrix is regenerated. The force-resolved candidate
-uses a translated accelerating solver frame because direct 25 km float32 coordinates fail the
-tracking invariant; it reconstructs global SI state, applies exact per-body fictitious forces, and
-writes no transforms during integration. All 1.0/0.5/0.25 ms full profiles pass. Adjacent
-exit-speed changes are 2.15e-9 and 1.13e-8 relative; peak assembly-load changes are 0.0000048G and
-0.0000094G; tracking is 246.3/285.3/338.0 micrometres; and backend-force error converges
-0.0614%/0.0307%/0.0154%. Historical throughput was 256.78–267.21 physics steps/s; no replacement
-range is accepted until an unloaded controlled performance run follows correctness requalification. Schema-v3 evidence validation
+selection. The v0.36 production anti-tunneling artifacts use runner SHA-256
+`07b3675c1b782b781a12951b7a739f197f8ead4793af1d2075029f0dc90c7705` and fixture SHA-256
+`ece6a1c39f3462d2929eb83b3df3ad5498ed183b5b639313c294b1b933fc26e2`. A 4.0 m by 1.0 m X-axis
+cylindrical rocket impacts the rear wall of a 1.25 m-wide open-front U-shaped cradle at 2.5 km/s.
+Every discrete 1.0/0.5/0.25 ms run reports physical contact before traversal; the 1 ms CCD control
+passes as well, so CCD is unnecessary for this production geometry's no-pass-through outcome. The
+v0.35 curved-guide refinement artifacts were regenerated on 2026-09-03 against project-source closure SHA-256
+`991ef45fd3bec0a16382707e8314bd572121e6c5aafeff6141648448920747ee` after the full-length
+cradle correction and visualization-startup fix. They are historical after the v0.36 geometry and
+source change; requalification is required before their pass and throughput values are current.
+The force-resolved candidate uses a translated
+accelerating solver frame because direct 25 km float32 coordinates fail the tracking invariant; it
+reconstructs global SI state, applies exact per-body fictitious forces, and writes no simulated-body
+transforms during integration. The historical v0.35 unloaded baseline series recorded
+276.738/269.117/268.850 physics steps/s at 1.0/0.5/0.25 ms; those rates are context, not v0.36
+evidence. Schema-v3 evidence validation
 now rejects every backend/device condition except the Phase 0 selected PhysX/CPU target, and the
 checked-in curved configuration pins that target. The native path constraint is unavailable, the
 joint chain is rejected for requiring unqualified repeated topology transfer, and the kinematic
@@ -511,43 +578,29 @@ evidence.** `qualify_curved_guide.py` records a conservative project-source clos
 backend-neutral package, and `tests/unit/test_phase0_runner.py` recomputes it and demands equality.
 The three refinement artifacts must therefore be regenerated after any core edit, using the commands
 in `standalone/README.md`. That is a deliberate property of the conservative closure, not a bug: it
-guarantees no bound result can outlive the code that produced it. Budget for it — at the throughput
-this machine currently sustains the three runs take about three hours.
+guarantees no bound result can outlive the code that produced it. Budget for it — the current
+unloaded three-run physics loops total about 23.4 minutes, excluding application startup/shutdown.
 
 ---
 
 ## 5. Immediate next step
 
-**Requalify first.** The source closure has moved several times since the curved-guide artifacts
-were last written, most recently for `feasibility.py`, the `stage2_constraint` schema field, the
-cart-following frame and the §13.4 scene changes. The reference configuration's own hash moved too,
-when the `stage2_constraint` block was added. Regenerate the 1.0/0.5/0.25 ms matrix, the scene
-smoke and both mission artifacts in one pass —
-`scratchpad/requalify_all.ps1` does this and fails loudly if the closure moves mid-run, which is
-how two earlier passes were silently invalidated. Only after correctness closure matches should an
-unloaded run be used to update throughput; the historical 256.78–267.21 steps/s range is not a
-measurement of this revision.
+The v0.36 vehicle-asset slice is implemented and documented. Proceed in this order:
 
-Then, in objective order rather than interest order:
-
-1. **A trajectory-conditioned ignition trigger** (§10.4). Ignition timing is a declared exploration
-   axis and today the rocket lights 0.56 s after release. Keep the seven safety gates as
-   preconditions and add a separate *when*.
-2. **Delivered-state outputs and a margin criterion**, so a run self-scores rather than needing a
-   script against raw telemetry, followed by a sweep runner. The manifest, criteria, named-stream
-   and paired-contrast machinery all exist; nothing drives them.
-3. **Replace the §10.6 loss allowance with a measured quantity.** It moves the answer ±500 m/s.
-4. **`visualization/`** — but note the animation blocker above: proxy prims first, or an animated
-   render will show the vehicle parked at the entrance. The scene-construction runner intentionally
-   reports `mission_execution: not_started_scene_construction_slice`; do not turn that smoke test
-   into an alternate mission loop, and do not let the panel drive physics directly — it observes the
-   orchestrator.
-5. **Reduce the per-step cost.** See the throughput nit in section 2.5; the orchestrator reads state
-   three times per step and the adapter reads it a fourth.
+1. **Regenerate the source-bound curved-guide evidence** for the 4.0 m by 1.0 m rocket and
+   1.25 m-wide cradle, including the 30 G candidate and matched global-coordinate control. The
+   expanded 11-case Kit audit is already current and passing.
+2. **Correct the 10 G reference separation/braking fault** that produces a contact-impulse abort at
+   step 54,389. Preserve the named impulse gate; do not tune it away without a physical rationale.
+3. **Requalify and rerun the 35/40/43 km sweep** until it reaches trajectory-triggered handoff and
+   produces finite delivered-state and stage-2 margins.
+4. **Bind the panel and add live plots** without creating a second mission loop.
+5. **Request explicit panel disposition and final baseline selection.** Keep the 30 G brake as a
+   candidate until its structural, guide-load, thermal, power, and full-flight boundaries are closed.
 
 The 54.116 km tube remains a schema-v3 reference rather than the schema-v2 default.
 
-Latest verified curved clearance certificate: **0.317531 m cart wall clearance** and **0.699967 m
+Latest verified curved clearance certificate: **0.011547 m cart wall clearance** and **0.449967 m
 rocket wall clearance** after the 0.05 m guide allowance. The cart is limiting. The nonlocal tube
 gate requires 2.0 m centerline separation and uses at most 24.487 m polyline spacing with a 4.997 mm
 conservative chord-error bound. These figures certify geometry only, not physical guide behavior.

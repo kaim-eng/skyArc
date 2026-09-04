@@ -1,0 +1,24 @@
+schema_version: 1
+base_configuration: curved_2kms.yaml
+experiment_id: ignition_altitude_sweep
+replicate_id: 0
+seed: 12345
+metrics:
+  - stage2_margin_mps
+  - handoff_altitude_m
+  - handoff_speed_mps
+  - handoff_flight_path_angle_deg
+  - apogee_altitude_m
+conditions:
+  - condition_id: ignition_40km
+    parent_condition_id: null
+    changes:
+      rocket.ignition.trigger.minimum_altitude_m: 40000.0
+  - condition_id: ignition_35km
+    parent_condition_id: ignition_40km
+    changes:
+      rocket.ignition.trigger.minimum_altitude_m: 35000.0
+  - condition_id: ignition_43km
+    parent_condition_id: ignition_40km
+    changes:
+      rocket.ignition.trigger.minimum_altitude_m: 43000.0

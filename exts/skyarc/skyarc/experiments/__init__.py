@@ -6,6 +6,7 @@
 from .contrasts import ConditionResult, ContrastError, PairedContrast, factor_diff, paired_contrasts
 from .criteria import (
     BASELINE_V1,
+    CURVED_REFERENCE_V1,
     CRITERION_POLICIES,
     CriterionError,
     CriterionPolicy,
@@ -40,6 +41,7 @@ from .random_streams import NamedRandomStreams, RandomStreamError
 
 __all__ = [
     "BASELINE_V1",
+    "CURVED_REFERENCE_V1",
     "CRITERION_POLICIES",
     "EXCLUDED_CLOSURE_DIRECTORIES",
     "CodeIdentity",

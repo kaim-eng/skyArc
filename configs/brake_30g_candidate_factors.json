@@ -1,0 +1,8 @@
+{
+  "cart.brake_force_limit_n": 12940.648307501946,
+  "cart.brake_jerk_limit_mps3": 300.0,
+  "cart.mass_kg": 43.98596295201707,
+  "cart.maximum_resultant_load_g": 30.01,
+  "launch_control.maximum_force_n": 11800.0,
+  "tube.exit_track.length_m": 10000.0
+}

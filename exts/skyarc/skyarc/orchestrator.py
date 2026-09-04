@@ -26,7 +26,7 @@ from .coupling import (
 )
 from .coupling.interlock import InterlockDecision
 from .configuration.schema import ScenarioConfig
-from .effects.adapter import BackendAdapter
+from .effects.adapter import AppliedEffects, BackendAdapter
 from .effects.aggregator import aggregate
 from .experiments.criteria import resolve_evidence_window
 from .experiments.hashing import builtin_package_code_identity
@@ -34,6 +34,7 @@ from .launcher.atmosphere import DensityDragModel
 from .launcher.brake import ForceLimitedCartBrake
 from .launcher.guide import IdealPathGuide
 from .launcher.launch_force import STANDARD_GRAVITY_MPS2, AbstractAxialLaunchForce
+from .rocket import IgnitionTriggerDecision, TrajectoryIgnitionTrigger
 from .rocket.aerodynamics import QuadraticPointDrag
 from .events import (
     EVENT_ABORT,
@@ -113,6 +114,7 @@ class SimulationOrchestrator:
         components: MissionComponents,
         separation_monitor: SeparationMonitor,
         ignition_interlock: IgnitionInterlock,
+        ignition_trigger: TrajectoryIgnitionTrigger,
         free_flight_duration_s: float,
         maximum_run_time_s: float,
         scenario_id: str = "analytic_mission",
@@ -134,6 +136,7 @@ class SimulationOrchestrator:
         self._components = components
         self._separation = separation_monitor
         self._interlock = ignition_interlock
+        self._ignition_trigger = ignition_trigger
         self._free_flight_duration_s = free_flight_duration_s
         self._maximum_run_time_s = maximum_run_time_s
         self._machine = MissionStateMachine()
@@ -142,6 +145,8 @@ class SimulationOrchestrator:
         self._flight_window_emitted = False
         self._release_confirmed = False
         self._last_interlock_decision: InterlockDecision | None = None
+        self._last_ignition_trigger_decision: IgnitionTriggerDecision | None = None
+        self._last_applied_effects: AppliedEffects | None = None
         self._started = False
         self._telemetry_sink = telemetry_sink
         self._telemetry_event_cursor = 0
@@ -152,6 +157,7 @@ class SimulationOrchestrator:
             backend_capabilities=adapter.capabilities.features,
         )
         initial = adapter.read_state()
+        self._current_state = initial
         observer.prepare(context)
         observer.reset(initial)
         for component in components.all():
@@ -165,6 +171,11 @@ class SimulationOrchestrator:
     @property
     def events(self) -> Tuple[Event, ...]:
         return tuple(self._events)
+
+    @property
+    def provenance_components(self) -> Tuple[Component, ...]:
+        """Selected model instances whose descriptors populate an experiment manifest."""
+        return (*self._components.all(), self._observer)
 
     def _record(self, events: Iterable[Event], *, process: bool = True) -> None:
         items = tuple(events)
@@ -186,7 +197,7 @@ class SimulationOrchestrator:
     def start(self) -> None:
         if self._started:
             return
-        state = self._adapter.read_state()
+        state = self._current_state
         observation = self._observe(state)
         stage_index = observation.axial.stage_index
         if stage_index < 0:
@@ -216,6 +227,7 @@ class SimulationOrchestrator:
             raise RuntimeError("a reset replay requires a new telemetry run instance")
         self._adapter.reset()
         initial = self._adapter.read_state()
+        self._current_state = initial
         self._observer.reset(initial)
         for component in self._components.all():
             component.reset(initial)
@@ -226,6 +238,8 @@ class SimulationOrchestrator:
         self._flight_window_emitted = False
         self._release_confirmed = False
         self._last_interlock_decision = None
+        self._last_ignition_trigger_decision = None
+        self._last_applied_effects = None
         self._started = False
         self._telemetry_event_cursor = 0
 
@@ -233,6 +247,16 @@ class SimulationOrchestrator:
     def last_interlock_decision(self) -> InterlockDecision | None:
         """Most recent ignition adjudication, retained so telemetry can record blocked gates."""
         return self._last_interlock_decision
+
+    @property
+    def last_ignition_trigger_decision(self) -> IgnitionTriggerDecision | None:
+        """Most recent trajectory-timing decision, separate from safety adjudication."""
+        return self._last_ignition_trigger_decision
+
+    @property
+    def last_applied_effects(self) -> AppliedEffects | None:
+        """Most recent backend-applied loads, exposed read-only for visualization."""
+        return self._last_applied_effects
 
     @staticmethod
     def _outputs_have_release_commands(outputs: Iterable[StepOutput]) -> bool:
@@ -424,7 +448,9 @@ class SimulationOrchestrator:
                 abort_active=self._machine.abort_active,
             )
             self._last_interlock_decision = decision
-            if decision.allowed:
+            trigger_decision = self._ignition_trigger.evaluate(observation)
+            self._last_ignition_trigger_decision = trigger_decision
+            if decision.allowed and trigger_decision.ready:
                 self._record(self._components.rocket_motor.command_ignition(observation, decision))
 
         if (
@@ -448,7 +474,7 @@ class SimulationOrchestrator:
 
     def step(self) -> MissionState:
         self.start()
-        before_state = self._adapter.read_state()
+        before_state = self._current_state
         if before_state.time_s >= self._maximum_run_time_s - 1e-12:
             self._record(
                 self._machine.abort(
@@ -486,6 +512,7 @@ class SimulationOrchestrator:
         }
         accepted = aggregate((output.effects for output in outputs), before_state)
         applied = self._adapter.apply(accepted)
+        self._last_applied_effects = applied
         if self._outputs_have_release_commands(outputs):
             self._record(
                 self._components.coupling.resync_after_apply(
@@ -496,6 +523,7 @@ class SimulationOrchestrator:
             )
         self._adapter.step()
         after_state = self._adapter.read_state()
+        self._current_state = after_state
         after = self._observe(after_state)
         self._detect_guided_events(before, after)
 
@@ -542,7 +570,7 @@ class SimulationOrchestrator:
         self.start()
         while self._machine.state.phase not in (MissionPhase.COMPLETE, MissionPhase.ABORT):
             self.step()
-        final = self._adapter.read_state()
+        final = self._current_state
         self._flush_telemetry_events()
         telemetry_summary = None
         if self._telemetry_sink is not None:
@@ -696,6 +724,7 @@ def build_mission(
         components=components,
         separation_monitor=SeparationMonitor(config.rocket.ignition),
         ignition_interlock=IgnitionInterlock(config.rocket.ignition, layout, markers),
+        ignition_trigger=TrajectoryIgnitionTrigger(config.rocket.ignition.trigger),
         free_flight_duration_s=free_flight_duration_s,
         maximum_run_time_s=config.simulation.maximum_run_time_s,
         scenario_id=config.experiment.condition_id,

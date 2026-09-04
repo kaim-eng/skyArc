@@ -72,6 +72,32 @@ class ConfigurationTests(unittest.TestCase):
         with self.assertRaisesRegex(ConfigurationError, "unknown keys in cart"):
             load_mapping(raw)
 
+    def test_schema_v3_requires_a_valid_trajectory_ignition_trigger(self) -> None:
+        raw = self.raw_curved()
+        del raw["rocket"]["ignition"]["trigger"]
+        with self.assertRaisesRegex(ConfigurationError, "rocket.ignition.trigger"):
+            load_mapping(raw)
+
+        raw = self.raw_curved()
+        raw["rocket"]["ignition"]["trigger"] = {"model": "trajectory_thresholds_v1"}
+        with self.assertRaisesRegex(ConfigurationError, "requires at least one threshold"):
+            load_mapping(raw)
+
+        raw = self.raw_curved()
+        raw["rocket"]["ignition"]["trigger"] = {
+            "model": "trajectory_thresholds_v1",
+            "maximum_flight_path_angle_deg": 91.0,
+        }
+        with self.assertRaisesRegex(ConfigurationError, r"within \[-90, 90\]"):
+            load_mapping(raw)
+
+        # Schema v2 retains its established behavior and resolved identity when the
+        # new trigger block is absent.
+        self.assertEqual(
+            self.loaded.config.rocket.ignition.trigger.model,
+            "safety_gates_only_v1",
+        )
+
     def test_force_vs_position_requires_a_strictly_ordered_table(self) -> None:
         raw = self.raw_baseline()
         raw["launch_control"]["mode"] = "force_vs_position"
@@ -303,7 +329,7 @@ class ConfigurationTests(unittest.TestCase):
         clearance = loaded.preflight.swept_envelope
         assert clearance is not None
         self.assertEqual(clearance.limiting_body, "cart")
-        self.assertAlmostEqual(clearance.minimum_vehicle_wall_clearance_m, 0.0280088, places=6)
+        self.assertAlmostEqual(clearance.minimum_vehicle_wall_clearance_m, 0.0115470, places=6)
         self.assertLess(clearance.polyline_chord_error_bound_m, 0.0051)
         atmosphere = loaded.config.tube.exterior_atmosphere
         assert atmosphere is not None and atmosphere.scale_height_m is not None

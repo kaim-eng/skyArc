@@ -20,6 +20,4 @@
 {"data": {}, "name": "brake_eligible", "sequence": 19, "source": "coupling", "step_index": 54118, "time_s": 54.117999999964574}
 {"data": {"from": "rocket_detach", "to": "post_detach"}, "name": "state_transition", "sequence": 20, "source": "state_machine", "step_index": 54118, "time_s": 54.117999999964574}
 {"data": {"gap_m": 3.012713582891002, "maximum_contact_impulse_ns": 0.0, "no_recontact_dwell_s": 0.29199999999931947, "relative_speed_mps": 45.81800560734358}, "name": "separation_confirmed", "sequence": 21, "source": "separation_actuator", "step_index": 54416, "time_s": 54.41599999996388}
-{"data": {"thrust_n": 8000.0}, "name": "ignition", "sequence": 22, "source": "rocket_motor", "step_index": 54416, "time_s": 54.41599999996388}
-{"data": {"burn_duration_s": 5.0}, "name": "burnout", "sequence": 23, "source": "rocket_motor", "step_index": 59417, "time_s": 59.416999999952225}
-{"data": {"speed_mps": -3.4226540647051025e-07, "track_progress_m": 8000.000006226102}, "name": "cart_stopped", "sequence": 24, "source": "cart_brake", "step_index": 61996, "time_s": 61.995999999946214}
+{"data": {"speed_mps": -3.4226540647051025e-07, "track_progress_m": 8000.000006226102}, "name": "cart_stopped", "sequence": 22, "source": "cart_brake", "step_index": 61996, "time_s": 61.995999999946214}

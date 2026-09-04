@@ -1123,7 +1123,7 @@ def main() -> int:
         result["finished_utc"] = datetime.now(timezone.utc).isoformat()
         output.parent.mkdir(parents=True, exist_ok=True)
         rendered = json.dumps(_json_value(result), indent=2, sort_keys=True, allow_nan=False)
-        output.write_text(rendered + "\n", encoding="utf-8")
+        output.write_text(rendered + "\n", encoding="utf-8", newline="\n")
         print(f"CURVED_GUIDE_RESULT={output}")
         print(f"CURVED_GUIDE_PASSED={result.get('passed', False)}")
         if app is not None:

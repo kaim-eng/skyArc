@@ -28,6 +28,7 @@ from .schema import (
     ForcePositionPointConfig,
     GuidedAerodynamicsConfig,
     IgnitionConfig,
+    IgnitionTriggerConfig,
     LaunchControlConfig,
     MarkerConfig,
     ModelsConfig,
@@ -405,15 +406,29 @@ def _parse_guided(value: Any) -> GuidedAerodynamicsConfig:
     )
 
 
-def _parse_rocket(value: Any) -> RocketConfig:
+def _parse_rocket(value: Any, schema_version: int) -> RocketConfig:
     data = _mapping(value, "rocket")
     fields = {"initial_mass_kg", "length_m", "diameter_m", "drag_coefficient", "reference_area_m2", "inertia_mode", "aft_clearance_marker", "motor", "ignition"}
     _reject_unknown(data, fields, "rocket")
     motor_data = _mapping(_required(data, "motor", "rocket"), "rocket.motor")
     _reject_unknown(motor_data, {"model", "thrust_n", "burn_duration_s"}, "rocket.motor")
     ignition_data = _mapping(_required(data, "ignition", "rocket"), "rocket.ignition")
-    ignition_fields = {"delay_s", "minimum_cart_clearance_m", "minimum_relative_speed_mps", "no_recontact_dwell_s", "separation_timeout_s", "maximum_contact_impulse_ns", "maximum_angular_rate_deg_s"}
+    ignition_fields = {"delay_s", "minimum_cart_clearance_m", "minimum_relative_speed_mps", "no_recontact_dwell_s", "separation_timeout_s", "maximum_contact_impulse_ns", "maximum_angular_rate_deg_s", "trigger"}
     _reject_unknown(ignition_data, ignition_fields, "rocket.ignition")
+    raw_trigger = ignition_data.get("trigger")
+    if raw_trigger is None:
+        if schema_version >= 3:
+            raise ConfigurationError("missing required key rocket.ignition.trigger")
+        trigger_data: Mapping[str, Any] = {"model": "safety_gates_only_v1"}
+    else:
+        trigger_data = _mapping(raw_trigger, "rocket.ignition.trigger")
+    trigger_fields = {
+        "model",
+        "minimum_altitude_m",
+        "maximum_flight_path_angle_deg",
+        "maximum_vertical_speed_mps",
+    }
+    _reject_unknown(trigger_data, trigger_fields, "rocket.ignition.trigger")
     return RocketConfig(
         initial_mass_kg=_number(_required(data, "initial_mass_kg", "rocket"), "rocket.initial_mass_kg"),
         length_m=_number(_required(data, "length_m", "rocket"), "rocket.length_m"),
@@ -427,10 +442,23 @@ def _parse_rocket(value: Any) -> RocketConfig:
             thrust_n=_number(_required(motor_data, "thrust_n", "rocket.motor"), "rocket.motor.thrust_n"),
             burn_duration_s=_number(_required(motor_data, "burn_duration_s", "rocket.motor"), "rocket.motor.burn_duration_s"),
         ),
-        ignition=IgnitionConfig(**{
-            field: _number(_required(ignition_data, field, "rocket.ignition"), f"rocket.ignition.{field}")
-            for field in sorted(ignition_fields)
-        }),
+        ignition=IgnitionConfig(
+            **{
+                field: _number(_required(ignition_data, field, "rocket.ignition"), f"rocket.ignition.{field}")
+                for field in sorted(ignition_fields - {"trigger"})
+            },
+            trigger=IgnitionTriggerConfig(
+                model=_string(_required(trigger_data, "model", "rocket.ignition.trigger"), "rocket.ignition.trigger.model"),
+                **{
+                    field: (
+                        None
+                        if trigger_data.get(field) is None
+                        else _number(trigger_data[field], f"rocket.ignition.trigger.{field}")
+                    )
+                    for field in sorted(trigger_fields - {"model"})
+                },
+            ),
+        ),
     )
 
 
@@ -488,7 +516,7 @@ def _parse_stage2_constraint(value: Any) -> Stage2ConstraintConfig:
         "specific_impulse_s",
         "propellant_mass_fraction",
         "target_orbit_altitude_m",
-        "loss_allowance_mps",
+        "assumed_unmodeled_loss_mps",
     }
     _reject_unknown(data, fields, "stage2_constraint")
     return Stage2ConstraintConfig(
@@ -507,9 +535,9 @@ def _parse_stage2_constraint(value: Any) -> Stage2ConstraintConfig:
             _required(data, "target_orbit_altitude_m", "stage2_constraint"),
             "stage2_constraint.target_orbit_altitude_m",
         ),
-        loss_allowance_mps=_number(
-            _required(data, "loss_allowance_mps", "stage2_constraint"),
-            "stage2_constraint.loss_allowance_mps",
+        assumed_unmodeled_loss_mps=_number(
+            _required(data, "assumed_unmodeled_loss_mps", "stage2_constraint"),
+            "stage2_constraint.assumed_unmodeled_loss_mps",
         ),
     )
 
@@ -604,6 +632,7 @@ def _resolved_hash(config: ScenarioConfig) -> str:
         for field in ("geometry_mode", "centerline", "exit_track", "exterior_atmosphere"):
             resolved["tube"].pop(field, None)
         resolved["cart"].pop("maximum_resultant_load_g", None)
+        resolved["rocket"]["ignition"].pop("trigger", None)
         resolved["launch_control"].pop("maximum_resultant_load_g", None)
         resolved["launch_control"].pop("maximum_normal_jerk_mps3", None)
         if not resolved["launch_control"].get("force_vs_position"):
@@ -641,7 +670,7 @@ def load_mapping(
         tube=_parse_tube(_required(data, "tube", "root"), schema_version),
         cart=_parse_cart(_required(data, "cart", "root")),
         guided_phase_aerodynamics=_parse_guided(_required(data, "guided_phase_aerodynamics", "root")),
-        rocket=_parse_rocket(_required(data, "rocket", "root")),
+        rocket=_parse_rocket(_required(data, "rocket", "root"), schema_version),
         launch_control=_parse_launch(_required(data, "launch_control", "root")),
         markers=_parse_markers(_required(data, "markers", "root")),
         output=_parse_output(_required(data, "output", "root")),

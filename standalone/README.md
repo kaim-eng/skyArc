@@ -21,6 +21,15 @@ cd C:\Dev\Isaacsim\IsaacSim\_build\windows-x86_64\release
 .\python.bat C:\Dev\Isaacsim\skyArc\standalone\run_mission.py --headless --max-steps 5000 --reset-replay --summary C:\Dev\Isaacsim\skyArc\artifacts\production\mission_smoke.json
 .\python.bat C:\Dev\Isaacsim\skyArc\standalone\run_mission.py --headless --max-steps 1000 --telemetry-directory <scratch> --summary C:\Dev\Isaacsim\skyArc\artifacts\production\mission_telemetry.json
 
+# materialize and preflight the paired ignition-altitude sweep without launching Kit
+.\python.bat C:\Dev\Isaacsim\skyArc\standalone\sweep_mission.py --dry-run
+
+# execute the production sweep sequentially; each condition writes a complete manifest
+.\python.bat C:\Dev\Isaacsim\skyArc\standalone\sweep_mission.py
+
+# rebuild sweep.json from completed summaries after an aggregation-only interruption
+.\python.bat C:\Dev\Isaacsim\skyArc\standalone\sweep_mission.py --aggregate-only
+
 .\python.bat C:\Dev\Isaacsim\skyArc\standalone\qualify_phase0.py --backend physx --collision-treatment always_present
 .\python.bat C:\Dev\Isaacsim\skyArc\standalone\qualify_phase0.py --backend physx --collision-treatment live_activation
 .\python.bat C:\Dev\Isaacsim\skyArc\standalone\qualify_phase0.py --backend newton --collision-treatment always_present
@@ -65,15 +74,14 @@ used by the curved-guide characterization below.
 
 `qualify_anti_tunneling.py` writes separately hashed artifacts under
 `artifacts/phase0/anti_tunneling/`. Its fixture is
-`configs/phase0_anti_tunneling_open_cradle.json`: the reference 4.0 m by 0.5 m X-axis cylindrical
-rocket starts with 0.01 m clearance inside a compound open-front U-shaped cradle and impacts the
+`configs/phase0_anti_tunneling_open_cradle.json`: the reference 4.0 m by 1.0 m X-axis cylindrical
+rocket starts with 0.01 m axial clearance inside a 1.25 m-wide compound open-front U-shaped cradle and impacts the
 rear wall at 2,500 m/s. A pass requires nonzero finite contact force and no full wall traversal. The
 matched matrix uses runner SHA-256
-`2f900a390ed4be5cd8f43b27e22e74eb85d82838b796f7a56dfb969a8fe54665` and fixture SHA-256
-`7004d7df2bca9f91f7cab07a3c303511bb2bd381041ba00784d3d1acae5a64ec`. All four conditions pass
-with seven contacts and no traversal; discrete 1.0/0.5/0.25 ms reported impulses are
-261.32/262.37/270.90 kN s, and the 1 ms CCD result is sample-for-sample identical to discrete. CCD
-is not required for this named production geometry's no-pass-through outcome. This conservative
+`07b3675c1b782b781a12951b7a739f197f8ead4793af1d2075029f0dc90c7705` and fixture SHA-256
+`ece6a1c39f3462d2929eb83b3df3ad5498ed183b5b639313c294b1b933fc26e2`. All four v0.36 conditions
+pass without traversal: discrete 1.0/0.5/0.25 ms plus the 1 ms CCD control. CCD is not required for
+this named production geometry's no-pass-through outcome. This conservative
 rear-wall collision remains a mechanism stress test, not an attachment-load prediction.
 
 `qualify_curved_guide.py` records the force-resolved curved mechanism under
@@ -84,22 +92,16 @@ applies the exact uniform fictitious force to each body, and performs no transfo
 integration. The physical guide/launch resultant remains cart-owned so fixed-joint attachment load
 is measured rather than bypassed.
 
-The following exact-production-geometry refinement figures are historical v0.29 evidence. The
-v0.31 source closure has changed, so they are not current qualification until all three artifacts
-are regenerated. The historical series uses runner SHA-256
-`76000ec00846eee33953d35e595f12befac1e683c9a96861002470ab864f4f9f` and project-source closure
-SHA-256 `5d32212ac2d979b95f3c81e07e685bf5088bf14bf2e1bf82834d23c6a8765897`. It uses the same fixture
-hash as the anti-tunneling matrix and reads 1,356.4024 kg m² combined pitch inertia from PhysX. The
-1 ms run passes the four gates it evaluates: 2,000.001708 m/s exit speed, 246.3 micrometre peak
-centerline error, 2.424 micrometre peak attachment-spacing error, 6.826264G inferred assembly load,
-0.04394% gated controller-feedback correction, 0.0614% maximum backend-force error,
-solver-confirmed release, and cold reset. The 0.5 and 0.25 ms profiles also pass. Their adjacent
-exit-speed changes are 2.15e-9 and 1.13e-8 relative, while peak assembly-load changes are
-0.0000048G and 0.0000094G. Tracking remains bounded at 246.3/285.3/338.0 micrometres, and
-backend-force error converges from 0.0614% to 0.0307% to 0.0154%. Those runs sustained 256.78–267.21
-physics steps/s; do not replace that range from a loaded/background requalification. The matched
-global-frame control fails the tracking, attachment, attitude, and
-load gates while using the same runner and source closure.
+The historical v0.35 exact-production-geometry baseline refinement series is bound to project-source closure
+SHA-256 `991ef45fd3bec0a16382707e8314bd572121e6c5aafeff6141648448920747ee`.
+All 1.0/0.5/0.25 ms co-moving profiles pass at 2,000.001139/2,000.001139/2,000.001140 m/s;
+peak loads are 6.826258/6.826379/6.826402 G and peak centerline errors are
+368.361/364.109/356.691 micrometres. Their unloaded physics loops sustain
+276.738/269.117/268.850 steps/s. The matched 1 ms global-coordinate control fails as required with
+1.8094 m peak tracking error and 19.9186 G peak load. The series uses the same production fixture
+and reads the combined pitch inertia from PhysX; release and cold reset pass in every co-moving run.
+The v0.36 width and source changes invalidate those records; regenerate the co-moving series,
+matched global control, and 30 G candidate before treating their pass or throughput values as current.
 
 The feedback correction is not solver constraint-reaction read-back. Under v0.29 the panel accepts
 the force-resolved controller, translated accelerating frame, and measured throughput for
@@ -112,16 +114,33 @@ construction, view warm-up, and optional USD export — and reports
 mission loop in that runner is exactly the drift the shared `build_mission` factory exists to
 prevent.
 
+The development scene and live global proxy reference
+`assets/vehicles/jupiter_c/Explorer_JupiterC_NoStage1.usdc` as a visual-only child. Its native Z-up
+bounds are rotated onto +X and fitted to the conservative 4.0 m by 1.0 m cylinder; the cylinder
+alone owns collision, mass, and inertia, and scene construction scans the composed reference for
+physics APIs/properties. `scene_smoke.json` records SHA-256 identities for both the USD and manifest
+in addition to the resolved visual prim path. The manifest records the official NASA source,
+NASA/Michael D. Carbajal attribution, and NASA Images and Media Usage Guidelines. Source
+redistribution is cleared under those terms; extension packaging remains withheld until an installed
+package smoke is run, and development exports retain a nonportable absolute source reference.
+
 `run_mission.py` is the runner that executes a mission, and it does so by handing the production
 adapter to that same factory. It writes `artifacts/production/mission_smoke.json` and
 `mission_telemetry.json`, both bound by `tests/unit/test_production_mission.py` to the complete
 production source closure, runner/configuration/fixture hashes, and Isaac build identity. The
-current v0.31 bounded 5,000-step record preserves `launch_stage` and three run events across reset
-replay, reports the true 184.788 m/s vector speed, holds 1.02 micrometre peak centerline tracking
-error and 0.00035 degree peak attitude error while following the commanded 36.9577 m/s² profile,
-and restores the authored state within 43 nanometres. Guided throughput is 37–38 physics steps per
-wall second, an order of magnitude below the historical qualification runner's, because
-each step also runs the full component stack and the orchestrator's state reads.
+current bounded 5,000-step record preserves `launch_stage` and three run events across reset replay,
+reports the true 184.788 m/s vector speed, holds 3.00 micrometre peak centerline tracking error while
+following the commanded 36.9577 m/s² profile, and restores the authored state within its 10 micrometre
+tolerance. Its measured throughput is not a controlled figure because another user-owned Isaac
+session was active; use the unloaded qualification rates above for performance evidence.
+
+The executed 35/40/43 km sweep is durable partial evidence. Every 10 G reference condition aborts at
+step 54,389 with `separation_contact_impulse_exceeded`, before the altitude trigger can act. The
+aggregate preserves null handoff/stage-2 metrics, declares `contrast_status:
+partial_missing_metrics`, and reports an exactly zero contrast for the common 31,117.456 m apogee.
+The 30 G candidate clears the same release with zero contact impulse and stops the cart at
+8,000.000006 m, but its 65-second bound reaches only 35,898.976 m altitude, so the 40 km trigger and
+stage-2 handoff remain outside that artifact's scope.
 
 The 45-degree entrance makes the launcher's engagement self-checking: with no launcher force the
 assembly does not merely accelerate slowly, it rolls backwards at `-g sin 45`. Both the bounded

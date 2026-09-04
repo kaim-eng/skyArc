@@ -28,19 +28,24 @@ The conservative preflight predicts 7,702.105 m of stopping travel and requires
 the available 8 km active region and stops at its boundary, leaving the exact 2 km
 physical margin.
 
-The curved-guide jobs were run in matched baseline/candidate pairs at 1/0.5/0.25 ms.
-The 65,000-step production probe ran at 33.45 physics steps per wall second and used
-1,943.1 seconds in the physics loop while timestep refinements ran concurrently. GPU
-compute is not used by this qualified runtime; it is explicitly PhysX/CPU. RTX was used
-for the independently replayed GIF renders.
+The current 1.0/0.5/0.25 ms curved-guide artifacts are bound to project-source closure
+`991ef45fd3bec0a16382707e8314bd572121e6c5aafeff6141648448920747ee` and all pass. The
+65,000-step production probe also uses that closure and runner SHA-256
+`03558bece7fe666fee02433a95271b5fafc198080461d21de2561b180143744e`.
+Its recorded 26.12 physics steps/s is not performance evidence because a separate user-owned
+Isaac session was active. GPU compute is not used by the qualified physics runtime; it is
+explicitly PhysX/CPU. RTX was used for the independently replayed GIF renders.
 
 ## Evidence boundary
 
 `mission_brake_stop_65s.json` is intentionally bounded after the cart stopped. It has
 `completed_mission: false` and `termination_reason: step_budget_exhausted`; it does not
-claim completion of the rocket's remaining free-flight tail. Its `passed: true` means
-the production runtime, release, separation, braking, and non-abort gates passed through
-65 s.
+claim completion of the rocket's remaining free-flight tail. Its execution `passed: true`
+means the production runtime, release, separation, braking, and non-abort gates passed
+through 65 s. Its separate `curved_reference_v1` criterion is false: apogee at the bound is
+35,898.976 m, below the 40 km trajectory trigger, so ignition, handoff, and stage-2 margin
+are correctly absent. A trajectory-triggered run has no ignition/burnout deadline before a
+measured ignition event; schema-v2 safety-only triggering retains the original post-exit deadline.
 
 The telemetry energy closure is formally invalid because the recorder cannot close the
 cart's residual rotational kinetic energy without modeled body inertia. The reported
@@ -48,7 +53,7 @@ angular rate is 3.299e-5 rad/s. This is an evidence-accounting limitation, not a
 stop failure, and must remain disclosed before the candidate replaces the reference.
 
 The retained event stream is `events.jsonl`. Its SHA-256 is
-`40df890e08d560e0780a812f6c93336241bb2fcf81e569c7014b23b34e559e1d`.
-The complete scratch telemetry CSV is not part of this artifact directory; its SHA-256
-at run completion was
-`d971dae2cc6d72878e25068b381d8a502b873129390368af43cfb630bcfe9781`.
+`1ff29446d5dd0a61871fb227f9108e2010e9276f35e92b7f064b60c4fec16f89`.
+The complete telemetry run is retained beneath this directory; its CSV SHA-256 is
+`342c19787c46e7b03b765e591376509fccd0cf48361b19d800f87ed9e8b6350c` and its manifest
+SHA-256 is `9fa2a613ee3615abdc4878f037f4aef0c323b3228847d83b5e9803cbe340427b`.

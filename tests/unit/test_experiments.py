@@ -15,6 +15,7 @@ from skyarc.components import ComponentDescriptor, Determinism
 from skyarc.configuration import load_yaml
 from skyarc.experiments import (
     BASELINE_V1,
+    CURVED_REFERENCE_V1,
     ComponentProvenance,
     ConditionResult,
     ContrastError,
@@ -63,6 +64,20 @@ def complete_summary() -> RunSummary:
         energy_closure_valid=True,
         energy_closure_defect=None,
         first_event_time_s={"separation_confirmed": 1.0},
+        apogee_time_s=1.5,
+        apogee_altitude_m=1000.0,
+        handoff_time_s=1.0,
+        handoff_altitude_m=900.0,
+        handoff_downrange_m=800.0,
+        handoff_speed_mps=2000.0,
+        handoff_flight_path_angle_deg=10.0,
+        pre_handoff_rocket_drag_loss_mps=5.0,
+        stage2_ideal_energy_raise_mps=6300.0,
+        stage2_measured_alignment_loss_mps=100.0,
+        stage2_delta_v_required_mps=6400.0,
+        stage2_delta_v_available_mps=6512.0,
+        stage2_assumed_unmodeled_loss_mps=500.0,
+        stage2_margin_mps=112.0,
     )
 
 
@@ -184,6 +199,18 @@ class RandomAndCriterionTests(unittest.TestCase):
         self.assertTrue(passing.passed)
         self.assertFalse(failing.passed)
         self.assertFalse(missing.passed)
+        curved_passing = CURVED_REFERENCE_V1.evaluate(
+            {
+                **complete_summary().to_dict(),
+                "exit_speed_relative_error": 0.0001,
+                "peak_resultant_load_g": 9.0,
+            }
+        )
+        curved_failing = CURVED_REFERENCE_V1.evaluate(
+            {**complete_summary().to_dict(), "stage2_margin_mps": -0.001}
+        )
+        self.assertTrue(curved_passing.passed)
+        self.assertFalse(curved_failing.passed)
         self.assertEqual(len(BASELINE_V1.sha256), 64)
         self.assertEqual(resolve_evidence_window(load_yaml(BASELINE).config).duration_s, 0.5)
         curved = load_yaml(CURVED).config

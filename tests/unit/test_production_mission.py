@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import importlib.util
 import json
 import math
 import unittest
@@ -51,6 +52,12 @@ MISSION_SMOKE = PROJECT / "artifacts" / "production" / "mission_smoke.json"
 MISSION_TELEMETRY = PROJECT / "artifacts" / "production" / "mission_telemetry.json"
 ISAAC_ROOT = PROJECT.parent / "IsaacSim"
 ISAAC_RELEASE = ISAAC_ROOT / "_build" / "windows-x86_64" / "release"
+
+RUNNER_SPEC = importlib.util.spec_from_file_location("production_mission_runner", MISSION_RUNNER)
+if RUNNER_SPEC is None or RUNNER_SPEC.loader is None:
+    raise RuntimeError("could not load production mission runner")
+production_mission_runner = importlib.util.module_from_spec(RUNNER_SPEC)
+RUNNER_SPEC.loader.exec_module(production_mission_runner)
 
 
 def source_closure(root: Path) -> dict[str, object]:
@@ -100,6 +107,44 @@ the whole pure unit suite unrunnable. This set is the executable form of that ru
 """
 
 FORBIDDEN_ROOTS = ("isaacsim", "omni", "carb", "pxr", "warp", "numpy", "usdrt")
+
+
+class ReleaseCycleObligationTests(unittest.TestCase):
+    def test_safety_only_trigger_retains_the_post_exit_deadline(self) -> None:
+        due, due_s = production_mission_runner._release_cycle_obligation(
+            trigger_model="safety_gates_v1",
+            final_time_s=62.0,
+            exit_time_s=54.0,
+            separation_timeout_s=2.0,
+            burn_duration_s=5.0,
+            event_times_s={},
+        )
+        self.assertTrue(due)
+        self.assertEqual(due_s, 61.0)
+
+    def test_trajectory_trigger_has_no_deadline_before_measured_ignition(self) -> None:
+        due, due_s = production_mission_runner._release_cycle_obligation(
+            trigger_model="trajectory_thresholds_v1",
+            final_time_s=65.0,
+            exit_time_s=54.0,
+            separation_timeout_s=2.0,
+            burn_duration_s=5.0,
+            event_times_s={},
+        )
+        self.assertFalse(due)
+        self.assertIsNone(due_s)
+
+    def test_trajectory_trigger_deadline_starts_at_measured_ignition(self) -> None:
+        due, due_s = production_mission_runner._release_cycle_obligation(
+            trigger_model="trajectory_thresholds_v1",
+            final_time_s=65.0,
+            exit_time_s=54.0,
+            separation_timeout_s=2.0,
+            burn_duration_s=5.0,
+            event_times_s={"ignition": 59.0},
+        )
+        self.assertTrue(due)
+        self.assertEqual(due_s, 64.0)
 
 
 def _module_roots(path: Path) -> set[str]:
@@ -307,9 +352,10 @@ class InitialPlacementTests(unittest.TestCase):
         )
 
         # The aft cap reproduces the declared rear-wall clearance. The rocket axis stays
-        # on the cart/tube centreline, and the deeper U-cradle supplies passive-release
-        # floor clearance. Both rocket caps stay within the cradle envelope so the rocket
-        # is seated in the cart rather than parked on top of or beyond it.
+        # on the cart/tube centreline, and the cradle supplies a positive 0.10 m nominal
+        # floor clearance for the requested 1.0 m vehicle envelope. Both rocket caps stay
+        # within the cradle envelope so the rocket is seated in the cart rather than
+        # parked on top of or beyond it.
         rear_wall_forward_face_m = (
             -0.5 * self.fixture.cradle.outer_length_m
             + self.fixture.cradle.wall_thickness_m
@@ -327,7 +373,7 @@ class InitialPlacementTests(unittest.TestCase):
             places=9,
         )
         floor_clearance_m = rocket_bottom_m - floor_top_m
-        self.assertGreaterEqual(floor_clearance_m, 0.25)
+        self.assertAlmostEqual(floor_clearance_m, 0.10, places=9)
         tube_radius_m = 0.5 * self.config.tube.inner_diameter_m
         cradle_corner_radius_m = math.hypot(
             0.5 * self.fixture.cradle.outer_width_m,
@@ -495,11 +541,19 @@ class MissionArtifactTests(unittest.TestCase):
         self.assertEqual(run["core_schema_version"], CORE_TELEMETRY_SCHEMA_V2.version)
         self.assertTrue(run["guide_reaction_work_column"])
         summary = self.telemetry["telemetry_summary"]
-        self.assertEqual(summary["schema_version"], "run_summary_v1")
+        self.assertEqual(summary["schema_version"], "run_summary_v2")
         self.assertEqual(summary["termination_reason"], "step_budget_exhausted")
         self.assertGreater(summary["telemetry_samples"], 1)
         self.assertGreater(summary["event_count"], 0)
         self.assertLessEqual(summary["peak_resultant_load_g"], 10.0)
+        self.assertIn("apogee_altitude_m", summary)
+        self.assertIn("handoff_flight_path_angle_deg", summary)
+        self.assertIn("pre_handoff_rocket_drag_loss_mps", summary)
+        self.assertIn("stage2_margin_mps", summary)
+        self.assertIsNotNone(self.telemetry["experiment_manifest"])
+        self.assertEqual(
+            self.telemetry["criterion_result"]["policy_version"], "curved_reference_v1"
+        )
         # Energy closure is deliberately reported invalid while a body rotates: the
         # translational identity cannot absorb rotational kinetic energy without modeled
         # inertia, and section 14 requires that be a flagged null rather than a number.

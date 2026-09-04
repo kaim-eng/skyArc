@@ -613,7 +613,9 @@ def main() -> int:
         rendered_result = json.dumps(
             _json_value(result), indent=2, sort_keys=True, allow_nan=False
         )
-        output.write_text(rendered_result + "\n", encoding="utf-8")
+        output.write_text(
+            rendered_result + "\n", encoding="utf-8", newline="\n"
+        )
         print(f"ANTI_TUNNELING_RESULT={output}")
         print(rendered_result)
         if simulation_app is not None:

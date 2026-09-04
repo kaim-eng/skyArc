@@ -13,6 +13,7 @@ writeTarget.kit = true
 "isaacsim.core.experimental.utils" = {}
 "isaacsim.core.simulation_manager" = {}
 "omni.physics" = {}
+"omni.ui" = {}
 
 [[python.module]]
 name = "skyarc.extension"

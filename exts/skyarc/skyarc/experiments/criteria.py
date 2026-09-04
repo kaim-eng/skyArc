@@ -153,8 +153,24 @@ BASELINE_V1 = CriterionPolicy(
     ),
 )
 
+CURVED_REFERENCE_V1 = CriterionPolicy(
+    version="curved_reference_v1",
+    evidence_window=EvidenceWindow(
+        start_event="separation_confirmed",
+        duration_s=66.0,
+        completion_margin_s=2.0,
+    ),
+    rules=(
+        CriterionRule("termination_reason", "eq", "complete"),
+        CriterionRule("mission_phase", "eq", "complete"),
+        CriterionRule("exit_speed_relative_error", "lte", 0.001),
+        CriterionRule("peak_resultant_load_g", "lte", 10.0),
+        CriterionRule("stage2_margin_mps", "gte", 0.0),
+    ),
+)
+
 CRITERION_POLICIES: Mapping[str, CriterionPolicy] = MappingProxyType(
-    {BASELINE_V1.version: BASELINE_V1}
+    {policy.version: policy for policy in (BASELINE_V1, CURVED_REFERENCE_V1)}
 )
 
 

@@ -1,0 +1,57 @@
+{
+  "source_glb": "Explorer Jupiter-C Rocket.glb",
+  "full_converted_usd": "Explorer_JupiterC_Full.usdc",
+  "stage1_free_usd": "Explorer_JupiterC_NoStage1.usdc",
+  "source_url": "https://science.nasa.gov/3d-resources/explorer-jupiter-c-rocket/",
+  "source_repository": "https://github.com/nasa/NASA-3D-Resources/tree/master/3D%20Models/Explorer%20Jupiter-C%20Rocket",
+  "source_author": "NASA/Michael D. Carbajal",
+  "source_license": "NASA Images and Media Usage Guidelines",
+  "source_license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+  "source_usage_notes": "Acknowledge NASA as the source and do not imply NASA endorsement. NASA identifiers remain protected.",
+  "redistribution_status": "cleared",
+  "stage_up_axis": "Z",
+  "meters_per_unit": 1.0,
+  "removed_prim_paths": [
+    "/JupiterCUpper/Source/jupiterc10",
+    "/JupiterCUpper/Source/jupiterc_1",
+    "/JupiterCUpper/Source/jupiterc_2",
+    "/JupiterCUpper/Source/jupiterc_3",
+    "/JupiterCUpper/Source/jupiterc_4",
+    "/JupiterCUpper/Source/jupiterc_5",
+    "/JupiterCUpper/Source/jupiterc_6",
+    "/JupiterCUpper/Source/jupiterc_7",
+    "/JupiterCUpper/Source/jupiterc_8",
+    "/JupiterCUpper/Source/jupiterc_9",
+    "/JupiterCUpper/Source/jupiterc_g",
+    "/JupiterCUpper/Source/pCube3_jup",
+    "/JupiterCUpper/Source/pCylinder1"
+  ],
+  "retained_mesh_count": 10,
+  "retained_mesh_paths": [
+    "/JupiterCUpper/Source/jupiterc11/jupiterc11",
+    "/JupiterCUpper/Source/jupiterc12/jupiterc12",
+    "/JupiterCUpper/Source/jupiterc13/jupiterc13",
+    "/JupiterCUpper/Source/jupiterc14/jupiterc14",
+    "/JupiterCUpper/Source/jupiterc15/jupiterc15",
+    "/JupiterCUpper/Source/jupiterc16/jupiterc16",
+    "/JupiterCUpper/Source/pCube5_ju1/pCube5_ju1",
+    "/JupiterCUpper/Source/pCube5_jup/pCube5_jup",
+    "/JupiterCUpper/Source/pCylinder2/pCylinder2",
+    "/JupiterCUpper/Source/pCylinder3/pCylinder3"
+  ],
+  "visual_only": true,
+  "physics_rigid_body_count": 0,
+  "physics_collision_count": 0,
+  "bounds_m": {
+    "minimum": [
+      -0.4256977140903473,
+      -0.4256977140903473,
+      -2.980232949312267e-09
+    ],
+    "maximum": [
+      0.4256977140903473,
+      0.4256977140903473,
+      2.883574509620665
+    ]
+  }
+}

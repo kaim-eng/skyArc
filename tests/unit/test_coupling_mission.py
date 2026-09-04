@@ -12,7 +12,7 @@ import _bootstrap  # noqa: F401
 
 from skyarc.components import ScenarioContext
 from skyarc.configuration import load_yaml, resolve_tube_layout
-from skyarc.configuration.schema import IgnitionConfig, MotorConfig
+from skyarc.configuration.schema import IgnitionConfig, IgnitionTriggerConfig, MotorConfig
 from skyarc.coupling import (
     FixedJointCoupling,
     IgnitionInterlock,
@@ -50,7 +50,7 @@ from skyarc.names import (
     PAIR_ROCKET_CRADLE,
 )
 from skyarc.orchestrator import build_mission
-from skyarc.rocket import ConstantMassThrustMotor
+from skyarc.rocket import ConstantMassThrustMotor, TrajectoryIgnitionTrigger
 from skyarc.state import (
     AxialQuantities,
     BodyState,
@@ -166,6 +166,7 @@ def ignition() -> IgnitionConfig:
         separation_timeout_s=2.0,
         maximum_contact_impulse_ns=25.0,
         maximum_angular_rate_deg_s=5.0,
+        trigger=IgnitionTriggerConfig(model="safety_gates_only_v1"),
     )
 
 
@@ -232,6 +233,53 @@ class ReleaseTransactionTests(unittest.TestCase):
 
 
 class SeparationAndInterlockTests(unittest.TestCase):
+    def test_trajectory_trigger_is_separate_and_fail_closed(self) -> None:
+        rocket = replace(
+            state_at(0.5, coupled=False).body(BODY_ROCKET),
+            position=(12.0, 0.0, 39_999.0),
+            linear_velocity=(1_900.0, 0.0, 100.0),
+        )
+        state = replace(
+            state_at(0.5, coupled=False),
+            bodies={
+                **state_at(0.5, coupled=False).bodies,
+                BODY_ROCKET: rocket,
+            },
+        ).frozen()
+        trigger = TrajectoryIgnitionTrigger(
+            IgnitionTriggerConfig(
+                model="trajectory_thresholds_v1",
+                minimum_altitude_m=40_000.0,
+                maximum_flight_path_angle_deg=3.0,
+            )
+        )
+        blocked = trigger.evaluate(observe(state, gap=3.25, rate=5.0))
+        self.assertFalse(blocked.ready)
+        self.assertFalse(blocked.condition_status["minimum_altitude"])
+        self.assertFalse(blocked.condition_status["maximum_flight_path_angle"])
+
+        ready_rocket = replace(
+            rocket,
+            position=(12.0, 0.0, 40_001.0),
+            linear_velocity=(1_900.0, 0.0, 0.0),
+        )
+        ready_state = replace(
+            state,
+            bodies={**state.bodies, BODY_ROCKET: ready_rocket},
+        ).frozen()
+        decision = trigger.evaluate(observe(ready_state, gap=3.25, rate=5.0))
+        self.assertTrue(decision.ready)
+        self.assertTrue(all(decision.condition_status.values()))
+
+        invalid_state = replace(
+            ready_state,
+            bodies={
+                **ready_state.bodies,
+                BODY_ROCKET: replace(ready_rocket, position=(12.0, 0.0, math.nan)),
+            },
+        ).frozen()
+        self.assertFalse(trigger.evaluate(observe(invalid_state)).ready)
+
     def test_named_envelope_gap_confirmation_and_recontact_abort(self) -> None:
         released = state_at(0.0, cart_x=10.0, rocket_x=10.0, coupled=False)
         measurement = measure_separation(released, layout(), markers())

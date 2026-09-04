@@ -16,6 +16,7 @@ from isaacsim.core.experimental.prims import RigidPrim
 from pxr import Gf, PhysxSchema, Sdf, UsdGeom, UsdLux, UsdPhysics
 
 from ..configuration.schema import ScenarioConfig
+from ..visualization.rocket_asset import RocketVisualAsset, author_rocket_visual
 from .production import ProductionScenePlan
 
 
@@ -55,6 +56,8 @@ class BuiltLauncherScene:
     plan: ProductionScenePlan
     cart_path: str
     rocket_path: str
+    rocket_visual_path: str | None
+    rocket_visual_asset: RocketVisualAsset | None
     coupling_path: str
     cart: Any
     rocket: Any
@@ -211,8 +214,9 @@ def author_production_bodies(
     cart_velocity_mps: Sequence[float],
     rocket_velocity_mps: Sequence[float],
     angular_velocity_radps: Sequence[float],
+    author_visuals: bool = True,
 ) -> BuiltLauncherScene:
-    """Author the qualified open U cradle, X-axis rocket cylinder, and fixed coupling."""
+    """Author the open U cradle, conservative rocket cylinder, and fixed coupling."""
     UsdGeom.Xform.Define(stage, f"{ROOT_PATH}/Bodies")
     UsdGeom.Xform.Define(stage, f"{ROOT_PATH}/Joints")
 
@@ -271,8 +275,19 @@ def author_production_bodies(
     cylinder.CreateAxisAttr("X")
     cylinder.CreateHeightAttr(rocket_geometry.length_m)
     cylinder.CreateRadiusAttr(0.5 * rocket_geometry.diameter_m)
-    cylinder.CreateDisplayColorAttr([Gf.Vec3f(0.7, 0.72, 0.76)])
     UsdPhysics.CollisionAPI.Apply(cylinder.GetPrim())
+    rocket_visual_path = None
+    rocket_visual_asset = None
+    if author_visuals:
+        UsdGeom.Imageable(cylinder.GetPrim()).MakeInvisible()
+        rocket_visual_path, rocket_visual_asset = author_rocket_visual(
+            stage,
+            ROCKET_PATH,
+            length_m=rocket_geometry.length_m,
+            diameter_m=rocket_geometry.diameter_m,
+        )
+    else:
+        cylinder.CreateDisplayColorAttr([Gf.Vec3f(0.7, 0.72, 0.76)])
 
     joint = UsdPhysics.FixedJoint.Define(stage, COUPLING_PATH)
     joint.CreateBody0Rel().SetTargets([Sdf.Path(CART_PATH)])
@@ -289,6 +304,8 @@ def author_production_bodies(
         plan=plan,
         cart_path=CART_PATH,
         rocket_path=ROCKET_PATH,
+        rocket_visual_path=rocket_visual_path,
+        rocket_visual_asset=rocket_visual_asset,
         coupling_path=COUPLING_PATH,
         cart=RigidPrim(CART_PATH),
         rocket=RigidPrim(ROCKET_PATH),
@@ -327,6 +344,7 @@ def build_launcher_scene(
         cart_velocity_mps=cart_velocity_mps,
         rocket_velocity_mps=rocket_velocity_mps,
         angular_velocity_radps=angular_velocity_radps,
+        author_visuals=author_visuals,
     )
 
 

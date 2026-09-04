@@ -52,8 +52,8 @@ class ConstraintTests(unittest.TestCase):
             Stage2Constraint(specific_impulse_s=0.0)
         with self.assertRaisesRegex(ValueError, "target_orbit_altitude_m"):
             Stage2Constraint(target_orbit_altitude_m=-1.0)
-        with self.assertRaisesRegex(ValueError, "loss allowance"):
-            Stage2Constraint(loss_allowance_mps=-1.0)
+        with self.assertRaisesRegex(ValueError, "assumed unmodeled loss"):
+            Stage2Constraint(assumed_unmodeled_loss_mps=-1.0)
         with self.assertRaisesRegex(ValueError, "unsupported stage-2 constraint model"):
             Stage2Constraint(model="full_stage_v1")
 
@@ -78,11 +78,12 @@ class BudgetTests(unittest.TestCase):
             specific_impulse_s=350.0,
             propellant_mass_fraction=0.85,
             target_orbit_altitude_m=200000.0,
-            loss_allowance_mps=500.0,
+            assumed_unmodeled_loss_mps=500.0,
         )
         budget = evaluate_stage2(MEASURED_HANDOFF, constraint)
         # Roughly 6.0 km/s of energy raise before the declared allowance.
-        self.assertAlmostEqual(budget.delta_v_required_mps - 500.0, 6000.0, delta=60.0)
+        self.assertAlmostEqual(budget.ideal_energy_raise_mps, 6000.0, delta=60.0)
+        self.assertGreater(budget.measured_alignment_loss_mps, 0.0)
         self.assertAlmostEqual(budget.delta_v_available_mps, 6512.0, delta=15.0)
         self.assertAlmostEqual(
             budget.margin_mps,
@@ -90,7 +91,7 @@ class BudgetTests(unittest.TestCase):
             places=9,
         )
         self.assertAlmostEqual(budget.target_orbit_speed_mps, 7788.0, delta=2.0)
-        self.assertEqual(budget.model, "parametric_deltav_v1")
+        self.assertEqual(budget.model, "parametric_deltav_v2")
         self.assertEqual(budget.handoff_time_s, MEASURED_HANDOFF.time_s)
 
     def test_margin_ranks_the_configurations_the_way_the_hand_table_did(self) -> None:
@@ -102,7 +103,7 @@ class BudgetTests(unittest.TestCase):
                     specific_impulse_s=isp,
                     propellant_mass_fraction=fraction,
                     target_orbit_altitude_m=200000.0,
-                    loss_allowance_mps=500.0,
+                    assumed_unmodeled_loss_mps=500.0,
                 ),
             ).margin_mps
 
@@ -130,14 +131,19 @@ class BudgetTests(unittest.TestCase):
                 )
                 self.assertLess(evaluate_stage2(better, constraint).delta_v_required_mps, base)
 
-    def test_the_loss_allowance_is_never_silently_dropped(self) -> None:
-        """Even an already-sufficient handoff still pays the declared losses."""
-        constraint = Stage2Constraint(loss_allowance_mps=500.0, target_orbit_altitude_m=200000.0)
+    def test_measured_alignment_and_assumed_loss_are_reported_separately(self) -> None:
+        """Even an already-sufficient handoff keeps the remaining assumption visible."""
+        constraint = Stage2Constraint(
+            assumed_unmodeled_loss_mps=500.0,
+            target_orbit_altitude_m=200000.0,
+        )
         orbital = DeliveredState(
             time_s=0.0, altitude_m=31267.0, speed_mps=20000.0, flight_path_angle_deg=0.0
         )
         budget = evaluate_stage2(orbital, constraint)
         self.assertAlmostEqual(budget.delta_v_required_mps, 500.0, places=9)
+        self.assertEqual(budget.measured_alignment_loss_mps, 0.0)
+        self.assertEqual(budget.assumed_unmodeled_loss_mps, 500.0)
 
     def test_a_target_below_the_handoff_is_rejected_rather_than_scored(self) -> None:
         constraint = Stage2Constraint(target_orbit_altitude_m=10000.0)
@@ -174,7 +180,7 @@ class ConfigurationIntegrationTests(unittest.TestCase):
         config = load_yaml(project / "configs" / "curved_2kms.yaml").config
         constraint = config.stage2_constraint
         self.assertIsNotNone(constraint)
-        self.assertEqual(constraint.model, "parametric_deltav_v1")
+        self.assertEqual(constraint.model, "parametric_deltav_v2")
         budget = evaluate_stage2(
             MEASURED_HANDOFF,
             Stage2Constraint(
@@ -182,10 +188,10 @@ class ConfigurationIntegrationTests(unittest.TestCase):
                 specific_impulse_s=constraint.specific_impulse_s,
                 propellant_mass_fraction=constraint.propellant_mass_fraction,
                 target_orbit_altitude_m=constraint.target_orbit_altitude_m,
-                loss_allowance_mps=constraint.loss_allowance_mps,
+                assumed_unmodeled_loss_mps=constraint.assumed_unmodeled_loss_mps,
             ),
         )
-        self.assertAlmostEqual(budget.margin_mps, 12.0, delta=25.0)
+        self.assertAlmostEqual(budget.margin_mps, -78.0, delta=30.0)
 
     def test_the_baseline_declares_no_upper_stage(self) -> None:
         """Absent must mean 'do not score', not 'score with defaults'."""
