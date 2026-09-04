@@ -118,7 +118,7 @@ def author_rocket_visual(
     length_m: float,
     diameter_m: float,
 ) -> tuple[str, RocketVisualAsset]:
-    """Reference the mesh below ``parent_path`` and align its native +Z axis to +X."""
+    """Reference the mesh below ``parent_path`` and align its native nose (-Z) to +X."""
     pxr = importlib.import_module("pxr")
     gf = pxr.Gf
     usd = importlib.import_module("pxr.Usd")
@@ -130,14 +130,19 @@ def author_rocket_visual(
 
     visual_path = f"{parent_path}/Visual"
     offset = usd_geom.Xform.Define(stage, visual_path)
-    offset.AddTranslateOp().Set(gf.Vec3d(-0.5 * length_m, 0.0, 0.0))
-    axis = usd_geom.Xform.Define(stage, f"{visual_path}/AxisZToX")
-    axis.AddRotateYOp().Set(90.0)
-    fitted = usd_geom.Xform.Define(stage, f"{visual_path}/AxisZToX/FittedEnvelope")
+    # The derived asset is based at its pointed nose (native Z=0) and extends
+    # toward its aft end along +Z. Map that native -Z nose direction to the
+    # launcher's +X travel direction, then offset the nose to +length/2 so the
+    # fitted visual remains centred on the authoritative cylinder.
+    offset.AddTranslateOp().Set(gf.Vec3d(0.5 * length_m, 0.0, 0.0))
+    axis_path = f"{visual_path}/AxisNegativeZToX"
+    axis = usd_geom.Xform.Define(stage, axis_path)
+    axis.AddRotateYOp().Set(-90.0)
+    fitted = usd_geom.Xform.Define(stage, f"{axis_path}/FittedEnvelope")
     fitted.AddScaleOp().Set(
         gf.Vec3f(spec.radial_scale, spec.radial_scale, spec.axial_scale)
     )
-    model_path = f"{visual_path}/AxisZToX/FittedEnvelope/Model"
+    model_path = f"{axis_path}/FittedEnvelope/Model"
     model = usd_geom.Xform.Define(stage, model_path)
     model.GetPrim().GetReferences().AddReference(spec.usd_path.as_posix())
     physics_prims: list[str] = []

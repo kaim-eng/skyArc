@@ -15,6 +15,8 @@
   and live global views. The extracted USD is visual-only; the analytic slab and saddle pads
   remain the sole physics authority. The NASA/Michael D. Carbajal source and NASA media-usage
   terms are recorded alongside the derived asset.
+- Corrected the Jupiter-C visual orientation so its native pointed nose faces the launcher's
+  positive-X travel direction and the aft end sits over the untapered slab.
 
 ## 0.2.0 — 2026-09-01
 
