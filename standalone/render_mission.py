@@ -493,6 +493,39 @@ def main() -> int:
             curve.SetWidthsInterpolation("vertex")
             curve.CreateDisplayColorAttr([Gf.Vec3f(*band.color_rgb)])
 
+        if args.shot == "chase":
+            # The cart switches from the guided tube to the separate exit brake track at
+            # release. The authored launcher scopes above are hidden, so the chase shot
+            # must redraw this branch as well or the correctly tracked cart appears to
+            # float off-rail in the final frames.
+            # Render the straight brake branch as solid geometry. RTX turns a 25 km
+            # BasisCurves hair into a broad noisy band at chase range even at its true
+            # 0.2 m width; a cylinder stays a crisp sub-pixel-to-few-pixel rail.
+            exit_pose = path_pose(layout, layout.length_m)
+            rail_radius_m = 0.1
+            # Body origins follow the mathematical centerline. Place the rail against
+            # the slab underside along the exit path's local normal: half the 1.4 m cart
+            # envelope plus the rail radius makes their surfaces meet.
+            brake_offset = -(
+                0.5 * plan.cradle.outer_height_m + rail_radius_m
+            ) * Gf.Vec3d(*exit_pose.normal)
+            start = Gf.Vec3d(*plan.exit_track_points_m[0]) + brake_offset
+            end = Gf.Vec3d(*plan.exit_track_points_m[-1]) + brake_offset
+            direction = end - start
+            length = direction.GetLength()
+            if length <= 0.0:
+                raise RuntimeError("exit brake track must have positive length")
+            brake_rail = UsdGeom.Cylinder.Define(stage, f"{rail_scope}/BrakeRail")
+            brake_rail.CreateAxisAttr("X")
+            brake_rail.CreateHeightAttr(length)
+            brake_rail.CreateRadiusAttr(rail_radius_m)
+            brake_xform = UsdGeom.Xformable(brake_rail.GetPrim())
+            brake_xform.AddTranslateOp().Set(0.5 * (start + end))
+            brake_xform.AddOrientOp(UsdGeom.XformOp.PrecisionDouble).Set(
+                Gf.Rotation(Gf.Vec3d(1.0, 0.0, 0.0), direction.GetNormalized()).GetQuat()
+            )
+            brake_rail.CreateDisplayColorAttr([Gf.Vec3f(0.32, 0.34, 0.38)])
+
         # Sleepers at a fixed spacing. A chase camera pins its subject in frame, so these
         # passing markers are most of what makes the acceleration legible.
         count = int(layout.length_m // args.marker_spacing_m)

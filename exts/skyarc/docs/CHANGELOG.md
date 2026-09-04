@@ -17,6 +17,8 @@
   terms are recorded alongside the derived asset.
 - Corrected the Jupiter-C visual orientation so its native pointed nose faces the launcher's
   positive-X travel direction and the aft end sits over the untapered slab.
+- Added the missing exit brake rail to the chase-camera playback so the cart remains visibly
+  track-bound after release instead of appearing to float beside a hidden structure.
 
 ## 0.2.0 — 2026-09-01
 
