@@ -38,13 +38,12 @@ guided tube and does no work on the payload, which is what makes it the design's
 questionable structure. Markers are oversized; the vehicles are metres across in a 54 km
 frame.
 
-![The cart and rocket at the tube entrance](docs/media/vehicle_orbit.gif)
+![The Jupiter-C-derived rocket seated on the Crawler-derived slab cart](docs/media/vehicle_orbit.gif)
 
-The vehicle at rest in the former open-front U cradle, at its t=0 seating with the
-rocket's centre of mass at the tube entrance. This orbit is retained as historical visual
-evidence; the current production cart is a tapered slab with three discrete saddle stations,
-so it has no continuous vertical side or rear walls. Here **only the camera moves** — this
-one is geometry, not a flight. The tube is hidden for the same reason as above.
+The current vehicle at its t=0 seating, with the rocket's centre of mass at the tube
+entrance. The Jupiter-C-derived rocket visual rests on the tapered Crawler-derived slab and
+three discrete saddle stations. Here **only the camera moves** — this one is geometry, not a
+flight. The tube is hidden for the same reason as above.
 
 For the launcher's overall shape, `artifacts/production/renders/full_system.png` is a still
 of the whole 54 km arc.

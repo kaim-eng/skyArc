@@ -11,6 +11,10 @@
   a four-case normal rocket/saddle qualification matrix.
 - Reduced the provisional cart frontal area from 0.50 to 0.30 m2. This is still a system
   coefficient assumption pending compressible-flow CFD or wind-tunnel calibration.
+- Replaced the cart's box render proxy with a fitted, Crawler-derived deck in the physical
+  and live global views. The extracted USD is visual-only; the analytic slab and saddle pads
+  remain the sole physics authority. The NASA/Michael D. Carbajal source and NASA media-usage
+  terms are recorded alongside the derived asset.
 
 ## 0.2.0 — 2026-09-01
 

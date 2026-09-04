@@ -1,0 +1,35 @@
+{
+  "source_glb": "Crawler.glb",
+  "source_sha256": "655f9adff798c18d8f6bdd467f30e055094e1fc817b2abea52310b2dc6df4ff2",
+  "source_asset_generator": "Khronos glTF Blender I/O v4.2.57",
+  "source_url": "https://science.nasa.gov/3d-resources/crawler/",
+  "source_repository": "https://github.com/nasa/NASA-3D-Resources/tree/master/3D%20Models/Crawler",
+  "source_author": "NASA/Michael D. Carbajal",
+  "source_license": "NASA Images and Media Usage Guidelines",
+  "source_license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+  "source_usage_notes": "Acknowledge NASA as the source and do not imply NASA endorsement. NASA identifiers remain protected.",
+  "redistribution_status": "cleared",
+  "derived_usd": "Crawler_Slab.usdc",
+  "extraction_subset": "initialShadingGroup2",
+  "extraction_component_rule": "largest coordinate-connected component",
+  "source_face_count": 668,
+  "source_point_count": 472,
+  "forward_taper_fraction": 0.14285714285714285,
+  "stage_up_axis": "Z",
+  "meters_per_unit": 1.0,
+  "visual_only": true,
+  "physics_rigid_body_count": 0,
+  "physics_collision_count": 0,
+  "bounds_m": {
+    "minimum": [
+      -2.8232626914978027,
+      -1.6728891134262085,
+      0.0
+    ],
+    "maximum": [
+      2.8232626914978027,
+      1.6728891134262085,
+      0.036686576902866364
+    ]
+  }
+}

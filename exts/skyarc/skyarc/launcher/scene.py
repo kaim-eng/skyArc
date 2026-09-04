@@ -17,6 +17,7 @@ from isaacsim.core.experimental.prims import RigidPrim
 from pxr import Gf, PhysxSchema, Sdf, UsdGeom, UsdLux, UsdPhysics
 
 from ..configuration.schema import ScenarioConfig
+from ..visualization.cart_asset import CartVisualAsset, author_cart_visual
 from ..visualization.rocket_asset import RocketVisualAsset, author_rocket_visual
 from .production import ProductionScenePlan
 
@@ -56,6 +57,8 @@ without any frame ever implying the tube is 180 m across.
 class BuiltLauncherScene:
     plan: ProductionScenePlan
     cart_path: str
+    cart_visual_path: str | None
+    cart_visual_asset: CartVisualAsset | None
     rocket_path: str
     rocket_visual_path: str | None
     rocket_visual_asset: RocketVisualAsset | None
@@ -296,6 +299,19 @@ def author_production_bodies(
         nose_length_m=cradle.slab_nose_length_m,
         center_z_m=slab_center_z_m,
     )
+    cart_visual_path = None
+    cart_visual_asset = None
+    if author_visuals:
+        UsdGeom.Imageable(stage.GetPrimAtPath(f"{CART_PATH}/Slab")).MakeInvisible()
+        cart_visual_path, cart_visual_asset = author_cart_visual(
+            stage,
+            CART_PATH,
+            length_m=cradle.outer_length_m,
+            width_m=cradle.outer_width_m,
+            height_m=cradle.slab_thickness_m,
+            nose_length_m=cradle.slab_nose_length_m,
+            base_z_m=-0.5 * cradle.outer_height_m,
+        )
     rocket_radius_m = 0.5 * plan.rocket.diameter_m
     saddle_angle_rad = math.asin(cradle.saddle_contact_offset_m / rocket_radius_m)
     tangent_z_m = -math.sqrt(
@@ -375,6 +391,8 @@ def author_production_bodies(
     return BuiltLauncherScene(
         plan=plan,
         cart_path=CART_PATH,
+        cart_visual_path=cart_visual_path,
+        cart_visual_asset=cart_visual_asset,
         rocket_path=ROCKET_PATH,
         rocket_visual_path=rocket_visual_path,
         rocket_visual_asset=rocket_visual_asset,

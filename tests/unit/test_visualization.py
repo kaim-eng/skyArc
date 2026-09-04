@@ -12,6 +12,7 @@ from skyarc.configuration import load_yaml, resolve_tube_layout
 from skyarc.names import BODY_CART, BODY_ROCKET
 from skyarc.state import BodyState, SimulationState
 from skyarc.visualization.cameras import camera_views, tracked_view
+from skyarc.visualization.cart_asset import resolve_cart_visual_asset
 from skyarc.visualization.rocket_asset import resolve_rocket_visual_asset
 
 
@@ -74,6 +75,38 @@ class RocketVisualAssetTests(unittest.TestCase):
     def test_invalid_target_envelope_fails_closed(self) -> None:
         with self.assertRaisesRegex(ValueError, "length"):
             resolve_rocket_visual_asset(target_length_m=0.0, target_diameter_m=1.0)
+
+
+class CartVisualAssetTests(unittest.TestCase):
+    def test_crawler_deck_is_visual_only_and_fits_the_slab_envelope(self) -> None:
+        asset = resolve_cart_visual_asset(
+            target_length_m=4.2,
+            target_width_m=1.25,
+            target_height_m=0.1,
+            target_nose_length_m=0.6,
+        )
+        self.assertTrue(asset.usd_path.is_file())
+        self.assertTrue(asset.manifest_path.is_file())
+        self.assertAlmostEqual(asset.native_length_m * asset.scale_xyz[0], 4.2)
+        self.assertAlmostEqual(asset.native_width_m * asset.scale_xyz[1], 1.25)
+        self.assertAlmostEqual(asset.native_height_m * asset.scale_xyz[2], 0.1)
+        self.assertEqual(asset.redistribution_status, "cleared")
+
+    def test_invalid_or_mismatched_slab_envelope_fails_closed(self) -> None:
+        with self.assertRaisesRegex(ValueError, "finite and positive"):
+            resolve_cart_visual_asset(
+                target_length_m=4.2,
+                target_width_m=0.0,
+                target_height_m=0.1,
+                target_nose_length_m=0.6,
+            )
+        with self.assertRaisesRegex(ValueError, "taper"):
+            resolve_cart_visual_asset(
+                target_length_m=4.2,
+                target_width_m=1.25,
+                target_height_m=0.1,
+                target_nose_length_m=0.5,
+            )
 
 
 if __name__ == "__main__":

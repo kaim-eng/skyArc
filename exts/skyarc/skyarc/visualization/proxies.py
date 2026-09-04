@@ -11,11 +11,13 @@ simulated-body transform-write invariant remains untouched.
 from __future__ import annotations
 
 import importlib
+import math
 from typing import Any
 
 from ..launcher.production import ProductionScenePlan
 from ..names import BODY_CART, BODY_ROCKET
 from ..state import SimulationState
+from .cart_asset import author_cart_visual
 from .rocket_asset import author_rocket_visual
 
 
@@ -32,12 +34,56 @@ class GlobalVisualProxies:
         self._ops: dict[str, tuple[Any, Any]] = {}
 
         cart = self._usd_geom.Xform.Define(stage, f"{LIVE_VISUALS_PATH}/Cart")
-        cart_body = self._usd_geom.Cube.Define(stage, f"{LIVE_VISUALS_PATH}/Cart/Body")
-        cart_body.CreateSizeAttr(1.0)
-        cart_body.AddScaleOp().Set(
-            self._gf.Vec3f(plan.cradle.outer_length_m, plan.cradle.outer_width_m, plan.cradle.outer_height_m)
+        author_cart_visual(
+            stage,
+            f"{LIVE_VISUALS_PATH}/Cart",
+            length_m=plan.cradle.outer_length_m,
+            width_m=plan.cradle.outer_width_m,
+            height_m=plan.cradle.slab_thickness_m,
+            nose_length_m=plan.cradle.slab_nose_length_m,
+            base_z_m=-0.5 * plan.cradle.outer_height_m,
         )
-        cart_body.CreateDisplayColorAttr([self._gf.Vec3f(0.18, 0.2, 0.24)])
+        rocket_radius_m = 0.5 * plan.rocket.diameter_m
+        saddle_angle_rad = math.asin(
+            plan.cradle.saddle_contact_offset_m / rocket_radius_m
+        )
+        pad_normal_offset_m = (
+            0.5 * plan.cradle.saddle_pad_thickness_m + plan.initial_clearance_m
+        )
+        pad_center_z_m = -math.sqrt(
+            rocket_radius_m**2 - plan.cradle.saddle_contact_offset_m**2
+        ) - pad_normal_offset_m * math.cos(saddle_angle_rad)
+        pad_center_y_m = (
+            plan.cradle.saddle_contact_offset_m
+            + pad_normal_offset_m * math.sin(saddle_angle_rad)
+        )
+        saddle_angle_deg = math.degrees(saddle_angle_rad)
+        for station_index, station_x_m in enumerate(plan.cradle.saddle_stations_m):
+            for side, sign in (("Left", -1.0), ("Right", 1.0)):
+                pad = self._usd_geom.Cube.Define(
+                    stage,
+                    f"{LIVE_VISUALS_PATH}/Cart/Saddle{station_index:02d}{side}Pad",
+                )
+                pad.CreateSizeAttr(1.0)
+                pad_xform = self._usd_geom.Xformable(pad.GetPrim())
+                pad_xform.AddTranslateOp().Set(
+                    self._gf.Vec3f(
+                        station_x_m,
+                        sign * pad_center_y_m,
+                        pad_center_z_m,
+                    )
+                )
+                pad_xform.AddRotateXYZOp().Set(
+                    self._gf.Vec3f(sign * saddle_angle_deg, 0.0, 0.0)
+                )
+                pad_xform.AddScaleOp().Set(
+                    self._gf.Vec3f(
+                        plan.cradle.saddle_axial_length_m,
+                        plan.cradle.saddle_pad_width_m,
+                        plan.cradle.saddle_pad_thickness_m,
+                    )
+                )
+                pad.CreateDisplayColorAttr([self._gf.Vec3f(0.22, 0.24, 0.28)])
         rocket = self._usd_geom.Xform.Define(stage, f"{LIVE_VISUALS_PATH}/Rocket")
         author_rocket_visual(
             stage,

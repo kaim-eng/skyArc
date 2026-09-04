@@ -127,6 +127,16 @@ NASA/Michael D. Carbajal attribution, and NASA Images and Media Usage Guidelines
 redistribution is cleared under those terms; extension packaging remains withheld until an installed
 package smoke is run, and development exports retain a nonportable absolute source reference.
 
+The cart uses `assets/vehicles/crawler_slab/Crawler_Slab.usdc` as a second visual-only
+child in both the physical scene and live global proxy. It is an extracted central deck from the
+locally supplied `Crawler.glb`, fitted to the production slab envelope and tapered over the same
+forward seventh. The hidden analytic wedge and the three discrete saddle stations still own all
+collision, mass, inertia, and contact behavior. Because the source GLB contains no URL or license
+metadata, provenance is recorded from NASA's official Crawler listing instead. NASA credits
+NASA/Michael D. Carbajal and makes its 3D resources free to download and use under the NASA Images
+and Media Usage Guidelines. Redistribution is cleared subject to attribution, non-endorsement, and
+NASA identifier restrictions; development exports still retain a nonportable absolute reference.
+
 `run_mission.py` is the runner that executes a mission, and it does so by handing the production
 adapter to that same factory. It writes `artifacts/production/mission_smoke.json` and
 `mission_telemetry.json`, both bound by `tests/unit/test_production_mission.py` to the complete

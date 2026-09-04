@@ -700,6 +700,33 @@ def main() -> int:
             "tube_band_count": len(plan.tube_bands),
             "exit_track_length_m": config.tube.exit_brake_track_length_m,
             "cart_path": built.cart_path,
+            "cart_visual_path": built.cart_visual_path,
+            "cart_visual_asset": (
+                None
+                if built.cart_visual_asset is None
+                else str(built.cart_visual_asset.usd_path)
+            ),
+            "cart_visual_asset_sha256": (
+                None
+                if built.cart_visual_asset is None
+                else _sha256(built.cart_visual_asset.usd_path)
+            ),
+            "cart_visual_manifest": (
+                None
+                if built.cart_visual_asset is None
+                else str(built.cart_visual_asset.manifest_path)
+            ),
+            "cart_visual_manifest_sha256": (
+                None
+                if built.cart_visual_asset is None
+                else _sha256(built.cart_visual_asset.manifest_path)
+            ),
+            "cart_visual_redistribution_status": (
+                None
+                if built.cart_visual_asset is None
+                else built.cart_visual_asset.redistribution_status
+            ),
+            "cart_visual_reference_portability": "development_absolute_source_reference",
             "rocket_path": built.rocket_path,
             "rocket_visual_path": built.rocket_visual_path,
             "rocket_visual_asset": (
@@ -735,6 +762,9 @@ def main() -> int:
             and summary["fixed_time_stepping"] is True
             and summary["rate_limit_enabled"] is False
             and stage.GetPrimAtPath(built.cart_path).IsValid()
+            and built.cart_visual_path is not None
+            and built.cart_visual_asset is not None
+            and stage.GetPrimAtPath(built.cart_visual_path).IsValid()
             and stage.GetPrimAtPath(built.rocket_path).IsValid()
             and built.rocket_visual_path is not None
             and built.rocket_visual_asset is not None
