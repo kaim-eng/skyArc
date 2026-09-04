@@ -299,58 +299,98 @@ def "World"
                 prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxContactReportAPI", "PhysxRigidBodyAPI"]
             )
             {
-                vector3f physics:angularVelocity = (0, -4.432801e-8, 0)
+                vector3f physics:angularVelocity = (3.2567644e-13, 0.0000022995898, 3.1885944e-13)
                 float physics:mass = 250
-                vector3f physics:velocity = (-6.604978e-9, 0, -0.17657995)
+                vector3f physics:velocity = (8.943152e-8, -2.5824798e-15, -0.17658001)
                 float physxContactReport:threshold = 0
                 bool physxRigidBody:enableCCD = 0
-                quatf xformOp:orient = (0.9238795, 0, -0.38268355, 0)
+                quatf xformOp:orient = (0.9238795, -1.477483e-16, -0.38268352, -3.7511837e-17)
                 float3 xformOp:scale = (1, 1, 1)
-                double3 xformOp:translate = (-0.002651665359735489, 0, -0.004329293966293335)
+                double3 xformOp:translate = (-2.9802322387695312e-8, 1.1102230246251565e-16, -0.00167769193649292)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
-                def Cube "Floor" (
-                    prepend apiSchemas = ["PhysicsCollisionAPI"]
+                def Mesh "Slab" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
                 )
                 {
+                    int[] faceVertexCounts = [5, 5, 4, 4, 4, 4, 4]
+                    int[] faceVertexIndices = [0, 1, 2, 3, 4, 9, 8, 7, 6, 5, 5, 6, 1, 0, 6, 7, 2, 1, 7, 8, 3, 2, 8, 9, 4, 3, 9, 5, 0, 4]
+                    uniform token physics:approximation = "convexHull"
+                    point3f[] points = [(-2.1, -0.625, -0.7), (1.5, -0.625, -0.7), (2.1, -0.625, -0.65), (1.5, -0.625, -0.6), (-2.1, -0.625, -0.6), (-2.1, 0.625, -0.7), (1.5, 0.625, -0.7), (2.1, 0.625, -0.65), (1.5, 0.625, -0.6), (-2.1, 0.625, -0.6)]
                     color3f[] primvars:displayColor = [(0.18, 0.2, 0.24)]
-                    double size = 1
-                    float3 xformOp:scale = (4.2, 1.25, 0.1)
-                    double3 xformOp:translate = (0, 0, -0.6499999761581421)
-                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                    uniform token subdivisionScheme = "none"
                 }
 
-                def Cube "LeftRail" (
+                def Cube "Saddle00LeftPad" (
                     prepend apiSchemas = ["PhysicsCollisionAPI"]
                 )
                 {
-                    color3f[] primvars:displayColor = [(0.18, 0.2, 0.24)]
+                    color3f[] primvars:displayColor = [(0.22, 0.24, 0.28)]
                     double size = 1
-                    float3 xformOp:scale = (4.2, 0.1, 1.3)
-                    double3 xformOp:translate = (0, -0.574999988079071, 0.05000000074505806)
-                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                    float3 xformOp:rotateXYZ = (-30, 0, 0)
+                    float3 xformOp:scale = (0.2, 0.32, 0.2)
+                    double3 xformOp:translate = (-1.5, -0.3050000071525574, -0.5282754898071289)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
                 }
 
-                def Cube "RightRail" (
+                def Cube "Saddle00RightPad" (
                     prepend apiSchemas = ["PhysicsCollisionAPI"]
                 )
                 {
-                    color3f[] primvars:displayColor = [(0.18, 0.2, 0.24)]
+                    color3f[] primvars:displayColor = [(0.22, 0.24, 0.28)]
                     double size = 1
-                    float3 xformOp:scale = (4.2, 0.1, 1.3)
-                    double3 xformOp:translate = (0, 0.574999988079071, 0.05000000074505806)
-                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                    float3 xformOp:rotateXYZ = (30, 0, 0)
+                    float3 xformOp:scale = (0.2, 0.32, 0.2)
+                    double3 xformOp:translate = (-1.5, 0.3050000071525574, -0.5282754898071289)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
                 }
 
-                def Cube "RearWall" (
+                def Cube "Saddle01LeftPad" (
                     prepend apiSchemas = ["PhysicsCollisionAPI"]
                 )
                 {
-                    color3f[] primvars:displayColor = [(0.18, 0.2, 0.24)]
+                    color3f[] primvars:displayColor = [(0.22, 0.24, 0.28)]
                     double size = 1
-                    float3 xformOp:scale = (0.1, 1.25, 1.3)
-                    double3 xformOp:translate = (-2.049999952316284, 0, 0.05000000074505806)
-                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                    float3 xformOp:rotateXYZ = (-30, 0, 0)
+                    float3 xformOp:scale = (0.2, 0.32, 0.2)
+                    double3 xformOp:translate = (0, -0.3050000071525574, -0.5282754898071289)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+                }
+
+                def Cube "Saddle01RightPad" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI"]
+                )
+                {
+                    color3f[] primvars:displayColor = [(0.22, 0.24, 0.28)]
+                    double size = 1
+                    float3 xformOp:rotateXYZ = (30, 0, 0)
+                    float3 xformOp:scale = (0.2, 0.32, 0.2)
+                    double3 xformOp:translate = (0, 0.3050000071525574, -0.5282754898071289)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+                }
+
+                def Cube "Saddle02LeftPad" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI"]
+                )
+                {
+                    color3f[] primvars:displayColor = [(0.22, 0.24, 0.28)]
+                    double size = 1
+                    float3 xformOp:rotateXYZ = (-30, 0, 0)
+                    float3 xformOp:scale = (0.2, 0.32, 0.2)
+                    double3 xformOp:translate = (1.5, -0.3050000071525574, -0.5282754898071289)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+                }
+
+                def Cube "Saddle02RightPad" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI"]
+                )
+                {
+                    color3f[] primvars:displayColor = [(0.22, 0.24, 0.28)]
+                    double size = 1
+                    float3 xformOp:rotateXYZ = (30, 0, 0)
+                    float3 xformOp:scale = (0.2, 0.32, 0.2)
+                    double3 xformOp:translate = (1.5, 0.3050000071525574, -0.5282754898071289)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
                 }
             }
 
@@ -358,14 +398,14 @@ def "World"
                 prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxContactReportAPI", "PhysxRigidBodyAPI"]
             )
             {
-                vector3f physics:angularVelocity = (0, -4.432897e-8, 0)
+                vector3f physics:angularVelocity = (3.2567617e-13, 0.0000022995941, 3.1885925e-13)
                 float physics:mass = 150
-                vector3f physics:velocity = (1.10380824e-8, 0, -0.17657994)
+                vector3f physics:velocity = (-1.490771e-7, 4.304164e-15, -0.17658024)
                 float physxContactReport:threshold = 0
                 bool physxRigidBody:enableCCD = 0
-                quatf xformOp:orient = (0.9238795, 0, -0.38268355, 0)
+                quatf xformOp:orient = (0.9238795, -1.477483e-16, -0.38268352, -3.7511837e-17)
                 float3 xformOp:scale = (1, 1, 1)
-                double3 xformOp:translate = (0.004419412929564714, 0, 0.002741850446909666)
+                double3 xformOp:translate = (-2.916651276052562e-8, 5.836039801225388e-17, -0.0016777737764641643)
                 uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
                 def Cylinder "Collision" (
@@ -413,7 +453,7 @@ def "World"
                 bool physics:collisionEnabled = 1
                 uniform bool physics:excludeFromArticulation = 1
                 bool physics:jointEnabled = 1
-                point3f physics:localPos0 = (0.01, 0, 0)
+                point3f physics:localPos0 = (0, 0, 0)
                 point3f physics:localPos1 = (0, 0, 0)
                 quatf physics:localRot0 = (1, 0, 0, 0)
                 quatf physics:localRot1 = (1, 0, 0, 0)

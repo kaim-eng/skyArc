@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased — 2026-09-04
+
+- Replaced the continuous side rails and rear wall with a tapered low slab and three
+  discrete two-pad saddle stations, eliminating full-height cart walls from the exposed
+  Mach-7 vehicle geometry.
+- Kept the rocket and cart origins coincident and transferred guided axial load through the
+  always-present fixed coupling instead of a rear-wall seat.
+- Rebased the rocket/cart anti-tunneling gate on braking-relative clearance speed and added
+  a four-case normal rocket/saddle qualification matrix.
+- Reduced the provisional cart frontal area from 0.50 to 0.30 m2. This is still a system
+  coefficient assumption pending compressible-flow CFD or wind-tunnel calibration.
+
 ## 0.2.0 — 2026-09-01
 
 - Ran the common backend-neutral mission orchestrator on the production scene through

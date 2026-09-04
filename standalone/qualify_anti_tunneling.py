@@ -4,11 +4,11 @@
 """Measure the named production rocket/cradle pair on the selected Isaac build.
 
 The probe loads a separately hashed fixture describing the schema-v3 cylindrical rocket
-and open-front U-shaped cradle.  The conservative impact case launches the rocket axially
-into the cradle rear wall at the configured 1.25-times speed gate.  It records every
-physics sample until an unconstrained body would have traversed that wall.  Passing
-requires a solver response before full traversal; a proximity manifold with zero force
-is evidence, but is not counted as an impact.
+and low-drag slab with three discrete two-pad saddles. The conservative impact coupon
+drives the rocket vertically into the saddle system at the configured relative-speed gate.
+It records every physics sample until an unconstrained body would have traversed the
+saddle. Passing requires a solver response before full traversal; a proximity manifold
+with zero force is evidence, but is not counted as an impact.
 """
 
 from __future__ import annotations
@@ -30,14 +30,14 @@ from typing import Any
 DEFAULT_FIXTURE = (
     Path(__file__).resolve().parents[1]
     / "configs"
-    / "phase0_anti_tunneling_open_cradle.json"
+    / "phase0_anti_tunneling_slab_cradle.json"
 )
 
 
 def _arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--physics-dt-s", type=float, default=0.001)
-    parser.add_argument("--test-relative-speed-mps", type=float, default=2500.0)
+    parser.add_argument("--test-relative-speed-mps", type=float, default=100.0)
     parser.add_argument("--ccd", choices=("enabled", "disabled"), default="disabled")
     parser.add_argument("--fixture", type=Path, default=DEFAULT_FIXTURE)
     parser.add_argument("--output", type=Path)
@@ -67,38 +67,57 @@ def _positive_number(value: Any, path: str) -> float:
     return converted
 
 
+def _finite_number(value: Any, path: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{path} must be a number")
+    converted = float(value)
+    if not math.isfinite(converted):
+        raise ValueError(f"{path} must be finite")
+    return converted
+
+
 def _load_fixture(path: Path) -> dict[str, Any]:
     fixture = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_unique_object)
     if not isinstance(fixture, dict):
         raise ValueError("fixture root must be an object")
     expected_root = {
-        "schema", "pair_name", "impact_case", "initial_clearance_m", "rocket", "cradle"
+        "schema", "pair_name", "impact_case", "minimum_test_relative_speed_mps",
+        "initial_clearance_m", "rocket", "cradle"
     }
     if set(fixture) != expected_root:
         raise ValueError(f"fixture root keys must be exactly {sorted(expected_root)}")
-    if fixture["schema"] != "vacuum_tube_anti_tunneling_fixture_v1":
+    if fixture["schema"] != "vacuum_tube_anti_tunneling_fixture_v2":
         raise ValueError("unsupported anti-tunneling fixture schema")
     if fixture["pair_name"] != "rocket_cradle":
         raise ValueError("fixture pair_name must be 'rocket_cradle'")
-    if fixture["impact_case"] != "axial_rear_wall":
-        raise ValueError("fixture impact_case must be 'axial_rear_wall'")
+    if fixture["impact_case"] != "vertical_saddle_system":
+        raise ValueError("fixture impact_case must be 'vertical_saddle_system'")
     rocket = fixture["rocket"]
     cradle = fixture["cradle"]
     if not isinstance(rocket, dict) or set(rocket) != {
         "shape", "axis", "mass_kg", "length_m", "diameter_m"
     }:
-        raise ValueError("fixture rocket fields do not match the v1 schema")
+        raise ValueError("fixture rocket fields do not match the v2 schema")
     if rocket["shape"] != "cylinder" or rocket["axis"] != "X":
         raise ValueError("fixture rocket must be an X-axis cylinder")
     if not isinstance(cradle, dict) or set(cradle) != {
         "topology", "mass_kg", "outer_length_m", "outer_width_m", "outer_height_m",
-        "wall_thickness_m", "floor_thickness_m"
+        "slab_thickness_m", "slab_nose_length_m", "saddle_stations_m",
+        "saddle_axial_length_m", "saddle_pad_width_m", "saddle_pad_thickness_m",
+        "saddle_contact_offset_m"
     }:
-        raise ValueError("fixture cradle fields do not match the v1 schema")
-    if cradle["topology"] != "open_front_u":
-        raise ValueError("fixture cradle must use open_front_u topology")
+        raise ValueError("fixture cradle fields do not match the v2 schema")
+    if cradle["topology"] != "slab_three_saddles_v1":
+        raise ValueError("fixture cradle must use slab_three_saddles_v1 topology")
+    stations = cradle["saddle_stations_m"]
+    if not isinstance(stations, list) or len(stations) != 3:
+        raise ValueError("cradle must define exactly three saddle stations")
     normalized = {
         **fixture,
+        "minimum_test_relative_speed_mps": _positive_number(
+            fixture["minimum_test_relative_speed_mps"],
+            "minimum_test_relative_speed_mps",
+        ),
         "initial_clearance_m": _positive_number(
             fixture["initial_clearance_m"], "initial_clearance_m"
         ),
@@ -115,21 +134,72 @@ def _load_fixture(path: Path) -> dict[str, Any]:
                 key: _positive_number(cradle[key], f"cradle.{key}")
                 for key in (
                     "mass_kg", "outer_length_m", "outer_width_m", "outer_height_m",
-                    "wall_thickness_m", "floor_thickness_m"
+                    "slab_thickness_m", "slab_nose_length_m",
+                    "saddle_axial_length_m", "saddle_pad_width_m",
+                    "saddle_pad_thickness_m", "saddle_contact_offset_m"
                 )
             },
+            "saddle_stations_m": [
+                _finite_number(value, f"cradle.saddle_stations_m[{index}]")
+                for index, value in enumerate(stations)
+            ],
         },
     }
     rocket = normalized["rocket"]
     cradle = normalized["cradle"]
-    if 2.0 * cradle["wall_thickness_m"] >= cradle["outer_width_m"]:
-        raise ValueError("cradle side walls leave no open interior width")
-    if cradle["floor_thickness_m"] >= cradle["outer_height_m"]:
-        raise ValueError("cradle floor consumes the complete open height")
-    if rocket["diameter_m"] >= (
-        cradle["outer_width_m"] - 2.0 * cradle["wall_thickness_m"]
+    stations = cradle["saddle_stations_m"]
+    if stations != sorted(stations) or len(set(stations)) != len(stations):
+        raise ValueError("cradle saddle stations must be unique and increasing")
+    if cradle["slab_thickness_m"] >= cradle["outer_height_m"]:
+        raise ValueError("cradle slab consumes the complete height envelope")
+    if cradle["slab_nose_length_m"] >= cradle["outer_length_m"]:
+        raise ValueError("cradle slab nose must be shorter than the slab")
+    radius_m = 0.5 * rocket["diameter_m"]
+    if cradle["saddle_contact_offset_m"] >= radius_m:
+        raise ValueError("cradle saddle contact lies outside the rocket radius")
+    half_saddle_length_m = 0.5 * cradle["saddle_axial_length_m"]
+    if any(
+        abs(station_m) + half_saddle_length_m > 0.5 * cradle["outer_length_m"]
+        for station_m in stations
     ):
-        raise ValueError("rocket cylinder does not fit between cradle side walls")
+        raise ValueError("cradle saddle station lies outside the slab")
+    if any(
+        abs(station_m) + half_saddle_length_m > 0.5 * rocket["length_m"]
+        for station_m in stations
+    ):
+        raise ValueError("cradle saddle station lies outside the rocket")
+    angle_rad = math.asin(cradle["saddle_contact_offset_m"] / radius_m)
+    tangent_z_m = -math.sqrt(radius_m**2 - cradle["saddle_contact_offset_m"]**2)
+    pad_normal_offset_m = (
+        0.5 * cradle["saddle_pad_thickness_m"] + normalized["initial_clearance_m"]
+    )
+    pad_center_z_m = tangent_z_m - pad_normal_offset_m * math.cos(angle_rad)
+    pad_low_z_m = pad_center_z_m - (
+        0.5 * cradle["saddle_pad_width_m"] * math.sin(angle_rad)
+        + 0.5 * cradle["saddle_pad_thickness_m"] * math.cos(angle_rad)
+    )
+    pad_high_z_m = pad_center_z_m + (
+        0.5 * cradle["saddle_pad_width_m"] * math.sin(angle_rad)
+        + 0.5 * cradle["saddle_pad_thickness_m"] * math.cos(angle_rad)
+    )
+    half_envelope_height_m = 0.5 * cradle["outer_height_m"]
+    if (
+        pad_low_z_m < -half_envelope_height_m - 1e-12
+        or pad_high_z_m > half_envelope_height_m + 1e-12
+    ):
+        raise ValueError("cradle saddle pads exceed the height envelope")
+    slab_top_z_m = -0.5 * cradle["outer_height_m"] + cradle["slab_thickness_m"]
+    if pad_low_z_m > slab_top_z_m + 1e-12:
+        raise ValueError("cradle saddle pads do not reach the slab")
+    pad_center_y_m = (
+        cradle["saddle_contact_offset_m"] + pad_normal_offset_m * math.sin(angle_rad)
+    )
+    pad_outer_y_m = pad_center_y_m + (
+        0.5 * cradle["saddle_pad_width_m"] * math.cos(angle_rad)
+        + 0.5 * cradle["saddle_pad_thickness_m"] * math.sin(angle_rad)
+    )
+    if pad_outer_y_m > 0.5 * cradle["outer_width_m"] + 1e-12:
+        raise ValueError("cradle saddle pads exceed the slab width")
     return normalized
 
 
@@ -236,9 +306,18 @@ def _runtime_selection_passed(probe: dict[str, Any], requested_dt_s: float) -> b
 
 
 def _anti_tunneling_passed(
-    *, impact_observed: bool, full_barrier_traversal_observed: bool, samples_finite: bool
+    *,
+    impact_observed: bool,
+    full_barrier_traversal_observed: bool,
+    samples_finite: bool,
+    speed_gate_met: bool,
 ) -> bool:
-    return bool(impact_observed and not full_barrier_traversal_observed and samples_finite)
+    return bool(
+        impact_observed
+        and not full_barrier_traversal_observed
+        and samples_finite
+        and speed_gate_met
+    )
 
 
 def _progress(label: str) -> None:
@@ -255,6 +334,13 @@ def main() -> int:
     if not fixture_path.is_file():
         raise SystemExit(f"anti-tunneling fixture does not exist: {fixture_path}")
     fixture = _load_fixture(fixture_path)
+    minimum_test_speed_mps = fixture["minimum_test_relative_speed_mps"]
+    if args.test_relative_speed_mps < minimum_test_speed_mps:
+        raise SystemExit(
+            "--test-relative-speed-mps must be at least the fixture minimum "
+            f"of {minimum_test_speed_mps:g} m/s"
+        )
+    speed_gate_met = args.test_relative_speed_mps >= minimum_test_speed_mps
 
     isaac_path = os.environ.get("ISAAC_PATH")
     if not isaac_path:
@@ -391,20 +477,30 @@ def main() -> int:
         cradle_length_m = cradle_spec["outer_length_m"]
         cradle_width_m = cradle_spec["outer_width_m"]
         cradle_height_m = cradle_spec["outer_height_m"]
-        wall_thickness_m = cradle_spec["wall_thickness_m"]
-        floor_thickness_m = cradle_spec["floor_thickness_m"]
+        slab_thickness_m = cradle_spec["slab_thickness_m"]
+        slab_nose_length_m = cradle_spec["slab_nose_length_m"]
+        saddle_stations_m = cradle_spec["saddle_stations_m"]
+        saddle_axial_length_m = cradle_spec["saddle_axial_length_m"]
+        saddle_pad_width_m = cradle_spec["saddle_pad_width_m"]
+        saddle_pad_thickness_m = cradle_spec["saddle_pad_thickness_m"]
+        saddle_contact_offset_m = cradle_spec["saddle_contact_offset_m"]
         initial_clearance_m = fixture["initial_clearance_m"]
-        rear_wall_center_x_m = -0.5 * cradle_length_m + 0.5 * wall_thickness_m
-        rear_wall_forward_face_x_m = rear_wall_center_x_m + 0.5 * wall_thickness_m
-        rocket_initial_x_m = (
-            rear_wall_forward_face_x_m + 0.5 * rocket_length_m + initial_clearance_m
+        saddle_angle_rad = math.asin(saddle_contact_offset_m / rocket_radius_m)
+        saddle_angle_deg = math.degrees(saddle_angle_rad)
+        tangent_z_m = -math.sqrt(rocket_radius_m**2 - saddle_contact_offset_m**2)
+        pad_normal_offset_m = 0.5 * saddle_pad_thickness_m + initial_clearance_m
+        pad_center_z_m = tangent_z_m - (
+            pad_normal_offset_m * math.cos(saddle_angle_rad)
         )
-        rocket_initial_z_m = (
-            -0.5 * cradle_height_m
-            + floor_thickness_m
-            + rocket_radius_m
-            + initial_clearance_m
+        pad_center_y_m = saddle_contact_offset_m + (
+            pad_normal_offset_m * math.sin(saddle_angle_rad)
         )
+        pad_low_z_m = pad_center_z_m - (
+            0.5 * saddle_pad_width_m * math.sin(saddle_angle_rad)
+            + 0.5 * saddle_pad_thickness_m * math.cos(saddle_angle_rad)
+        )
+        rocket_initial_x_m = 0.0
+        rocket_initial_z_m = 0.0
         rocket_path = "/World/RocketProbe"
         cradle_path = "/World/CradleProbe"
         rocket_geometry = UsdGeom.Cylinder.Define(stage, rocket_path)
@@ -430,29 +526,57 @@ def main() -> int:
         cradle_root = UsdGeom.Xform.Define(stage, cradle_path)
         UsdPhysics.RigidBodyAPI.Apply(cradle_root.GetPrim())
         UsdPhysics.MassAPI.Apply(cradle_root.GetPrim()).CreateMassAttr(cradle_spec["mass_kg"])
-        component_specs = {
-            "Floor": (
-                (0.0, 0.0, -0.5 * cradle_height_m + 0.5 * floor_thickness_m),
-                (cradle_length_m, cradle_width_m, floor_thickness_m),
-            ),
-            "LeftRail": (
-                (0.0, 0.5 * cradle_width_m - 0.5 * wall_thickness_m, 0.0),
-                (cradle_length_m, wall_thickness_m, cradle_height_m),
-            ),
-            "RightRail": (
-                (0.0, -0.5 * cradle_width_m + 0.5 * wall_thickness_m, 0.0),
-                (cradle_length_m, wall_thickness_m, cradle_height_m),
-            ),
-            "RearWall": (
-                (rear_wall_center_x_m, 0.0, 0.0),
-                (wall_thickness_m, cradle_width_m, cradle_height_m),
-            ),
-        }
-        for name, (translation, scale) in component_specs.items():
+        slab_center_z_m = -0.5 * cradle_height_m + 0.5 * slab_thickness_m
+        half_length_m = 0.5 * cradle_length_m
+        half_width_m = 0.5 * cradle_width_m
+        half_thickness_m = 0.5 * slab_thickness_m
+        shoulder_x_m = half_length_m - slab_nose_length_m
+        slab_section = (
+            (-half_length_m, slab_center_z_m - half_thickness_m),
+            (shoulder_x_m, slab_center_z_m - half_thickness_m),
+            (half_length_m, slab_center_z_m),
+            (shoulder_x_m, slab_center_z_m + half_thickness_m),
+            (-half_length_m, slab_center_z_m + half_thickness_m),
+        )
+        slab_points = [
+            Gf.Vec3f(x_m, y_m, z_m)
+            for y_m in (-half_width_m, half_width_m)
+            for x_m, z_m in slab_section
+        ]
+        slab = UsdGeom.Mesh.Define(stage, f"{cradle_path}/Slab")
+        slab.CreatePointsAttr(slab_points)
+        slab.CreateFaceVertexCountsAttr([5, 5, 4, 4, 4, 4, 4])
+        slab.CreateFaceVertexIndicesAttr(
+            [
+                0, 1, 2, 3, 4,
+                9, 8, 7, 6, 5,
+                5, 6, 1, 0,
+                6, 7, 2, 1,
+                7, 8, 3, 2,
+                8, 9, 4, 3,
+                9, 5, 0, 4,
+            ]
+        )
+        slab.CreateSubdivisionSchemeAttr(UsdGeom.Tokens.none)
+        UsdPhysics.CollisionAPI.Apply(slab.GetPrim())
+        UsdPhysics.MeshCollisionAPI.Apply(slab.GetPrim()).CreateApproximationAttr().Set(
+            UsdPhysics.Tokens.convexHull
+        )
+
+        component_specs = {}
+        for station_index, station_x_m in enumerate(saddle_stations_m):
+            for side, sign in (("Left", -1.0), ("Right", 1.0)):
+                component_specs[f"Saddle{station_index:02d}{side}Pad"] = (
+                    (station_x_m, sign * pad_center_y_m, pad_center_z_m),
+                    (sign * saddle_angle_deg, 0.0, 0.0),
+                    (saddle_axial_length_m, saddle_pad_width_m, saddle_pad_thickness_m),
+                )
+        for name, (translation, rotation, scale) in component_specs.items():
             component = UsdGeom.Cube.Define(stage, f"{cradle_path}/{name}")
             component.CreateSizeAttr(1.0)
             transform = UsdGeom.Xformable(component.GetPrim())
             transform.AddTranslateOp().Set(Gf.Vec3d(*translation))
+            transform.AddRotateXYZOp().Set(Gf.Vec3f(*rotation))
             transform.AddScaleOp().Set(Gf.Vec3f(*scale))
             UsdPhysics.CollisionAPI.Apply(component.GetPrim())
 
@@ -471,7 +595,7 @@ def main() -> int:
             orientations=[1.0, 0.0, 0.0, 0.0],
         )
         rocket.set_velocities(
-            linear_velocities=[-args.test_relative_speed_mps, 0.0, 0.0],
+            linear_velocities=[0.0, 0.0, -args.test_relative_speed_mps],
             angular_velocities=[0.0, 0.0, 0.0],
         )
         cradle.set_world_poses(
@@ -481,9 +605,8 @@ def main() -> int:
             linear_velocities=[0.0, 0.0, 0.0], angular_velocities=[0.0, 0.0, 0.0]
         )
 
-        rear_wall_back_face_x_m = rear_wall_center_x_m - 0.5 * wall_thickness_m
-        far_traversal_center_x_m = rear_wall_back_face_x_m - 0.5 * rocket_length_m
-        free_traversal_distance_m = rocket_initial_x_m - far_traversal_center_x_m
+        far_traversal_center_z_m = pad_low_z_m - rocket_radius_m
+        free_traversal_distance_m = rocket_initial_z_m - far_traversal_center_z_m
         steps = max(
             3,
             math.ceil(
@@ -494,10 +617,12 @@ def main() -> int:
         )
         samples: list[dict[str, Any]] = []
         maximum_absolute_force_n = 0.0
+        maximum_solver_impulse_ns = 0.0
         maximum_pair_count = 0
         impact_observed = False
         full_barrier_traversal_observed = False
         samples_finite = True
+        previous_normal_velocity_mps = -args.test_relative_speed_mps
         for step_index in range(1, steps + 1):
             SimulationManager.step()
             position_values, _ = rocket.get_world_poses()
@@ -514,10 +639,19 @@ def main() -> int:
             step_pair_count = int(sum(pair_count_values))
             maximum_absolute_force_n = max(maximum_absolute_force_n, step_maximum_force_n)
             maximum_pair_count = max(maximum_pair_count, step_pair_count)
-            step_impact = step_pair_count > 0 and step_maximum_force_n > 1e-6
+            normal_velocity_change_mps = linear_velocity[2] - previous_normal_velocity_mps
+            solver_impulse_ns = rocket_spec["mass_kg"] * abs(normal_velocity_change_mps)
+            maximum_solver_impulse_ns = max(maximum_solver_impulse_ns, solver_impulse_ns)
+            # Compound-parent contact views on this Isaac build can return valid points,
+            # normals and counts while zero-filling their force array. A manifold plus a
+            # finite nonzero momentum change is still an unambiguous solver response;
+            # proximity alone has neither and remains a failure.
+            step_impact = step_pair_count > 0 and (
+                step_maximum_force_n > 1e-6 or solver_impulse_ns > 1e-6
+            )
             impact_observed = impact_observed or step_impact
             step_full_barrier_traversal = bool(
-                position[0] < far_traversal_center_x_m and linear_velocity[0] < 0.0
+                position[2] < far_traversal_center_z_m and linear_velocity[2] < 0.0
             )
             # The view is sampled only after the solver step, so a sample that reports
             # both a manifold and a body beyond the far face has no defensible ordering.
@@ -536,6 +670,8 @@ def main() -> int:
                     "angular_velocity_radps": angular_velocity,
                     "pair_contact_count": step_pair_count,
                     "maximum_absolute_reported_force_n": step_maximum_force_n,
+                    "normal_velocity_change_mps": normal_velocity_change_mps,
+                    "solver_momentum_impulse_ns": solver_impulse_ns,
                     "contact_points_m": _json_value(points),
                     "contact_normals": _json_value(normals),
                     "contact_distances_m": _json_value(distances),
@@ -543,6 +679,7 @@ def main() -> int:
                     "full_barrier_traversal": step_full_barrier_traversal,
                 }
             )
+            previous_normal_velocity_mps = linear_velocity[2]
 
         body_ccd_value = rocket_physx_api.GetEnableCCDAttr().Get()
         outcome_probe = {
@@ -554,8 +691,9 @@ def main() -> int:
             "rocket_axis": rocket_spec["axis"],
             "rocket_mass_kg": rocket_spec["mass_kg"],
             "cradle_topology": cradle_spec["topology"],
-            "cradle_components": sorted(component_specs),
-            "cradle_front_open": True,
+            "cradle_components": ["Slab", *sorted(component_specs)],
+            "continuous_vertical_walls": False,
+            "saddle_count": len(saddle_stations_m),
             "cradle_mass_kg": cradle_spec["mass_kg"],
             "cradle_kinematic": True,
             "rocket_dimensions_m": [
@@ -564,21 +702,27 @@ def main() -> int:
             "cradle_outer_dimensions_m": [
                 cradle_length_m, cradle_width_m, cradle_height_m
             ],
-            "cradle_wall_thickness_m": wall_thickness_m,
-            "cradle_floor_thickness_m": floor_thickness_m,
+            "slab_thickness_m": slab_thickness_m,
+            "slab_nose_length_m": slab_nose_length_m,
+            "saddle_stations_m": saddle_stations_m,
+            "saddle_axial_length_m": saddle_axial_length_m,
+            "saddle_pad_width_m": saddle_pad_width_m,
+            "saddle_pad_thickness_m": saddle_pad_thickness_m,
+            "saddle_contact_offset_m": saddle_contact_offset_m,
             "initial_clearance_m": initial_clearance_m,
             "initial_rocket_center_m": [
                 rocket_initial_x_m, 0.0, rocket_initial_z_m
             ],
-            "rear_wall_forward_face_x_m": rear_wall_forward_face_x_m,
-            "far_traversal_center_x_m": far_traversal_center_x_m,
-            "initial_relative_velocity_mps": [-args.test_relative_speed_mps, 0.0, 0.0],
+            "saddle_pad_low_z_m": pad_low_z_m,
+            "far_traversal_center_z_m": far_traversal_center_z_m,
+            "initial_relative_velocity_mps": [0.0, 0.0, -args.test_relative_speed_mps],
             "per_step_free_travel_m": args.test_relative_speed_mps * args.physics_dt_s,
             "scene_ccd_enabled": SimulationManager.is_ccd_enabled("/World/PhysicsScene"),
             "rocket_ccd_enabled": bool(body_ccd_value),
             "steps": steps,
             "maximum_pair_contact_count": maximum_pair_count,
             "maximum_absolute_reported_force_n": maximum_absolute_force_n,
+            "maximum_solver_momentum_impulse_ns": maximum_solver_impulse_ns,
             "maximum_reported_contact_impulse_ns": (
                 maximum_absolute_force_n * args.physics_dt_s
             ),
@@ -587,15 +731,17 @@ def main() -> int:
             "samples_finite": samples_finite,
             "samples": samples,
             "acceptance": {
-                "requires_nonzero_finite_contact_force": True,
+                "requires_contact_manifold_and_nonzero_force_or_momentum_impulse": True,
                 "allows_full_barrier_traversal_before_impact": False,
-                "test_speed_is_1_25_times_design_speed": True,
+                "minimum_qualified_relative_speed_mps": minimum_test_speed_mps,
+                "test_speed_meets_declared_minimum": speed_gate_met,
             },
         }
         outcome_probe["passed"] = _anti_tunneling_passed(
             impact_observed=impact_observed,
             full_barrier_traversal_observed=full_barrier_traversal_observed,
             samples_finite=samples_finite,
+            speed_gate_met=speed_gate_met,
         )
         result["probes"]["rocket_cradle_pair"] = outcome_probe
         _progress("rocket_cradle_pair_complete")

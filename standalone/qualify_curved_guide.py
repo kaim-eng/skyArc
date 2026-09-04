@@ -68,7 +68,7 @@ def _arguments() -> argparse.Namespace:
     parser.add_argument(
         "--fixture",
         type=Path,
-        default=project / "configs" / "phase0_anti_tunneling_open_cradle.json",
+        default=project / "configs" / "phase0_anti_tunneling_slab_cradle.json",
     )
     parser.add_argument("--physics-dt-s", type=float, default=0.001)
     parser.add_argument("--target-exit-speed-mps", type=float, default=2000.0)
@@ -228,7 +228,7 @@ def main() -> int:
             "candidate": "force_resolved_path_controller_v1",
             "coordinate_frame": args.coordinate_frame,
             "production_geometry": {
-                "cradle_topology": "open_front_u",
+                "cradle_topology": "slab_three_saddles_v1",
                 "rocket_shape": "cylinder",
                 "rocket_axis": "X",
                 "fixture_path": str(args.fixture.resolve()),

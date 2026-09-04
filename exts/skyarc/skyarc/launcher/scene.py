@@ -9,6 +9,7 @@ modules intentionally avoid importing it.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Any, Sequence
 
@@ -203,6 +204,58 @@ def _collision_cube(
     UsdPhysics.CollisionAPI.Apply(cube.GetPrim())
 
 
+def _collision_wedge_prism(
+    stage: Any,
+    path: str,
+    *,
+    length_m: float,
+    width_m: float,
+    thickness_m: float,
+    nose_length_m: float,
+    center_z_m: float,
+) -> None:
+    """Author the slab as a convex prism with a zero-height forward edge."""
+    half_length_m = 0.5 * length_m
+    half_width_m = 0.5 * width_m
+    half_thickness_m = 0.5 * thickness_m
+    shoulder_x_m = half_length_m - nose_length_m
+    bottom_z_m = center_z_m - half_thickness_m
+    middle_z_m = center_z_m
+    top_z_m = center_z_m + half_thickness_m
+    section = (
+        (-half_length_m, bottom_z_m),
+        (shoulder_x_m, bottom_z_m),
+        (half_length_m, middle_z_m),
+        (shoulder_x_m, top_z_m),
+        (-half_length_m, top_z_m),
+    )
+    points = [
+        Gf.Vec3f(x_m, y_m, z_m)
+        for y_m in (-half_width_m, half_width_m)
+        for x_m, z_m in section
+    ]
+    mesh = UsdGeom.Mesh.Define(stage, path)
+    mesh.CreatePointsAttr(points)
+    mesh.CreateFaceVertexCountsAttr([5, 5, 4, 4, 4, 4, 4])
+    mesh.CreateFaceVertexIndicesAttr(
+        [
+            0, 1, 2, 3, 4,
+            9, 8, 7, 6, 5,
+            5, 6, 1, 0,
+            6, 7, 2, 1,
+            7, 8, 3, 2,
+            8, 9, 4, 3,
+            9, 5, 0, 4,
+        ]
+    )
+    mesh.CreateSubdivisionSchemeAttr(UsdGeom.Tokens.none)
+    mesh.CreateDisplayColorAttr([Gf.Vec3f(0.18, 0.2, 0.24)])
+    UsdPhysics.CollisionAPI.Apply(mesh.GetPrim())
+    UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr().Set(
+        UsdPhysics.Tokens.convexHull
+    )
+
+
 def author_production_bodies(
     stage: Any,
     config: ScenarioConfig,
@@ -216,7 +269,7 @@ def author_production_bodies(
     angular_velocity_radps: Sequence[float],
     author_visuals: bool = True,
 ) -> BuiltLauncherScene:
-    """Author the open U cradle, conservative rocket cylinder, and fixed coupling."""
+    """Author the tapered slab, three discrete saddles, rocket, and fixed coupling."""
     UsdGeom.Xform.Define(stage, f"{ROOT_PATH}/Bodies")
     UsdGeom.Xform.Define(stage, f"{ROOT_PATH}/Joints")
 
@@ -233,31 +286,50 @@ def author_production_bodies(
     PhysxSchema.PhysxContactReportAPI.Apply(cart_prim).CreateThresholdAttr().Set(0.0)
     PhysxSchema.PhysxRigidBodyAPI.Apply(cart_prim).CreateEnableCCDAttr(False)
 
-    rail_height = cradle.outer_height_m - cradle.floor_thickness_m
-    rail_z = -0.5 * cradle.outer_height_m + cradle.floor_thickness_m + 0.5 * rail_height
-    _collision_cube(
+    slab_center_z_m = -0.5 * cradle.outer_height_m + 0.5 * cradle.slab_thickness_m
+    _collision_wedge_prism(
         stage,
-        f"{CART_PATH}/Floor",
-        size_m=(cradle.outer_length_m, cradle.outer_width_m, cradle.floor_thickness_m),
-        center_m=(0.0, 0.0, -0.5 * cradle.outer_height_m + 0.5 * cradle.floor_thickness_m),
+        f"{CART_PATH}/Slab",
+        length_m=cradle.outer_length_m,
+        width_m=cradle.outer_width_m,
+        thickness_m=cradle.slab_thickness_m,
+        nose_length_m=cradle.slab_nose_length_m,
+        center_z_m=slab_center_z_m,
     )
-    for side, sign in (("LeftRail", -1.0), ("RightRail", 1.0)):
-        _collision_cube(
-            stage,
-            f"{CART_PATH}/{side}",
-            size_m=(cradle.outer_length_m, cradle.wall_thickness_m, rail_height),
-            center_m=(
-                0.0,
-                sign * (0.5 * cradle.outer_width_m - 0.5 * cradle.wall_thickness_m),
-                rail_z,
-            ),
-        )
-    _collision_cube(
-        stage,
-        f"{CART_PATH}/RearWall",
-        size_m=(cradle.wall_thickness_m, cradle.outer_width_m, rail_height),
-        center_m=(-0.5 * cradle.outer_length_m + 0.5 * cradle.wall_thickness_m, 0.0, rail_z),
+    rocket_radius_m = 0.5 * plan.rocket.diameter_m
+    saddle_angle_rad = math.asin(cradle.saddle_contact_offset_m / rocket_radius_m)
+    tangent_z_m = -math.sqrt(
+        rocket_radius_m**2 - cradle.saddle_contact_offset_m**2
     )
+    pad_normal_offset_m = 0.5 * cradle.saddle_pad_thickness_m + plan.initial_clearance_m
+    pad_center_z_m = tangent_z_m - pad_normal_offset_m * math.cos(saddle_angle_rad)
+    pad_center_y_m = (
+        cradle.saddle_contact_offset_m
+        + pad_normal_offset_m * math.sin(saddle_angle_rad)
+    )
+    saddle_angle_deg = math.degrees(saddle_angle_rad)
+    for station_index, station_x_m in enumerate(cradle.saddle_stations_m):
+        for side, sign in (("Left", -1.0), ("Right", 1.0)):
+            cube = UsdGeom.Cube.Define(
+                stage, f"{CART_PATH}/Saddle{station_index:02d}{side}Pad"
+            )
+            cube.CreateSizeAttr(1.0)
+            xform = UsdGeom.Xformable(cube.GetPrim())
+            xform.AddTranslateOp().Set(
+                Gf.Vec3f(station_x_m, sign * pad_center_y_m, pad_center_z_m)
+            )
+            xform.AddRotateXYZOp().Set(
+                Gf.Vec3f(sign * saddle_angle_deg, 0.0, 0.0)
+            )
+            xform.AddScaleOp().Set(
+                Gf.Vec3f(
+                    cradle.saddle_axial_length_m,
+                    cradle.saddle_pad_width_m,
+                    cradle.saddle_pad_thickness_m,
+                )
+            )
+            cube.CreateDisplayColorAttr([Gf.Vec3f(0.22, 0.24, 0.28)])
+            UsdPhysics.CollisionAPI.Apply(cube.GetPrim())
 
     rocket_geometry = plan.rocket
     rocket_xform = UsdGeom.Xform.Define(stage, ROCKET_PATH)

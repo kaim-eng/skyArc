@@ -101,7 +101,7 @@ class BrakeDesignSweepTests(unittest.TestCase):
     def test_candidate_configuration_is_bound_to_selected_case(self) -> None:
         selected = self.sweep["recommendation"]
         candidate_path = PROJECT / "configs" / "curved_2kms_brake_30g_candidate.yaml"
-        fixture_path = PROJECT / "configs" / "brake_30g_induction_candidate_fixture.json"
+        fixture_path = PROJECT / "configs" / "brake_30g_induction_candidate_slab_cradle.json"
         loaded = load_yaml(candidate_path)
         config = loaded.config
         fixture = load_production_fixture(fixture_path)
@@ -133,7 +133,7 @@ class BrakeDesignSweepTests(unittest.TestCase):
     def test_candidate_qualification_evidence_is_bound_and_passes(self) -> None:
         evidence = PROJECT / "artifacts" / "design" / "brake_30g_qualification"
         config_path = PROJECT / "configs" / "curved_2kms_brake_30g_candidate.yaml"
-        fixture_path = PROJECT / "configs" / "brake_30g_induction_candidate_fixture.json"
+        fixture_path = PROJECT / "configs" / "brake_30g_induction_candidate_slab_cradle.json"
         config_hash = hashlib.sha256(config_path.read_bytes()).hexdigest()
         fixture_hash = hashlib.sha256(fixture_path.read_bytes()).hexdigest()
         curved_runner_hash = hashlib.sha256(

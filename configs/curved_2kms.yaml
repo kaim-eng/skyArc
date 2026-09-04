@@ -95,16 +95,18 @@ tube:
       opacity: 0.35
   anti_tunneling_pairs:
     - name: rocket_cradle
-      test_relative_speed_mps: 2500.0
+      # Bounds cradle-relative speed accumulated during the release/clearance interval.
+      test_relative_speed_mps: 100.0
 
 cart:
   mass_kg: 250.0
   length_m: 4.2
-  # 1.25 m outer width leaves 25 mm per side around the 1.0 m rocket envelope.
+  # Overall lateral design envelope; discrete pad extents are validated inside it.
   width_m: 1.25
   height_m: 1.4
   drag_coefficient: 0.30
-  frontal_area_m2: 0.50
+  # Conservative projected silhouette of the tapered slab and overlapping saddle pads.
+  frontal_area_m2: 0.30
   brake_force_limit_n: 24410.321
   brake_jerk_limit_mps3: 50.0
   brake_stop_margin_m: 2000.0
@@ -178,7 +180,8 @@ markers:
     offset_m: [2.0, 0.0, 0.0]
   cart_cradle_front:
     body: cart
-    offset_m: [1.25, 0.0, 0.0]
+    # Forward face of the foremost discrete saddle, not the slab nose below the vehicle.
+    offset_m: [1.60, 0.0, 0.0]
 
 output:
   directory: outputs

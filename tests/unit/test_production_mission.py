@@ -46,7 +46,7 @@ from skyarc.telemetry.energy import SLOT_WORK_TERMS, WORK_TERMS
 PROJECT = Path(__file__).resolve().parents[2]
 PACKAGE_ROOT = PROJECT / "exts" / "skyarc" / "skyarc"
 CONFIGURATION = PROJECT / "configs" / "curved_2kms.yaml"
-FIXTURE = PROJECT / "configs" / "phase0_anti_tunneling_open_cradle.json"
+FIXTURE = PROJECT / "configs" / "phase0_anti_tunneling_slab_cradle.json"
 MISSION_RUNNER = PROJECT / "standalone" / "run_mission.py"
 MISSION_SMOKE = PROJECT / "artifacts" / "production" / "mission_smoke.json"
 MISSION_TELEMETRY = PROJECT / "artifacts" / "production" / "mission_telemetry.json"
@@ -333,9 +333,8 @@ class InitialPlacementTests(unittest.TestCase):
             rocket.position_m[index] + reference.position_m[index] for index in range(3)
         )
         entrance = path_pose(self.layout, 0.0)
-        # Phase 0 qualifies the assembly COM at s=0. The cart extends into the straight
-        # entrance lead-in while launch control follows COM progress.
-        self.assertLess(self.layout.axial_position(global_cart), 0.0)
+        # Both origins coincide at the vehicle axis, so the assembly COM starts at s=0.
+        self.assertAlmostEqual(self.layout.axial_position(global_cart), 0.0, delta=1e-6)
         self.assertAlmostEqual(
             norm(sub(global_rocket, global_cart)),
             self.plan.cart_to_rocket_offset_m,
@@ -351,29 +350,19 @@ class InitialPlacementTests(unittest.TestCase):
             normal_offset_m, self.plan.cart_to_rocket_offset_cart_m[2], places=9
         )
 
-        # The aft cap reproduces the declared rear-wall clearance. The rocket axis stays
-        # on the cart/tube centreline, and the cradle supplies a positive 0.10 m nominal
-        # floor clearance for the requested 1.0 m vehicle envelope. Both rocket caps stay
-        # within the cradle envelope so the rocket is seated in the cart rather than
-        # parked on top of or beyond it.
-        rear_wall_forward_face_m = (
-            -0.5 * self.fixture.cradle.outer_length_m
-            + self.fixture.cradle.wall_thickness_m
-        )
+        # The rocket is centered above three shallow tangent saddles. The slab stays
+        # below the rocket and no axial wall participates in launch-load transfer.
         rocket_aft_m = axial_offset_m - 0.5 * self.fixture.rocket.length_m
         rocket_nose_m = axial_offset_m + 0.5 * self.fixture.rocket.length_m
-        floor_top_m = (
-            -0.5 * self.fixture.cradle.outer_height_m
-            + self.fixture.cradle.floor_thickness_m
+        slab_top_m = -0.5 * self.fixture.cradle.outer_height_m + (
+            self.fixture.cradle.slab_thickness_m
         )
         rocket_bottom_m = normal_offset_m - 0.5 * self.fixture.rocket.diameter_m
-        self.assertAlmostEqual(
-            rocket_aft_m - rear_wall_forward_face_m,
-            self.fixture.initial_clearance_m,
-            places=9,
+        self.assertAlmostEqual(rocket_bottom_m - slab_top_m, 0.10, places=9)
+        self.assertEqual(self.fixture.cradle.saddle_stations_m, (-1.5, 0.0, 1.5))
+        self.assertTrue(
+            all(rocket_aft_m < station_m < rocket_nose_m for station_m in self.fixture.cradle.saddle_stations_m)
         )
-        floor_clearance_m = rocket_bottom_m - floor_top_m
-        self.assertAlmostEqual(floor_clearance_m, 0.10, places=9)
         tube_radius_m = 0.5 * self.config.tube.inner_diameter_m
         cradle_corner_radius_m = math.hypot(
             0.5 * self.fixture.cradle.outer_width_m,
@@ -388,7 +377,7 @@ class InitialPlacementTests(unittest.TestCase):
             rocket_nose_m,
             0.5 * self.fixture.cradle.outer_length_m,
         )
-        self.assertAlmostEqual(axial_offset_m, 0.01, places=9)
+        self.assertAlmostEqual(axial_offset_m, 0.0, places=9)
         self.assertAlmostEqual(normal_offset_m, 0.0, places=9)
 
         # The entrance is straight, so the mass-weighted COM lies on the centerline.

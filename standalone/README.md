@@ -34,7 +34,7 @@ cd C:\Dev\Isaacsim\IsaacSim\_build\windows-x86_64\release
 .\python.bat C:\Dev\Isaacsim\skyArc\standalone\qualify_phase0.py --backend physx --collision-treatment live_activation
 .\python.bat C:\Dev\Isaacsim\skyArc\standalone\qualify_phase0.py --backend newton --collision-treatment always_present
 
-# Named 2,500 m/s rocket/cradle anti-tunneling matrix on selected CPU PhysX
+# Named 100 m/s normal rocket/saddle anti-tunneling matrix on selected CPU PhysX
 .\python.bat C:\Dev\Isaacsim\skyArc\standalone\qualify_anti_tunneling.py --physics-dt-s 0.001 --ccd disabled
 .\python.bat C:\Dev\Isaacsim\skyArc\standalone\qualify_anti_tunneling.py --physics-dt-s 0.0005 --ccd disabled
 .\python.bat C:\Dev\Isaacsim\skyArc\standalone\qualify_anti_tunneling.py --physics-dt-s 0.00025 --ccd disabled
@@ -74,15 +74,18 @@ used by the curved-guide characterization below.
 
 `qualify_anti_tunneling.py` writes separately hashed artifacts under
 `artifacts/phase0/anti_tunneling/`. Its fixture is
-`configs/phase0_anti_tunneling_open_cradle.json`: the reference 4.0 m by 1.0 m X-axis cylindrical
-rocket starts with 0.01 m axial clearance inside a 1.25 m-wide compound open-front U-shaped cradle and impacts the
-rear wall at 2,500 m/s. A pass requires nonzero finite contact force and no full wall traversal. The
-matched matrix uses runner SHA-256
-`07b3675c1b782b781a12951b7a739f197f8ead4793af1d2075029f0dc90c7705` and fixture SHA-256
-`ece6a1c39f3462d2929eb83b3df3ad5498ed183b5b639313c294b1b933fc26e2`. All four v0.36 conditions
-pass without traversal: discrete 1.0/0.5/0.25 ms plus the 1 ms CCD control. CCD is not required for
-this named production geometry's no-pass-through outcome. This conservative
-rear-wall collision remains a mechanism stress test, not an attachment-load prediction.
+`configs/phase0_anti_tunneling_slab_cradle.json`: the reference 4.0 m by 1.0 m X-axis cylindrical
+rocket approaches all three saddle stations vertically at 100 m/s,
+starting with 0.01 m clearance. This 100 m/s round-number gate exceeds the 1.25-margin
+braking-relative minimum for both the baseline (44.88 m/s) and 30 G candidate (77.90 m/s); the rocket and
+cart are co-moving near the Mach-7 exit, so 2,500 m/s is not their collision-pair speed. A pass
+requires a contact manifold plus nonzero finite reported force or finite momentum change, and
+no full pad traversal. The matched matrix uses runner SHA-256
+`bc69c18fab9fe76853bee157cc75ca5e9dc69924bc296650c99e4b401f5fc313` and fixture SHA-256
+`39079a26ea82c6da9a1d49314b016655c0736d3ca8a18720f935cc633e7e5f5b`. All four v0.37 conditions
+pass without traversal: discrete 1.0/0.5/0.25 ms plus the 1 ms CCD control. CCD is not required
+for this named production geometry's no-pass-through outcome. This vertical saddle-system case is a
+mechanism stress test, not a prediction of the fixed-joint attachment load.
 
 `qualify_curved_guide.py` records the force-resolved curved mechanism under
 `artifacts/phase0/curved_guide/`. Direct global coordinates are a rejected control: float32 pose
@@ -100,7 +103,7 @@ peak loads are 6.826258/6.826379/6.826402 G and peak centerline errors are
 276.738/269.117/268.850 steps/s. The matched 1 ms global-coordinate control fails as required with
 1.8094 m peak tracking error and 19.9186 G peak load. The series uses the same production fixture
 and reads the combined pitch inertia from PhysX; release and cold reset pass in every co-moving run.
-The v0.36 width and source changes invalidate those records; regenerate the co-moving series,
+The v0.37 cart and source changes invalidate those records; regenerate the co-moving series,
 matched global control, and 30 G candidate before treating their pass or throughput values as current.
 
 The feedback correction is not solver constraint-reaction read-back. Under v0.29 the panel accepts

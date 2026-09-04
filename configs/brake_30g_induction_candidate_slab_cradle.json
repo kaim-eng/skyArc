@@ -1,0 +1,28 @@
+{
+  "schema": "vacuum_tube_anti_tunneling_fixture_v2",
+  "pair_name": "rocket_cradle",
+  "impact_case": "vertical_saddle_system",
+  "minimum_test_relative_speed_mps": 100.0,
+  "initial_clearance_m": 0.01,
+  "rocket": {
+    "shape": "cylinder",
+    "axis": "X",
+    "mass_kg": 150.0,
+    "length_m": 4.0,
+    "diameter_m": 1.0
+  },
+  "cradle": {
+    "topology": "slab_three_saddles_v1",
+    "mass_kg": 43.98596295201707,
+    "outer_length_m": 4.2,
+    "outer_width_m": 1.25,
+    "outer_height_m": 1.4,
+    "slab_thickness_m": 0.1,
+    "slab_nose_length_m": 0.6,
+    "saddle_stations_m": [-1.5, 0.0, 1.5],
+    "saddle_axial_length_m": 0.2,
+    "saddle_pad_width_m": 0.32,
+    "saddle_pad_thickness_m": 0.2,
+    "saddle_contact_offset_m": 0.25
+  }
+}

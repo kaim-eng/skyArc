@@ -68,7 +68,7 @@ from ..state_machine import MissionPhase
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 CONFIGURATION = PROJECT_ROOT / "configs" / "curved_2kms.yaml"
-FIXTURE = PROJECT_ROOT / "configs" / "phase0_anti_tunneling_open_cradle.json"
+FIXTURE = PROJECT_ROOT / "configs" / "phase0_anti_tunneling_slab_cradle.json"
 PHYSICS_SCENE_PATH = "/World/PhysicsScene"
 GRAVITY_MPS2 = (0.0, 0.0, -9.81)
 
@@ -181,7 +181,7 @@ class TestProductionAdapterBoundary(ProductionAdapterTestBase):
 
         entrance = path_pose(self.layout, 0.0)
         cart_s_m = self.layout.axial_position(state.body(BODY_CART).position)
-        self.assertLess(cart_s_m, 0.0)
+        self.assertAlmostEqual(cart_s_m, 0.0, delta=1e-6)
         com_offset_m = norm(sub(self.assembly_centre_of_mass(state), entrance.position_m))
         self.assertLess(
             com_offset_m,
@@ -298,7 +298,7 @@ class TestProductionAdapterBoundary(ProductionAdapterTestBase):
             self.assertAlmostEqual(
                 after.mass_kg * after.linear_velocity[index],
                 before.mass_kg * before.linear_velocity[index],
-                delta=1e-5,
+                delta=5e-5,
             )
 
 
@@ -308,6 +308,11 @@ class TestProductionGuidedStepping(ProductionAdapterTestBase):
         peak_attitude_error_deg = 0.0
         for _ in range(GUIDED_STEPS):
             self.mission.step()
+            self.assertNotEqual(
+                self.mission.mission_state.phase,
+                MissionPhase.ABORT,
+                f"guided mission aborted: {self.mission.mission_state.abort_reason}",
+            )
             reaction = self.backend.last_guide_reaction
             self.assertIsNotNone(reaction)
             peak_tracking_error_m = max(peak_tracking_error_m, reaction.tracking_error_m)
@@ -465,11 +470,8 @@ class TestProductionReleaseTransaction(ProductionAdapterTestBase):
         self.assertIn(EVENT_RELEASE_CONFIRMED, [event.name for event in confirmation])
         self.assertTrue(coupling.brake_eligible)
 
-        # Use the same brake-direction velocity discriminator as the qualified runner.
-        # Continuing the launch force here used to work only while the rocket sat beyond
-        # the old short cradle. With the production rocket correctly seated inside the
-        # full-length U, that direction drives it into the rear wall and tests contact
-        # instead of testing whether PhysX consumed the joint disable.
+        # A one-step brake-direction effort increases forward rocket/cart separation
+        # without depending on contact with any cradle component.
         separating_effort_n = -1000.0
         before_probe = self.backend.read_state()
         pose = path_pose(

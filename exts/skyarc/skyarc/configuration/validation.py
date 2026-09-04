@@ -22,7 +22,13 @@ from ..launcher.geometry import (
     normal_jerk_mps3,
     swept_envelope_clearance,
 )
-from ..names import ALL_BODIES, ALL_MARKERS, MARKER_BODY_OWNERSHIP
+from ..names import (
+    ALL_BODIES,
+    ALL_MARKERS,
+    MARKER_BODY_OWNERSHIP,
+    MARKER_CART_CRADLE_FRONT,
+    MARKER_ROCKET_AFT,
+)
 from .errors import ConfigurationError
 from .schema import EXECUTION_PROFILES, ScenarioConfig
 
@@ -695,12 +701,6 @@ def validate_scenario(config: ScenarioConfig) -> PreflightReport:
                 f"boundary blend distance must be at least {minimum_blend_distance:.3f} m "
                 "to resolve ten physics steps at target speed"
             )
-        pair_speeds = {pair.name: pair.test_relative_speed_mps for pair in tube.anti_tunneling_pairs}
-        required_pair_speed = 1.25 * launch.target_exit_speed_mps
-        if pair_speeds.get("rocket_cradle", 0.0) < required_pair_speed:
-            raise ConfigurationError(
-                "rocket_cradle anti-tunneling test speed must be at least 1.25 times release speed"
-            )
         exit_pose = centerline.exit_pose
         centerline_report = CenterlineReport(
             length_m=centerline.length_m,
@@ -771,6 +771,36 @@ def validate_scenario(config: ScenarioConfig) -> PreflightReport:
             )
     if config.markers[rocket.aft_clearance_marker].body != "rocket":
         raise ConfigurationError("rocket aft-clearance marker must be attached to the rocket body")
+
+    if config.schema_version == 3:
+        pair_speeds = {
+            pair.name: pair.test_relative_speed_mps
+            for pair in tube.anti_tunneling_pairs
+        }
+        # Launch speed is common-mode motion, not a rocket/cradle closing speed. Bound
+        # the relative speed accumulated while the cart's foremost saddle clears the
+        # rocket aft marker plus the required ignition separation, then retain the
+        # original 1.25 qualification margin.
+        cradle_clearance_distance_m = (
+            config.markers[MARKER_CART_CRADLE_FRONT].offset_m[0]
+            - config.markers[MARKER_ROCKET_AFT].offset_m[0]
+            + rocket.ignition.minimum_cart_clearance_m
+        )
+        if cradle_clearance_distance_m <= 0.0:
+            raise ConfigurationError(
+                "rocket/cradle clearance markers do not define positive travel"
+            )
+        maximum_relative_acceleration_mps2 = (
+            cart.brake_force_limit_n + cart.guide_resistance_n
+        ) / cart.mass_kg
+        required_pair_speed = 1.25 * math.sqrt(
+            2.0 * maximum_relative_acceleration_mps2 * cradle_clearance_distance_m
+        )
+        if pair_speeds.get("rocket_cradle", 0.0) < required_pair_speed:
+            raise ConfigurationError(
+                "rocket_cradle anti-tunneling test speed must bound the 1.25-margin "
+                "braking-relative clearance speed"
+            )
 
     evidence = config.evidence
     if config.schema_version == 3:

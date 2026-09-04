@@ -44,9 +44,9 @@ Full machine-readable sweep: `240` cases in `artifacts/design/brake_design_sweep
 
 ## Candidate qualification status
 
-The selected point has now passed the available candidate checks. The 10 G reference
-brake calibration remains available as a control; both configurations now share the
-corrected full-length cradle geometry:
+The selected point passed the available candidate checks on the former full-length cradle.
+Those long-duration candidate records are now source-stale because both configurations use
+the tapered slab and three-saddle cart introduced in v0.37:
 
 - 4/4 anti-tunneling fixture cases passed;
 - 3/3 curved-guide timestep cases passed;
@@ -56,5 +56,7 @@ corrected full-length cradle geometry:
 
 The production probe was deliberately stopped after cart rest, so this is brake-focused
 qualification rather than a claim that the rocket's full free-flight tail completed.
+The candidate fixture and brake-stop probe must be regenerated before these results can be
+treated as qualification of the slab-and-saddle production geometry.
 See `artifacts/design/brake_30g_qualification/README.md` for the evidence boundary and
 the disclosed telemetry energy-closure limitation.

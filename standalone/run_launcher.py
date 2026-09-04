@@ -28,7 +28,7 @@ def _arguments() -> argparse.Namespace:
     parser.add_argument(
         "--fixture",
         type=Path,
-        default=project / "configs" / "phase0_anti_tunneling_open_cradle.json",
+        default=project / "configs" / "phase0_anti_tunneling_slab_cradle.json",
     )
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--save-usd", type=Path)
@@ -723,7 +723,7 @@ def main() -> int:
             "rocket_length_m": plan.rocket.length_m,
             "rocket_diameter_m": plan.rocket.diameter_m,
             "coupling_path": built.coupling_path,
-            "cradle_topology": "open_front_u",
+            "cradle_topology": "slab_three_saddles_v1",
             "rocket_shape": "cylinder_x",
             "mission_execution": "not_started_scene_construction_slice",
             "captures": captures,

@@ -56,7 +56,7 @@ MARKER_ASSEMBLY_EXIT = "assembly_exit"
 """Marker whose exit-plane crossing defines exit speed for section 16.4."""
 
 MARKER_CART_CRADLE_FRONT = "cart_cradle_front"
-"""Forward face of the open-front cradle; one side of the separation envelope pair."""
+"""Forward face of the foremost saddle; one side of the separation envelope pair."""
 
 ALL_MARKERS = (
     MARKER_ROCKET_AFT,

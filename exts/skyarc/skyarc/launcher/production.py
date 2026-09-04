@@ -4,7 +4,7 @@
 """Pure production-scene planning for the selected schema-v3 treatment.
 
 This module deliberately contains no Isaac Sim imports.  It turns the resolved launcher
-geometry and the separately qualified rocket/cradle fixture into immutable scene data so
+geometry and the separately qualified rocket/slab-cradle fixture into immutable scene data so
 the USD authoring layer, evidence harness, and unit tests consume one definition.
 """
 
@@ -24,13 +24,18 @@ from .path_controller import TranslatedFrameState
 
 
 @dataclass(frozen=True)
-class OpenCradleGeometry:
+class SlabCradleGeometry:
     mass_kg: float
     outer_length_m: float
     outer_width_m: float
     outer_height_m: float
-    wall_thickness_m: float
-    floor_thickness_m: float
+    slab_thickness_m: float
+    slab_nose_length_m: float
+    saddle_stations_m: Tuple[float, ...]
+    saddle_axial_length_m: float
+    saddle_pad_width_m: float
+    saddle_pad_thickness_m: float
+    saddle_contact_offset_m: float
 
 
 @dataclass(frozen=True)
@@ -44,9 +49,10 @@ class RocketGeometry:
 class ProductionFixture:
     source_path: str
     pair_name: str
+    minimum_test_relative_speed_mps: float
     initial_clearance_m: float
     rocket: RocketGeometry
-    cradle: OpenCradleGeometry
+    cradle: SlabCradleGeometry
 
 
 @dataclass(frozen=True)
@@ -69,7 +75,7 @@ class ProductionScenePlan:
     tube_bands: Tuple[CurveBand, ...]
     exit_track_points_m: Tuple[Vec3, ...]
     exit_marker_position_m: Vec3
-    cradle: OpenCradleGeometry
+    cradle: SlabCradleGeometry
     rocket: RocketGeometry
     initial_clearance_m: float
     cart_to_rocket_offset_cart_m: Vec3
@@ -113,22 +119,43 @@ def _positive_number(value: Any, name: str) -> float:
     return result
 
 
+def _finite_number(value: Any, name: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{name} must be a number")
+    result = float(value)
+    if not math.isfinite(result):
+        raise ValueError(f"{name} must be finite")
+    return result
+
+
 def load_production_fixture(path: str | Path) -> ProductionFixture:
-    """Load and strictly validate the qualified cylinder/open-front-cradle fixture."""
+    """Load and strictly validate the cylinder/slab-and-saddles fixture."""
     source = Path(path).resolve()
     data = json.loads(source.read_text(encoding="utf-8"), object_pairs_hook=_unique_object)
     root = _mapping(data, "fixture")
     _exact_keys(
         root,
-        {"schema", "pair_name", "impact_case", "initial_clearance_m", "rocket", "cradle"},
+        {
+            "schema",
+            "pair_name",
+            "impact_case",
+            "minimum_test_relative_speed_mps",
+            "initial_clearance_m",
+            "rocket",
+            "cradle",
+        },
         "fixture",
     )
-    if root["schema"] != "vacuum_tube_anti_tunneling_fixture_v1":
+    if root["schema"] != "vacuum_tube_anti_tunneling_fixture_v2":
         raise ValueError("unsupported production fixture schema")
     if root["pair_name"] != "rocket_cradle":
         raise ValueError("production fixture pair_name must be 'rocket_cradle'")
-    if root["impact_case"] != "axial_rear_wall":
-        raise ValueError("production fixture impact_case must be 'axial_rear_wall'")
+    if root["impact_case"] != "vertical_saddle_system":
+        raise ValueError("production fixture impact_case must be 'vertical_saddle_system'")
+    minimum_test_relative_speed_mps = _positive_number(
+        root["minimum_test_relative_speed_mps"],
+        "fixture.minimum_test_relative_speed_mps",
+    )
 
     rocket_data = _mapping(root["rocket"], "fixture.rocket")
     _exact_keys(
@@ -153,14 +180,28 @@ def load_production_fixture(path: str | Path) -> ProductionFixture:
             "outer_length_m",
             "outer_width_m",
             "outer_height_m",
-            "wall_thickness_m",
-            "floor_thickness_m",
+            "slab_thickness_m",
+            "slab_nose_length_m",
+            "saddle_stations_m",
+            "saddle_axial_length_m",
+            "saddle_pad_width_m",
+            "saddle_pad_thickness_m",
+            "saddle_contact_offset_m",
         },
         "fixture.cradle",
     )
-    if cradle_data["topology"] != "open_front_u":
-        raise ValueError("production cradle must use open_front_u topology")
-    cradle = OpenCradleGeometry(
+    if cradle_data["topology"] != "slab_three_saddles_v1":
+        raise ValueError("production cradle must use slab_three_saddles_v1 topology")
+    stations_data = cradle_data["saddle_stations_m"]
+    if not isinstance(stations_data, list) or len(stations_data) != 3:
+        raise ValueError("production cradle must define exactly three saddle stations")
+    stations = tuple(
+        _finite_number(value, f"fixture.cradle.saddle_stations_m[{index}]")
+        for index, value in enumerate(stations_data)
+    )
+    if tuple(sorted(stations)) != stations or len(set(stations)) != len(stations):
+        raise ValueError("production cradle saddle stations must be unique and increasing")
+    cradle = SlabCradleGeometry(
         mass_kg=_positive_number(cradle_data["mass_kg"], "fixture.cradle.mass_kg"),
         outer_length_m=_positive_number(
             cradle_data["outer_length_m"], "fixture.cradle.outer_length_m"
@@ -171,32 +212,90 @@ def load_production_fixture(path: str | Path) -> ProductionFixture:
         outer_height_m=_positive_number(
             cradle_data["outer_height_m"], "fixture.cradle.outer_height_m"
         ),
-        wall_thickness_m=_positive_number(
-            cradle_data["wall_thickness_m"], "fixture.cradle.wall_thickness_m"
+        slab_thickness_m=_positive_number(
+            cradle_data["slab_thickness_m"], "fixture.cradle.slab_thickness_m"
         ),
-        floor_thickness_m=_positive_number(
-            cradle_data["floor_thickness_m"], "fixture.cradle.floor_thickness_m"
+        slab_nose_length_m=_positive_number(
+            cradle_data["slab_nose_length_m"], "fixture.cradle.slab_nose_length_m"
+        ),
+        saddle_stations_m=stations,
+        saddle_axial_length_m=_positive_number(
+            cradle_data["saddle_axial_length_m"],
+            "fixture.cradle.saddle_axial_length_m",
+        ),
+        saddle_pad_width_m=_positive_number(
+            cradle_data["saddle_pad_width_m"], "fixture.cradle.saddle_pad_width_m"
+        ),
+        saddle_pad_thickness_m=_positive_number(
+            cradle_data["saddle_pad_thickness_m"],
+            "fixture.cradle.saddle_pad_thickness_m",
+        ),
+        saddle_contact_offset_m=_positive_number(
+            cradle_data["saddle_contact_offset_m"],
+            "fixture.cradle.saddle_contact_offset_m",
         ),
     )
-    if 2.0 * cradle.wall_thickness_m >= cradle.outer_width_m:
-        raise ValueError("production cradle side walls leave no open interior")
-    if cradle.floor_thickness_m >= cradle.outer_height_m:
-        raise ValueError("production cradle floor leaves no open interior")
-    if rocket.diameter_m >= cradle.outer_width_m - 2.0 * cradle.wall_thickness_m:
-        raise ValueError("production rocket does not fit between cradle side walls")
-    floor_clearance_m = (
-        0.5 * (cradle.outer_height_m - rocket.diameter_m)
-        - cradle.floor_thickness_m
+    if cradle.slab_thickness_m >= cradle.outer_height_m:
+        raise ValueError("production cradle slab consumes the complete height envelope")
+    if cradle.slab_nose_length_m >= cradle.outer_length_m:
+        raise ValueError("production cradle slab nose must be shorter than the slab")
+    if cradle.saddle_contact_offset_m >= 0.5 * rocket.diameter_m:
+        raise ValueError("production cradle saddle contact lies outside the rocket radius")
+    half_saddle_length_m = 0.5 * cradle.saddle_axial_length_m
+    if any(
+        abs(station_m) + half_saddle_length_m > 0.5 * cradle.outer_length_m
+        for station_m in cradle.saddle_stations_m
+    ):
+        raise ValueError("production cradle saddle station lies outside the slab")
+    if any(
+        abs(station_m) + half_saddle_length_m > 0.5 * rocket.length_m
+        for station_m in cradle.saddle_stations_m
+    ):
+        raise ValueError("production cradle saddle station lies outside the rocket")
+
+    initial_clearance_m = _positive_number(
+        root["initial_clearance_m"], "fixture.initial_clearance_m"
     )
-    if floor_clearance_m <= 0.0:
-        raise ValueError("production rocket intersects the cradle floor")
+    radius_m = 0.5 * rocket.diameter_m
+    angle_rad = math.asin(cradle.saddle_contact_offset_m / radius_m)
+    tangent_z_m = -math.sqrt(
+        radius_m**2 - cradle.saddle_contact_offset_m**2
+    )
+    pad_normal_offset_m = 0.5 * cradle.saddle_pad_thickness_m + initial_clearance_m
+    pad_center_z_m = tangent_z_m - pad_normal_offset_m * math.cos(angle_rad)
+    pad_low_z_m = pad_center_z_m - (
+        0.5 * cradle.saddle_pad_width_m * math.sin(angle_rad)
+        + 0.5 * cradle.saddle_pad_thickness_m * math.cos(angle_rad)
+    )
+    pad_high_z_m = pad_center_z_m + (
+        0.5 * cradle.saddle_pad_width_m * math.sin(angle_rad)
+        + 0.5 * cradle.saddle_pad_thickness_m * math.cos(angle_rad)
+    )
+    half_envelope_height_m = 0.5 * cradle.outer_height_m
+    if (
+        pad_low_z_m < -half_envelope_height_m - 1e-12
+        or pad_high_z_m > half_envelope_height_m + 1e-12
+    ):
+        raise ValueError("production cradle saddle pads exceed the height envelope")
+    slab_top_z_m = -0.5 * cradle.outer_height_m + cradle.slab_thickness_m
+    if pad_low_z_m > slab_top_z_m + 1e-12:
+        raise ValueError("production cradle saddle pads do not reach the slab")
+
+    pad_center_y_m = (
+        cradle.saddle_contact_offset_m + pad_normal_offset_m * math.sin(angle_rad)
+    )
+    pad_outer_y_m = pad_center_y_m + (
+        0.5 * cradle.saddle_pad_width_m * math.cos(angle_rad)
+        + 0.5 * cradle.saddle_pad_thickness_m * math.sin(angle_rad)
+    )
+    if pad_outer_y_m > 0.5 * cradle.outer_width_m + 1e-12:
+        raise ValueError("production cradle saddle pads exceed the slab width")
 
     return ProductionFixture(
         source_path=str(source),
         pair_name="rocket_cradle",
-        initial_clearance_m=_positive_number(
-            root["initial_clearance_m"], "fixture.initial_clearance_m"
-        ),
+        minimum_test_relative_speed_mps=minimum_test_relative_speed_mps,
+        initial_clearance_m=initial_clearance_m,
         rocket=rocket,
         cradle=cradle,
     )
@@ -221,8 +320,20 @@ def validate_fixture_against_scenario(
             raise ValueError(
                 f"production fixture {label} {qualified} does not match scenario {configured}"
             )
-    if not any(pair.name == fixture.pair_name for pair in config.tube.anti_tunneling_pairs):
+    matching_pairs = tuple(
+        pair for pair in config.tube.anti_tunneling_pairs if pair.name == fixture.pair_name
+    )
+    if not matching_pairs:
         raise ValueError("scenario does not name the qualified rocket_cradle collision pair")
+    if not math.isclose(
+        fixture.minimum_test_relative_speed_mps,
+        matching_pairs[0].test_relative_speed_mps,
+        rel_tol=0.0,
+        abs_tol=1e-12,
+    ):
+        raise ValueError(
+            "production fixture minimum test speed does not match the scenario collision pair"
+        )
 
 
 def _sample_interval(
@@ -284,20 +395,11 @@ def build_production_scene_plan(
     exit_pose = path_pose(layout, layout.length_m)
     exit_length = config.tube.exit_brake_track_length_m
     exit_end = add(exit_pose.position_m, scale(exit_pose.tangent, exit_length))
-    # Nest the rocket in the independently qualified open-cradle geometry. Its aft cap
-    # clears the rear wall by the declared gap, while its axis stays on the cart/tube
-    # centreline. The full-length U-cradle leaves positive floor clearance for passive
-    # separation and contains both rocket caps at release; a shallow or short tray makes
-    # the vehicle look top-mounted and lets gravity drive the rocket onto its front lip,
-    # violating the ignition angular-rate interlock.
-    rear_wall_forward_face_x_m = (
-        -0.5 * fixture.cradle.outer_length_m + fixture.cradle.wall_thickness_m
-    )
-    rocket_axial_offset_m = (
-        rear_wall_forward_face_x_m
-        + 0.5 * fixture.rocket.length_m
-        + fixture.initial_clearance_m
-    )
+    # The rocket is centred over three discrete tangent saddles. The fixed joint carries
+    # axial launch load; no rear wall or continuous side rail exists. Keeping both body
+    # origins coincident also keeps the rocket on the resolved tube centreline while the
+    # slab and pads occupy only its lower aerodynamic shadow.
+    rocket_axial_offset_m = 0.0
     rocket_normal_offset_m = 0.0
     return ProductionScenePlan(
         candidate="force_resolved_path_controller_v1",
@@ -412,7 +514,7 @@ def combined_pitch_inertia_kg_m2(
 __all__ = [
     "CurveBand",
     "InitialRigidState",
-    "OpenCradleGeometry",
+    "SlabCradleGeometry",
     "ProductionFixture",
     "ProductionScenePlan",
     "RocketGeometry",

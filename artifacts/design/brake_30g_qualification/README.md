@@ -1,10 +1,11 @@
 # 30 G induction-plate candidate qualification
 
 The brake-focused candidate passed the available CPU/PhysX qualification checks on
-2026-09-03. The 10 G reference brake settings remain available as a control; both scenarios
-now use the same full-length 4.2 m by 1.2 m by 1.4 m open U-cradle. This evidence belongs to
-`configs/curved_2kms_brake_30g_candidate.yaml` and
-`configs/brake_30g_induction_candidate_fixture.json`.
+2026-09-03 using the former full-length open U-cradle. The 10 G reference brake settings remain
+available as a control, but both current scenarios now use the tapered slab and three-saddle
+cart introduced in v0.37. This directory is therefore historical evidence and must be regenerated
+before it qualifies the current configuration. It was produced from the earlier revisions of
+`configs/curved_2kms_brake_30g_candidate.yaml` and its now-retired candidate fixture.
 
 ## Result
 
@@ -28,7 +29,7 @@ The conservative preflight predicts 7,702.105 m of stopping travel and requires
 the available 8 km active region and stops at its boundary, leaving the exact 2 km
 physical margin.
 
-The current 1.0/0.5/0.25 ms curved-guide artifacts are bound to project-source closure
+The historical 1.0/0.5/0.25 ms curved-guide artifacts are bound to project-source closure
 `991ef45fd3bec0a16382707e8314bd572121e6c5aafeff6141648448920747ee` and all pass. The
 65,000-step production probe also uses that closure and runner SHA-256
 `03558bece7fe666fee02433a95271b5fafc198080461d21de2561b180143744e`.

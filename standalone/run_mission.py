@@ -36,7 +36,7 @@ def _arguments() -> argparse.Namespace:
     parser.add_argument(
         "--fixture",
         type=Path,
-        default=project / "configs" / "phase0_anti_tunneling_open_cradle.json",
+        default=project / "configs" / "phase0_anti_tunneling_slab_cradle.json",
     )
     parser.add_argument("--headless", action="store_true")
     parser.add_argument(

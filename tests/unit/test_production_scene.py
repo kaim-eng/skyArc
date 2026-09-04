@@ -23,7 +23,7 @@ from skyarc.launcher.production import (
 
 PROJECT = Path(__file__).resolve().parents[2]
 CONFIGURATION = PROJECT / "configs" / "curved_2kms.yaml"
-FIXTURE = PROJECT / "configs" / "phase0_anti_tunneling_open_cradle.json"
+FIXTURE = PROJECT / "configs" / "phase0_anti_tunneling_slab_cradle.json"
 EXTENSION_TOML = (
     PROJECT / "exts" / "skyarc" / "config" / "extension.toml"
 )
@@ -55,6 +55,9 @@ class ProductionSceneTests(unittest.TestCase):
         self.assertEqual(self.fixture.cradle.outer_length_m, 4.2)
         self.assertEqual(self.fixture.cradle.outer_width_m, 1.25)
         self.assertEqual(self.fixture.cradle.outer_height_m, 1.4)
+        self.assertEqual(self.fixture.cradle.slab_thickness_m, 0.1)
+        self.assertEqual(self.fixture.cradle.slab_nose_length_m, 0.6)
+        self.assertEqual(self.fixture.cradle.saddle_stations_m, (-1.5, 0.0, 1.5))
 
     def test_scene_plan_pins_the_approved_non_constraint_treatment(self) -> None:
         plan = build_production_scene_plan(
@@ -105,14 +108,24 @@ class ProductionSceneTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "duplicate JSON key"):
                 load_production_fixture(path)
 
-    def test_fixture_rejects_a_rocket_that_intersects_the_cradle_floor(self) -> None:
+    def test_fixture_rejects_saddle_pads_that_do_not_reach_the_slab(self) -> None:
         with TemporaryDirectory() as temporary_directory:
             path = Path(temporary_directory) / "floor_intersection.json"
             source = json.loads(FIXTURE.read_text(encoding="utf-8"))
-            source["cradle"]["outer_height_m"] = 1.2
+            source["cradle"]["outer_height_m"] = 1.8
             path.write_text(json.dumps(source), encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "intersects the cradle floor"):
+            with self.assertRaisesRegex(ValueError, "do not reach the slab"):
                 load_production_fixture(path)
+
+    def test_scene_source_has_no_continuous_vertical_cradle_walls(self) -> None:
+        source = (
+            PROJECT / "exts" / "skyarc" / "skyarc" / "launcher" / "scene.py"
+        ).read_text(encoding="utf-8")
+        self.assertNotIn("LeftRail", source)
+        self.assertNotIn("RightRail", source)
+        self.assertNotIn("RearWall", source)
+        self.assertIn("/Slab", source)
+        self.assertIn("Saddle{station_index:02d}{side}Pad", source)
 
     def test_extension_entrypoint_does_not_replace_the_isaac_free_package_root(self) -> None:
         manifest = EXTENSION_TOML.read_text(encoding="utf-8")
@@ -138,7 +151,7 @@ class ProductionSceneTests(unittest.TestCase):
         self.assertEqual(artifact["backend"], "physx")
         self.assertIn("cpu", artifact["device"].lower())
         self.assertEqual(artifact["solver_type"], "TGS")
-        self.assertEqual(artifact["cradle_topology"], "open_front_u")
+        self.assertEqual(artifact["cradle_topology"], "slab_three_saddles_v1")
         self.assertEqual(artifact["rocket_shape"], "cylinder_x")
         self.assertEqual(artifact["rocket_length_m"], 4.0)
         self.assertEqual(artifact["rocket_diameter_m"], 1.0)

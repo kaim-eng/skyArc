@@ -1,5 +1,25 @@
 # Qualification run log
 
+## 2026-09-04 — slab-and-saddle cart architecture
+
+- Replaced the production cart's full-height side and rear walls with a 0.10 m tapered slab and
+  three discrete two-pad saddle stations at axial positions -1.5, 0.0, and 1.5 m.
+- The current target-build scene smoke passes on CPU PhysX/TGS and its USD contains the slab and
+  six saddle pads, with no `LeftRail`, `RightRail`, or `RearWall` prims. The complete Kit boundary
+  audit passes 11/11, including 200 guided steps, reset, release, and momentum conservation.
+- The new 100 m/s vertical rocket/saddle-system fixture passes all four named cases: discrete contact at
+  1.0, 0.5, and 0.25 ms, plus the 1 ms CCD control. Every case reports an 18-contact peak and no
+  complete pad traversal; solver momentum impulse ranges from 14.7610 to 14.9591 kN s.
+- The 100 m/s gate exceeds the 1.25-margin braking-relative minimum for the baseline
+  (44.88 m/s) and 30 G candidate (77.90 m/s); it is not based on the 2 km/s common-mode
+  launch velocity. At release the rocket and cart initially co-move.
+- Evidence identity: runner SHA-256
+  `bc69c18fab9fe76853bee157cc75ca5e9dc69924bc296650c99e4b401f5fc313`; fixture SHA-256
+  `39079a26ea82c6da9a1d49314b016655c0736d3ca8a18720f935cc633e7e5f5b`.
+- The older curved-guide, complete-mission, mission-sweep, and 30 G candidate artifacts remain
+  useful historical results but are source-stale after this production geometry/configuration
+  change. They were not represented as requalified by this short architecture pass.
+
 ## 2026-09-03 — current-source curved-guide closure
 
 - Venue: local laptop; no cloud, Compute Lab, Kubernetes, or remote resources used.

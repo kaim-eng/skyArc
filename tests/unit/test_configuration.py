@@ -427,8 +427,8 @@ class ConfigurationTests(unittest.TestCase):
             load_mapping(raw)
 
         raw = self.raw_curved()
-        raw["tube"]["anti_tunneling_pairs"][0]["test_relative_speed_mps"] = 2499.0
-        with self.assertRaisesRegex(ConfigurationError, "1.25 times release speed"):
+        raw["tube"]["anti_tunneling_pairs"][0]["test_relative_speed_mps"] = 40.0
+        with self.assertRaisesRegex(ConfigurationError, "braking-relative clearance speed"):
             load_mapping(raw)
 
         raw = self.raw_curved()

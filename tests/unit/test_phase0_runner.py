@@ -29,30 +29,30 @@ ANTI_TUNNELING_RUNNER = (
 ANTI_TUNNELING_FIXTURE = (
     Path(__file__).resolve().parents[2]
     / "configs"
-    / "phase0_anti_tunneling_open_cradle.json"
+    / "phase0_anti_tunneling_slab_cradle.json"
 )
 ANTI_TUNNELING_ARTIFACTS = (
     (
         PROJECT / "artifacts" / "phase0" / "anti_tunneling"
-        / "physx_open_cradle_discrete_1ms.json",
+        / "physx_slab_cradle_discrete_1ms.json",
         0.001,
         False,
     ),
     (
         PROJECT / "artifacts" / "phase0" / "anti_tunneling"
-        / "physx_open_cradle_discrete_0p5ms.json",
+        / "physx_slab_cradle_discrete_0p5ms.json",
         0.0005,
         False,
     ),
     (
         PROJECT / "artifacts" / "phase0" / "anti_tunneling"
-        / "physx_open_cradle_discrete_0p25ms.json",
+        / "physx_slab_cradle_discrete_0p25ms.json",
         0.00025,
         False,
     ),
     (
         PROJECT / "artifacts" / "phase0" / "anti_tunneling"
-        / "physx_open_cradle_ccd_1ms.json",
+        / "physx_slab_cradle_ccd_1ms.json",
         0.001,
         True,
     ),
@@ -187,6 +187,7 @@ class Phase0RunnerContractTests(unittest.TestCase):
                 impact_observed=True,
                 full_barrier_traversal_observed=False,
                 samples_finite=True,
+                speed_gate_met=True,
             )
         )
         for hostile in (
@@ -207,25 +208,60 @@ class Phase0RunnerContractTests(unittest.TestCase):
             },
         ):
             with self.subTest(hostile=hostile):
-                self.assertFalse(qualify_anti_tunneling._anti_tunneling_passed(**hostile))
+                self.assertFalse(
+                    qualify_anti_tunneling._anti_tunneling_passed(
+                        **hostile, speed_gate_met=True
+                    )
+                )
+        self.assertFalse(
+            qualify_anti_tunneling._anti_tunneling_passed(
+                impact_observed=True,
+                full_barrier_traversal_observed=False,
+                samples_finite=True,
+                speed_gate_met=False,
+            )
+        )
 
     def test_anti_tunneling_fixture_pins_production_geometry(self) -> None:
         fixture = qualify_anti_tunneling._load_fixture(ANTI_TUNNELING_FIXTURE)
         self.assertEqual(fixture["pair_name"], "rocket_cradle")
-        self.assertEqual(fixture["impact_case"], "axial_rear_wall")
+        self.assertEqual(fixture["impact_case"], "vertical_saddle_system")
+        self.assertEqual(fixture["minimum_test_relative_speed_mps"], 100.0)
         self.assertEqual(fixture["rocket"]["shape"], "cylinder")
         self.assertEqual(fixture["rocket"]["axis"], "X")
         self.assertEqual(fixture["rocket"]["length_m"], 4.0)
         self.assertEqual(fixture["rocket"]["diameter_m"], 1.0)
-        self.assertEqual(fixture["cradle"]["topology"], "open_front_u")
+        self.assertEqual(fixture["cradle"]["topology"], "slab_three_saddles_v1")
+        self.assertEqual(fixture["cradle"]["saddle_stations_m"], [-1.5, 0.0, 1.5])
 
     def test_anti_tunneling_fixture_rejects_wrong_or_impossible_geometry(self) -> None:
         healthy = json.loads(ANTI_TUNNELING_FIXTURE.read_text(encoding="utf-8"))
         hostile_cases = (
             ("rocket shape", ("rocket", "shape"), "box", "X-axis cylinder"),
-            ("cradle topology", ("cradle", "topology"), "closed_box", "open_front_u"),
-            ("wall thickness", ("cradle", "wall_thickness_m"), 0.63, "open interior"),
-            ("rocket fit", ("rocket", "diameter_m"), 1.05, "does not fit"),
+            (
+                "cradle topology",
+                ("cradle", "topology"),
+                "closed_box",
+                "slab_three_saddles_v1",
+            ),
+            (
+                "contact outside rocket",
+                ("cradle", "saddle_contact_offset_m"),
+                0.5,
+                "outside the rocket radius",
+            ),
+            (
+                "pad outside slab",
+                ("cradle", "outer_width_m"),
+                0.9,
+                "exceed the slab width",
+            ),
+            (
+                "pad outside height envelope",
+                ("cradle", "saddle_pad_width_m"),
+                0.4,
+                "exceed the height envelope",
+            ),
         )
         with TemporaryDirectory() as temporary_directory:
             path = Path(temporary_directory) / "fixture.json"
@@ -256,7 +292,7 @@ class Phase0RunnerContractTests(unittest.TestCase):
         self.assertIn("_discrete_1000us_", discrete.name)
         self.assertIn("_ccd_250us_", ccd.name)
 
-    def test_open_cradle_matrix_is_current_and_passes_without_traversal(self) -> None:
+    def test_slab_cradle_matrix_is_current_and_passes_without_traversal(self) -> None:
         runner_hash = hashlib.sha256(ANTI_TUNNELING_RUNNER.read_bytes()).hexdigest()
         fixture_hash = hashlib.sha256(ANTI_TUNNELING_FIXTURE.read_bytes()).hexdigest()
         artifacts = []
@@ -274,12 +310,22 @@ class Phase0RunnerContractTests(unittest.TestCase):
                 self.assertEqual(artifact["provenance"]["fixture_sha256"], fixture_hash)
                 self.assertEqual(artifact["requested"]["physics_dt_s"], expected_dt_s)
                 self.assertIs(artifact["requested"]["ccd_enabled"], expected_ccd)
+                self.assertEqual(artifact["requested"]["test_relative_speed_mps"], 100.0)
                 self.assertEqual(artifact["probes"]["runtime_selection"]["solver_type"], "TGS")
                 outcome = artifact["probes"]["rocket_cradle_pair"]
                 self.assertEqual(outcome["rocket_shape"], "cylinder")
                 self.assertEqual(outcome["rocket_axis"], "X")
-                self.assertEqual(outcome["cradle_topology"], "open_front_u")
-                self.assertIs(outcome["cradle_front_open"], True)
+                self.assertEqual(outcome["cradle_topology"], "slab_three_saddles_v1")
+                self.assertIs(outcome["continuous_vertical_walls"], False)
+                self.assertEqual(outcome["saddle_count"], 3)
+                self.assertEqual(
+                    outcome["acceptance"]["minimum_qualified_relative_speed_mps"],
+                    100.0,
+                )
+                self.assertIs(
+                    outcome["acceptance"]["test_speed_meets_declared_minimum"],
+                    True,
+                )
                 self.assertTrue(outcome["impact_observed"])
                 self.assertFalse(outcome["full_barrier_traversal_observed"])
 
@@ -327,14 +373,16 @@ class Phase0RunnerContractTests(unittest.TestCase):
         self.assertEqual(artifact["requested"]["coordinate_frame"], "co_moving")
         self.assertEqual(artifact["requested"]["physics_dt_s"], 0.001)
         production_geometry = artifact["requested"]["production_geometry"]
-        self.assertEqual(production_geometry["cradle_topology"], "open_front_u")
+        self.assertEqual(
+            production_geometry["cradle_topology"], "slab_three_saddles_v1"
+        )
         self.assertEqual(production_geometry["rocket_shape"], "cylinder")
         self.assertEqual(production_geometry["rocket_axis"], "X")
         # Evidence is produced by the Windows Isaac build while this contract suite is
         # also run from WSL. Bind the stable project-relative identity, not host syntax.
         fixture_path = production_geometry["fixture_path"].replace("\\", "/")
         self.assertTrue(
-            fixture_path.endswith("/configs/phase0_anti_tunneling_open_cradle.json"),
+            fixture_path.endswith("/configs/phase0_anti_tunneling_slab_cradle.json"),
             fixture_path,
         )
 
