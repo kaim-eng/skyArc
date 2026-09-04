@@ -29,6 +29,10 @@ __pycache__/
 /renders/
 /captures/
 
+# Local project status trackers; keep working copies off the shared repository.
+/DESIGN_REVIEW.md
+/HANDOFF.md
+
 # Editor and OS noise
 .vscode/
 .idea/
